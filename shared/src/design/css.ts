@@ -1,0 +1,57 @@
+import { colors, gradients, radii, shadows, spacing, typography } from "./tokens";
+
+const entries = {
+  "color-night": colors.night,
+  "color-midnight": colors.midnight,
+  "color-slate": colors.slate,
+  "color-panel": colors.panel,
+  "color-panel-soft": colors.panelSoft,
+  "color-cream": colors.cream,
+  "color-pearl": colors.pearl,
+  "color-stone": colors.stone,
+  "color-mist": colors.mist,
+  "color-ink": colors.ink,
+  "color-line": colors.line,
+  "color-line-strong": colors.lineStrong,
+  "color-line-dark": colors.lineDark,
+  "color-accent-rose": colors.accentRose,
+  "color-accent-gold": colors.accentGold,
+  "color-accent-blue": colors.accentBlue,
+  "color-accent-mint": colors.accentMint,
+  "color-accent-lilac": colors.accentLilac,
+  "gradient-hero": gradients.hero,
+  "gradient-aurora": gradients.aurora,
+  "gradient-night": gradients.night,
+  "gradient-soft-panel": gradients.softPanel,
+  "radius-sm": `${radii.sm}px`,
+  "radius-md": `${radii.md}px`,
+  "radius-lg": `${radii.lg}px`,
+  "radius-xl": `${radii.xl}px`,
+  "radius-pill": `${radii.pill}px`,
+  "space-xs": `${spacing.xs}px`,
+  "space-sm": `${spacing.sm}px`,
+  "space-md": `${spacing.md}px`,
+  "space-lg": `${spacing.lg}px`,
+  "space-xl": `${spacing.xl}px`,
+  "space-2xl": `${spacing["2xl"]}px`,
+  "space-3xl": `${spacing["3xl"]}px`,
+  "space-4xl": `${spacing["4xl"]}px`,
+  "space-5xl": `${spacing["5xl"]}px`,
+  "space-6xl": `${spacing["6xl"]}px`,
+  "shadow-glow": shadows.glow,
+  "shadow-card": shadows.card,
+  "shadow-hairline": shadows.hairline,
+  "font-display-hero": typography.display.hero,
+  "font-display-section": typography.display.section,
+  "font-body-lg": typography.body.lg,
+  "font-body-base": typography.body.base,
+  "font-body-sm": typography.body.sm,
+  "tracking-eyebrow": typography.tracking.eyebrow,
+  "tracking-tight": typography.tracking.tight,
+} as const;
+
+export function buildCssVariables() {
+  return `:root {${Object.entries(entries)
+    .map(([key, value]) => `--${key}: ${value};`)
+    .join("")}}`;
+}

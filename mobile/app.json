@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Freeborn",
+    "slug": "freeborn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "freeborn",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "description": "Freeborn is a premium-first dating platform built for intentional connection.",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#07101c"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.freeborn.mobile"
+    },
+    "android": {
+      "package": "app.freeborn.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#07101c",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-web-browser",
+        {
+          "experimentalLauncherActivity": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

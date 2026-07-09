@@ -1,0 +1,21 @@
+{
+  "name": "freeborn",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@10.9.8",
+  "workspaces": [
+    "web",
+    "mobile",
+    "shared"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @freeborn/web",
+    "dev:mobile": "npm run start --workspace @freeborn/mobile",
+    "build": "npm run build --workspace @freeborn/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "check:mobile": "npm run check --workspace @freeborn/mobile",
+    "verify": "npm run lint && npm run typecheck && npm run build && npm run build:mobile:web && npm run check:mobile",
+    "build:mobile:web": "npm run build:web --workspace @freeborn/mobile"
+  }
+}

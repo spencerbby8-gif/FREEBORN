@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { brand, productPillars } from "@freeborn/shared";
 import { PhonePreview } from "@/components/phone-preview";
 import { SectionLabel } from "@/components/section-label";
@@ -61,18 +62,18 @@ export default function Home() {
               Trust
             </a>
           </nav>
-          <a
-            href="#foundation"
+          <Link
+            href="/auth?mode=sign-up"
             className="rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/10"
           >
-            Explore Phase 0
-          </a>
+            Create account
+          </Link>
         </header>
 
         <section className="relative grid flex-1 items-center gap-14 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-24">
           <div className="max-w-[720px]">
             <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[var(--color-stone)]">
-              Premium dating platform foundation
+              Premium dating platform · Phase 1 ready
             </div>
             <h1 className="max-w-[11ch] font-[family-name:var(--font-display)] text-[clamp(4rem,9vw,7rem)] leading-[0.92] tracking-[-0.05em] text-[var(--color-pearl)]">
               Dating should feel <span className="text-gradient">considered</span>, not chaotic.
@@ -82,18 +83,18 @@ export default function Home() {
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <a
-                href="#experience"
+              <Link
+                href="/auth?mode=sign-up"
                 className="inline-flex items-center justify-center rounded-full bg-[var(--color-pearl)] px-7 py-4 text-sm font-bold text-[var(--color-ink)] transition hover:translate-y-[-1px] hover:bg-white"
               >
-                See the product feel
-              </a>
-              <a
-                href="#foundation"
+                Create your account
+              </Link>
+              <Link
+                href="/auth?mode=sign-in"
                 className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/5 px-7 py-4 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/10"
               >
-                View architecture
-              </a>
+                Sign in
+              </Link>
             </div>
 
             <div className="mt-14 grid gap-4 sm:grid-cols-3">
@@ -181,7 +182,7 @@ export default function Home() {
         </section>
 
         <section id="foundation" className="mt-24 rounded-[40px] border border-white/10 bg-[rgba(247,241,232,0.95)] px-6 py-8 text-[var(--color-ink)] shadow-[0_28px_80px_rgba(5,10,18,0.32)] sm:px-10 sm:py-12">
-          <SectionLabel dark label="Phase 0 foundation" />
+          <SectionLabel dark label="Phase 0 + Phase 1" />
           <div className="mt-5 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <h2 className="font-[family-name:var(--font-display)] text-[clamp(2.3rem,4vw,3.8rem)] leading-[0.96] tracking-[-0.045em]">

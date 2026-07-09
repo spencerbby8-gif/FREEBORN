@@ -2,6 +2,11 @@
 
 Freeborn is a premium-first dating platform monorepo built to scale across web, mobile, and Supabase.
 
+The repository currently covers:
+
+- **Phase 0** — design system, project structure, web/mobile foundations, and Supabase setup
+- **Phase 1** — premium authentication on web and mobile with email auth, Google sign in, password recovery, session persistence, and protected routes
+
 ## Workspace structure
 
 - `web` — public-facing Next.js website and future authenticated web surface

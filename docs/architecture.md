@@ -24,13 +24,15 @@ The shared workspace exposes:
 
 ## Phase discipline
 
-This repository is intentionally scoped to **Phase 0**:
+This repository now covers **Phase 0** and **Phase 1** only:
 
 - project structure
 - design foundation
 - Supabase setup
 - public web experience
 - mobile app shell
+- email and Google authentication on web and mobile
+- session persistence and protected routes
 - documentation and environment setup
 
-Auth, onboarding, matching, messaging, and payments remain for later phases.
+Onboarding, discovery, matching, messaging, and payments remain for later phases.

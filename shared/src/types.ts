@@ -1,4 +1,8 @@
-export type AuthScreenMode = "sign-in" | "sign-up" | "reset-password";
+export type AuthScreenMode =
+  | "sign-in"
+  | "sign-up"
+  | "reset-password"
+  | "update-password";
 
 export type DiscoveryStage = "account_created" | "profile_setup" | "ready";
 

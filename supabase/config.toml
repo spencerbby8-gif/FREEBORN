@@ -12,6 +12,17 @@ port = 54322
 shadow_port = 54320
 major_version = 17
 
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "http://localhost:3000/auth/complete",
+  "freeborn://**"
+]
+enable_signup = true
+enable_anonymous_sign_ins = false
+
 [studio]
 enabled = true
 port = 54323

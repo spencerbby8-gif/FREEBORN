@@ -15,6 +15,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "check:mobile": "npm run check --workspace @freeborn/mobile",
-    "verify": "npm run lint && npm run typecheck && npm run build && npm run check:mobile"
+    "verify": "npm run lint && npm run typecheck && npm run build && npm run build:mobile:web && npm run check:mobile",
+    "build:mobile:web": "npm run build:web --workspace @freeborn/mobile"
   }
 }

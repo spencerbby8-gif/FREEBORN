@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation";
 import type { AuthScreenMode } from "@freeborn/shared";
-import { AuthCard } from "@/components/auth/auth-card";
-import { AuthForm } from "@/components/auth/auth-form";
+import { AuthExperience } from "@/components/auth/auth-experience";
 import { AuthShell } from "@/components/auth/auth-shell";
-import { AuthTabs } from "@/components/auth/auth-tabs";
 import { authStatusMessages, type AuthStatusKey } from "@/lib/auth/messages";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -45,12 +43,14 @@ export default async function AuthPage({
       ? (derivedStatus as AuthStatusKey)
       : undefined;
 
+  const notice = status ? authStatusMessages[status] : undefined;
+
   return (
     <AuthShell>
-      <AuthCard mode={mode} notice={status ? authStatusMessages[status] : undefined}>
-        <AuthTabs mode={mode} />
-        <AuthForm mode={mode} />
-      </AuthCard>
+      <AuthExperience
+        initialMode={mode}
+        notice={notice}
+      />
     </AuthShell>
   );
 }

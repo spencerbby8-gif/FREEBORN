@@ -1,11 +1,13 @@
-import { useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import type { AuthScreenMode } from "@freeborn/shared";
 import { authModes, passwordResetRequestSchema, signInSchema, signUpSchema } from "@freeborn/shared";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthSurface } from "@/components/auth/auth-surface";
 import { ModeSwitch } from "@/components/auth/mode-switch";
 import { NoticeCard } from "@/components/auth/notice-card";
+import { PasswordStrength } from "@/components/auth/password-strength";
+import { GoogleGlyph } from "@/components/google-glyph";
 import { useAuth } from "@/hooks/use-auth";
 import { colors } from "@freeborn/shared";
 
@@ -22,12 +24,13 @@ export default function AuthScreen() {
   const [localNotice, setLocalNotice] = useState<{ tone: "success" | "error"; title: string; body: string } | null>(null);
   const [pending, setPending] = useState<"email" | "google" | null>(null);
 
-  const copy = useMemo(() => {
-    if (mode === "sign-up") return authModes.signUp;
-    if (mode === "reset-password") return authModes.reset;
-    return authModes.signIn;
-  }, [mode]);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    fadeAnim.setValue(0.45);
+    Animated.timing(fadeAnim, { toValue: 1, duration: 260, useNativeDriver: true }).start();
+  }, [mode, fadeAnim]);
 
+  const copy = copyForMode(mode);
   const visibleNotice = localNotice ?? notice;
 
   const updateField = (field: keyof FormState, value: string) => {
@@ -91,66 +94,133 @@ export default function AuthScreen() {
     setPending(null);
   };
 
+  const isAuth = mode === "sign-in" || mode === "sign-up";
+
   return (
     <AuthSurface eyebrow={copy.eyebrow} title={copy.title} description={copy.description}>
-      {mode !== "reset-password" ? <ModeSwitch mode={mode} onChange={(nextMode) => { setMode(nextMode); setErrors({}); setLocalNotice(null); }} /> : null}
+      {mode !== "reset-password" ? (
+        <ModeSwitch
+          mode={mode}
+          onChange={(nextMode) => {
+            setMode(nextMode);
+            setErrors({});
+            setLocalNotice(null);
+          }}
+        />
+      ) : null}
 
       {visibleNotice ? <NoticeCard {...visibleNotice} /> : null}
 
-      {mode !== "reset-password" ? (
-        <Pressable style={[styles.googleButton, pending ? styles.disabled : null]} onPress={handleGoogle} disabled={pending !== null}>
-          <View style={styles.googleBadge}>
-            <Text style={styles.googleBadgeLabel}>G</Text>
+      <Animated.View style={{ opacity: fadeAnim }}>
+        {isAuth ? (
+          <Pressable
+            style={[styles.googleButton, pending ? styles.disabled : null]}
+            onPress={handleGoogle}
+            disabled={pending !== null}
+          >
+            <View style={styles.googleBadge}>
+              <GoogleGlyph size={18} />
+            </View>
+            <Text style={styles.googleButtonLabel}>
+              {pending === "google" ? "Connecting…" : "Continue with Google"}
+            </Text>
+          </Pressable>
+        ) : null}
+
+        {isAuth ? (
+          <View style={styles.dividerRow}>
+            <View style={styles.divider} />
+            <Text style={styles.dividerLabel}>or use email</Text>
+            <View style={styles.divider} />
           </View>
-          <Text style={styles.googleButtonLabel}>{pending === "google" ? "Connecting…" : "Continue with Google"}</Text>
-        </Pressable>
-      ) : null}
+        ) : null}
 
-      {mode !== "reset-password" ? (
-        <View style={styles.dividerRow}>
-          <View style={styles.divider} />
-          <Text style={styles.dividerLabel}>or use email</Text>
-          <View style={styles.divider} />
+        <View style={styles.formStack}>
+          <AuthInput
+            label="Email"
+            value={values.email}
+            error={errors.email}
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="emailAddress"
+            onChangeText={(value) => updateField("email", value)}
+          />
+
+          {mode !== "reset-password" ? (
+            <View>
+              <AuthInput
+                label="Password"
+                value={values.password}
+                error={errors.password}
+                placeholder={mode === "sign-in" ? "Enter your password" : "Choose a strong password"}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType={mode === "sign-in" ? "password" : "newPassword"}
+                hint={mode === "sign-in" ? undefined : "Use 8+ characters with uppercase, lowercase, and a number."}
+                onChangeText={(value) => updateField("password", value)}
+              />
+              {mode === "sign-up" ? <PasswordStrength password={values.password} /> : null}
+            </View>
+          ) : null}
+
+          {mode === "sign-up" ? (
+            <AuthInput
+              label="Confirm password"
+              value={values.confirmPassword}
+              error={errors.confirmPassword}
+              placeholder="Repeat your password"
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              textContentType="newPassword"
+              onChangeText={(value) => updateField("confirmPassword", value)}
+            />
+          ) : null}
+
+          {mode === "sign-in" ? (
+            <Pressable onPress={() => setMode("reset-password")}>
+              <Text style={styles.linkLabel}>Forgot password?</Text>
+            </Pressable>
+          ) : null}
+
+          <Pressable
+            style={[styles.primaryButton, pending ? styles.disabled : null]}
+            onPress={handleSubmit}
+            disabled={pending !== null}
+          >
+            {pending === "email" ? (
+              <ActivityIndicator color={colors.ink} />
+            ) : (
+              <Text style={styles.primaryButtonLabel}>
+                {mode === "sign-in" ? "Sign in" : mode === "sign-up" ? "Create account" : "Send reset link"}
+              </Text>
+            )}
+          </Pressable>
+
+          {mode !== "sign-in" ? (
+            <Pressable
+              onPress={() => setMode("sign-in")}
+            >
+              <Text style={styles.footerLabel}>Already have an account? Sign in</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => setMode("sign-up")}>
+              <Text style={styles.footerLabel}>New to Freeborn? Create your account</Text>
+            </Pressable>
+          )}
         </View>
-      ) : null}
-
-      <View style={styles.formStack}>
-        <AuthInput label="Email" value={values.email} error={errors.email} placeholder="you@example.com" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} textContentType="emailAddress" onChangeText={(value) => updateField("email", value)} />
-
-        {mode !== "reset-password" ? (
-          <AuthInput label="Password" value={values.password} error={errors.password} placeholder={mode === "sign-in" ? "Enter your password" : "Choose a strong password"} secureTextEntry autoCapitalize="none" autoCorrect={false} textContentType={mode === "sign-in" ? "password" : "newPassword"} hint={mode === "sign-in" ? undefined : "Use 8+ characters with uppercase, lowercase, and a number."} onChangeText={(value) => updateField("password", value)} />
-        ) : null}
-
-        {mode === "sign-up" ? (
-          <AuthInput label="Confirm password" value={values.confirmPassword} error={errors.confirmPassword} placeholder="Repeat your password" secureTextEntry autoCapitalize="none" autoCorrect={false} textContentType="newPassword" onChangeText={(value) => updateField("confirmPassword", value)} />
-        ) : null}
-
-        {mode === "sign-in" ? (
-          <Pressable onPress={() => setMode("reset-password")}>
-            <Text style={styles.linkLabel}>Forgot password?</Text>
-          </Pressable>
-        ) : null}
-
-        <Pressable style={[styles.primaryButton, pending ? styles.disabled : null]} onPress={handleSubmit} disabled={pending !== null}>
-          <Text style={styles.primaryButtonLabel}>
-            {pending === "email"
-              ? mode === "sign-in" ? "Signing in…" : mode === "sign-up" ? "Creating account…" : "Sending link…"
-              : copy.submitLabel}
-          </Text>
-        </Pressable>
-
-        {mode !== "sign-in" ? (
-          <Pressable onPress={() => setMode("sign-in")}>
-            <Text style={styles.footerLabel}>Already have an account? Sign in</Text>
-          </Pressable>
-        ) : (
-          <Pressable onPress={() => setMode("sign-up")}>
-            <Text style={styles.footerLabel}>New to Freeborn? Create your account</Text>
-          </Pressable>
-        )}
-      </View>
+      </Animated.View>
     </AuthSurface>
   );
+}
+
+function copyForMode(mode: AuthScreenMode) {
+  if (mode === "sign-up") return authModes.signUp;
+  if (mode === "reset-password") return authModes.reset;
+  return authModes.signIn;
 }
 
 const styles = StyleSheet.create({
@@ -168,14 +238,13 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   googleBadge: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.pearl,
   },
-  googleBadgeLabel: { color: colors.ink, fontSize: 15, fontWeight: "800" },
   googleButtonLabel: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
   dividerRow: {
     marginVertical: 18,
@@ -187,7 +256,7 @@ const styles = StyleSheet.create({
   dividerLabel: { color: colors.mist, fontSize: 11, fontWeight: "700", letterSpacing: 1.8, textTransform: "uppercase" },
   formStack: { gap: 16 },
   linkLabel: { color: colors.stone, fontSize: 13, fontWeight: "700", textAlign: "right" },
-  primaryButton: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16 },
+  primaryButton: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54 },
   primaryButtonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800", textAlign: "center" },
   footerLabel: { color: colors.mist, fontSize: 13, textAlign: "center" },
   disabled: { opacity: 0.65 },

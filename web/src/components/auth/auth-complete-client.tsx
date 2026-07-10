@@ -12,6 +12,15 @@ function parseHashParams() {
   return new URLSearchParams(hash);
 }
 
+function Ring() {
+  return (
+    <svg width={34} height={34} viewBox="0 0 24 24" fill="none" className="spin" aria-hidden>
+      <circle cx="12" cy="12" r="9" stroke="var(--color-gold-500)" strokeOpacity="0.25" strokeWidth="2.5" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="var(--color-gold-500)" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }) {
   const supabase = useMemo(
     () => (isWebSupabaseConfigured ? createSupabaseBrowserClient() : null),
@@ -19,7 +28,7 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
   );
   const router = useRouter();
   const [message, setMessage] = useState(
-    intent === "verify" ? "Verifying your account…" : "Preparing your recovery…",
+    intent === "verify" ? "Confirming your email…" : "Preparing your recovery…",
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -28,9 +37,7 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
 
     const run = async () => {
       try {
-        if (!supabase) {
-          throw new Error("Supabase is not configured for this environment.");
-        }
+        if (!supabase) throw new Error("service_unavailable");
 
         const hashParams = parseHashParams();
         const accessToken = hashParams.get("access_token");
@@ -46,8 +53,8 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
           if (error) throw error;
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error("We could not restore your session from this link.");
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) throw new Error("session_restore_failed");
 
         if (!mounted) return;
 
@@ -57,25 +64,35 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
             : `${next}?status=verified`,
         );
         router.refresh();
-      } catch (error) {
+      } catch (err) {
         if (!mounted) return;
-        setError(getAuthErrorMessage(error));
+        setError(getAuthErrorMessage(err));
         setMessage("That link could not be completed.");
       }
     };
 
     run();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [intent, router, supabase]);
 
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-rose-400/20 to-amber-400/10">
-        <div className={`h-6 w-6 rounded-full border-2 border-[var(--color-accent-gold)] ${error ? "" : "animate-pulse"}`} />
+    <div className="flex flex-col items-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
+        {error ? (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(255,107,122,0.18)] text-[var(--color-danger)]">
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </span>
+        ) : (
+          <Ring />
+        )}
       </div>
       <p className="mt-5 text-lg font-semibold text-[var(--color-pearl)]">{message}</p>
-      <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
-        {error ?? "Please wait a moment while we secure your session."}
+      <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
+        {error ?? "Just a moment while we securely finish setting up your session."}
       </p>
       {error ? (
         <Link

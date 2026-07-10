@@ -93,7 +93,7 @@ export default function AuthScreen() {
 
   return (
     <AuthSurface eyebrow={copy.eyebrow} title={copy.title} description={copy.description}>
-      <ModeSwitch mode={mode} onChange={setMode} />
+      {mode !== "reset-password" ? <ModeSwitch mode={mode} onChange={(nextMode) => { setMode(nextMode); setErrors({}); setLocalNotice(null); }} /> : null}
 
       {visibleNotice ? <NoticeCard {...visibleNotice} /> : null}
 

@@ -4,8 +4,7 @@ import { colors, radii } from "@freeborn/shared";
 
 const items: Array<{ mode: AuthScreenMode; label: string }> = [
   { mode: "sign-in", label: "Sign in" },
-  { mode: "sign-up", label: "Create" },
-  { mode: "reset-password", label: "Reset" },
+  { mode: "sign-up", label: "Create account" },
 ];
 
 export function ModeSwitch({

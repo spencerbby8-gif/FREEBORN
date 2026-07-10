@@ -58,7 +58,10 @@ export default async function OnboardingPage({
 
   const requestedStep = parseStep(rawStep);
   const profileStep = parseStep(profile.onboarding_step);
-  const step = requestedStep === profileStep ? requestedStep : profileStep;
+  const requestedIndex = validSteps.indexOf(requestedStep);
+  const profileIndex = validSteps.indexOf(profileStep);
+  // People may revisit completed steps, but can never skip ahead of saved progress.
+  const step = requestedIndex <= profileIndex ? requestedStep : profileStep;
 
   const draft = {
     display_name: profile.display_name ?? "",

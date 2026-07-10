@@ -20,11 +20,9 @@ function SubmitButton() {
 }
 
 export function StepAboutYou({
-  draft,
-  fieldErrors,
+  draft
 }: {
   draft: { gender: string; city: string; region: string; country_code: string };
-  fieldErrors?: Record<string, string>;
 }) {
   const [state, formAction] = useActionState(saveOnboardingAboutYou, null);
 
@@ -43,7 +41,7 @@ export function StepAboutYou({
             label="Gender"
             name="gender"
             defaultValue={draft.gender}
-            error={fieldErrors?.gender}
+            error={state?.fieldErrors?.gender}
             hint={onboardingFieldHints.gender}
             options={[
               { value: "", label: "Select how you identify" },
@@ -55,7 +53,7 @@ export function StepAboutYou({
             name="city"
             placeholder="Where do you live?"
             defaultValue={draft.city}
-            error={fieldErrors?.city}
+            error={state?.fieldErrors?.city}
             hint={onboardingFieldHints.city}
             autoComplete="address-level2"
           />
@@ -65,7 +63,7 @@ export function StepAboutYou({
               name="region"
               placeholder="State, province, or region"
               defaultValue={draft.region}
-              error={fieldErrors?.region}
+              error={state?.fieldErrors?.region}
               hint={onboardingFieldHints.region}
               optional
               autoComplete="address-level1"
@@ -75,7 +73,7 @@ export function StepAboutYou({
               name="country_code"
               placeholder="US"
               defaultValue={draft.country_code}
-              error={fieldErrors?.country_code}
+              error={state?.fieldErrors?.country_code}
               hint={onboardingFieldHints.country_code}
               optional
               autoComplete="country"

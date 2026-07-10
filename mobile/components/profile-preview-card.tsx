@@ -6,7 +6,7 @@ export function ProfilePreviewCard() {
   const profile = previewProfiles[0];
 
   return (
-    <LinearGradient colors={profile.gradient as [string, string]} style={styles.shell}>
+    <LinearGradient colors={["#6f405d", "#223a55"]} style={styles.shell}>
       <View style={styles.card}>
         <View style={styles.rowBetween}>
           <View>

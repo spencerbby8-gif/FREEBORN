@@ -5,8 +5,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function uploadProfilePhoto(formData: FormData) {
   const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) return { ok: false, error: "Choose an image." };
-  if (file.size > 8 * 1024 * 1024) return { ok: false, error: "Max 8MB." };
+  if (!file || file.size === 0) return { ok: false, error: "Choose a photo to continue." };
+  if (file.size > 8 * 1024 * 1024) return { ok: false, error: "That photo is larger than 8MB." };
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return { ok: false, error: "Choose a JPG, PNG, or WebP image." };
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -30,6 +31,10 @@ export async function uploadProfilePhoto(formData: FormData) {
     .order("position", { ascending: true });
 
   const nextPos = existing?.length ?? 0;
+  if (nextPos >= 6) {
+    await supabase.storage.from("profile-photos").remove([path]);
+    return { ok: false, error: "You can add up to six photos." };
+  }
   const isPrimary = !existing || existing.length === 0;
 
   const { error: dbErr } = await supabase.from("profile_photos").insert({
@@ -38,7 +43,10 @@ export async function uploadProfilePhoto(formData: FormData) {
     position: nextPos,
     is_primary: isPrimary,
   });
-  if (dbErr) return { ok: false, error: dbErr.message };
+  if (dbErr) {
+    await supabase.storage.from("profile-photos").remove([path]);
+    return { ok: false, error: "We couldn't save that photo. Please try again." };
+  }
 
   revalidatePath("/app/profile");
   revalidatePath("/app");

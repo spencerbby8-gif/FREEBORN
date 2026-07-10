@@ -14,11 +14,13 @@ function createNotice(tone: "success" | "error", title: string, body: string): N
 }
 
 function getAuthErrorMessage(error: unknown) {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return "Something went wrong. Please try again.";
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  if (message.includes("invalid login credentials")) return "That email and password combination isn’t right.";
+  if (message.includes("email not confirmed")) return "Confirm your email before signing in.";
+  if (message.includes("already registered")) return "An account already exists for this email. Try signing in.";
+  if (message.includes("rate limit") || message.includes("too many")) return "Too many attempts. Wait a moment, then try again.";
+  if (message.includes("network") || message.includes("fetch")) return "Check your connection and try again.";
+  return "We couldn’t complete that request. Please try again.";
 }
 
 function getAuthRedirect(intent: "verify" | "recovery") {
@@ -101,8 +103,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
           setNotice(
             createNotice(
               "error",
-              "Supabase is not configured",
-              "Add the required environment variables before testing authentication on mobile.",
+              "Service unavailable",
+              "Authentication isn’t available in this build. Please try again later.",
             ),
           );
         }

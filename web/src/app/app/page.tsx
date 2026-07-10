@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import type { UserProfileRow } from "@freeborn/shared";
 import { Wordmark } from "@/components/wordmark";
 import { SectionLabel } from "@/components/section-label";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -26,12 +28,21 @@ export default async function AppPage({
 
   const { data: profile } = await supabase
     .from("user_profiles")
-    .select("onboarding_stage, profile_status, created_at, updated_at, is_verified")
+    .select("*")
     .eq("id", user?.id ?? "")
-    .maybeSingle();
+    .maybeSingle<UserProfileRow>();
+
+  if (!user) {
+    redirect("/auth?mode=sign-in");
+  }
+
+  if (profile && profile.onboarding_stage === "account_created") {
+    redirect("/app/onboarding");
+  }
 
   const providers = user?.app_metadata?.providers as string[] | undefined;
   const isVerified = Boolean(user?.email_confirmed_at || profile?.is_verified);
+  const displayName = profile?.display_name ?? user?.email ?? "You";
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -52,21 +63,28 @@ export default async function AppPage({
           <div className="glass-panel premium-border rounded-[40px] p-7 sm:p-10">
             <SectionLabel label="Protected account area" />
             <h1 className="mt-5 max-w-[11ch] font-[family-name:var(--font-display)] text-[clamp(3rem,6vw,5rem)] leading-[0.94] tracking-[-0.05em] text-[var(--color-pearl)]">
-              Authentication that already feels product-grade.
+              Welcome home, {displayName.split(" ")[0]}.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-mist)]">
-              Phase 1 keeps the post-auth surface intentionally tight: session restore, protected routes, account trust signals, and a clean launch point for onboarding.
+              Phase 2 is live. Your profile foundation is in place, and the app shell is ready for
+              the next chapter of Freeborn.
             </p>
 
-            {status === "verified" || status === "password-updated" ? (
+            {status === "verified" || status === "password-updated" || status === "onboarded" ? (
               <div className="mt-7 rounded-[28px] border border-emerald-300/24 bg-emerald-300/10 p-5 text-emerald-50">
                 <p className="text-sm font-semibold">
-                  {status === "verified" ? "Email confirmed" : "Password updated"}
+                  {status === "verified"
+                    ? "Email confirmed"
+                    : status === "password-updated"
+                      ? "Password updated"
+                      : "Profile complete"}
                 </p>
                 <p className="mt-1 text-sm leading-6 opacity-90">
                   {status === "verified"
                     ? "Your account is active and ready for the next phase."
-                    : "Your new password has been saved securely."}
+                    : status === "password-updated"
+                      ? "Your new password has been saved securely."
+                      : "Your Freeborn profile is live. Discovery and matching arrive in the next phase."}
                 </p>
               </div>
             ) : null}
@@ -120,13 +138,13 @@ export default async function AppPage({
 
             <article className="glass-panel premium-border rounded-[34px] p-7 sm:p-8">
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
-                What Phase 1 now guarantees
+                What Phase 2 now guarantees
               </div>
               <ul className="mt-5 space-y-4 text-sm leading-7 text-[var(--color-pearl)]/92 sm:text-base">
-                <li>• Email sign up and sign in with validation, error handling, and session restore.</li>
-                <li>• Google OAuth wired for browser and native mobile with redirect-safe flows.</li>
-                <li>• Password recovery and email verification paths ready for live provider setup.</li>
-                <li>• Protected routes that keep unauthenticated users out of the app shell.</li>
+                <li>• A polished, five-step onboarding flow across web and mobile.</li>
+                <li>• Display name, age validation, gender, location, bio, and relationship goals.</li>
+                <li>• Interests, lifestyle preferences, deal breakers, occupation, and education.</li>
+                <li>• Automatic progress saving with shared Zod validation and premium UI.</li>
               </ul>
             </article>
           </div>

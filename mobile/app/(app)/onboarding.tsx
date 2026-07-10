@@ -32,7 +32,7 @@ import { OnboardingProgress } from "@/components/onboarding/onboarding-progress"
 import { OptionCardRow } from "@/components/onboarding/option-card-row";
 import { Wordmark } from "@/components/wordmark";
 import { useAuth } from "@/hooks/use-auth";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 type DraftState = typeof emptyOnboardingDraft;
 type FieldErrors = Partial<Record<keyof DraftState, string>>;
@@ -56,19 +56,11 @@ export default function OnboardingScreen() {
 
   const loadProfile = useCallback(async () => {
     if (!user) return;
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle<UserProfileRow>();
-
+    const { data: profile } = await supabase.from("user_profiles").select("*").eq("id", user.id).maybeSingle<UserProfileRow>();
     if (!profile) return;
-
     if (profile.onboarding_stage === "profile_setup" || profile.onboarding_stage === "ready") {
-      router.replace("/(app)");
-      return;
+      router.replace("/(app)"); return;
     }
-
     setDraft({
       display_name: profile.display_name ?? "",
       birth_date: profile.birth_date ?? "",
@@ -84,226 +76,80 @@ export default function OnboardingScreen() {
       occupation: profile.occupation ?? "",
       education: profile.education ?? "",
     });
-
     if (profile.onboarding_step && profile.onboarding_step !== "complete") {
       setStep(profile.onboarding_step as OnboardingStep);
     }
   }, [user]);
 
-  useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+  useEffect(() => { loadProfile(); }, [loadProfile]);
 
-  const persist = useCallback(
-    async (nextStep: OnboardingStep | "complete", override?: Partial<DraftState>) => {
-      if (!user || !isSupabaseConfigured) return;
-      const payload = { ...draft, ...override };
-      const { error } = await supabase
-        .from("user_profiles")
-        .update({
-          display_name: payload.display_name || null,
-          birth_date: payload.birth_date || null,
-          gender: payload.gender || null,
-          city: payload.city || null,
-          region: payload.region || null,
-          country_code: payload.country_code || null,
-          bio: payload.bio || null,
-          relationship_goals: payload.relationship_goals,
-          interests: payload.interests,
-          lifestyle_preferences: payload.lifestyle_preferences,
-          deal_breakers: payload.deal_breakers,
-          occupation: payload.occupation || null,
-          education: payload.education || null,
-          onboarding_step: nextStep,
-        })
-        .eq("id", user.id);
+  const persist = useCallback(async (nextStep: OnboardingStep | "complete", override?: Partial<DraftState>) => {
+    if (!user) return;
+    const payload = { ...draft, ...override };
+    const { error } = await supabase.from("user_profiles").update({
+      display_name: payload.display_name || null,
+      birth_date: payload.birth_date || null,
+      gender: payload.gender || null,
+      city: payload.city || null,
+      region: payload.region || null,
+      country_code: payload.country_code || null,
+      bio: payload.bio || null,
+      relationship_goals: payload.relationship_goals,
+      interests: payload.interests,
+      lifestyle_preferences: payload.lifestyle_preferences,
+      deal_breakers: payload.deal_breakers,
+      occupation: payload.occupation || null,
+      education: payload.education || null,
+      onboarding_step: nextStep,
+    }).eq("id", user.id);
+    if (error) { setNotice({ tone: "error", title: "Could not save progress", body: error.message }); throw error; }
+  }, [draft, user]);
 
-      if (error) {
-        setNotice({ tone: "error", title: "Could not save progress", body: error.message });
-        throw error;
-      }
-    },
-    [draft, user],
-  );
-
-  const handleIdentityContinue = async () => {
+  const validateAndContinue = async <T,>(schema: { safeParse: (data: T) => { success: boolean; error?: { issues: Array<{ path: PropertyKey[]; message: string }> } } }, data: T, nextStep: OnboardingStep | "complete") => {
     setNotice(null);
     setErrors({});
     setPending(true);
     try {
-      const parsed = onboardingIdentitySchema.safeParse({
-        display_name: draft.display_name,
-        birth_date: draft.birth_date,
-      });
+      const parsed = schema.safeParse(data);
       if (!parsed.success) {
         const next: FieldErrors = {};
-        parsed.error.issues.forEach((issue) => {
+        parsed.error?.issues.forEach((issue) => {
           const key = issue.path[0];
-          if (typeof key === "string" && !(key in next)) {
-            next[key as keyof FieldErrors] = issue.message;
-          }
+          if (typeof key === "string" && !(key in next)) { next[key as keyof FieldErrors] = issue.message; }
         });
         setErrors(next);
         return;
       }
-      await persist("about_you");
-      setStep("about_you");
-    } catch {
-      // handled in persist
-    } finally {
-      setPending(false);
-    }
-  };
-
-  const handleAboutYouContinue = async () => {
-    setNotice(null);
-    setErrors({});
-    setPending(true);
-    try {
-      const parsed = onboardingAboutYouSchema.safeParse({
-        gender: draft.gender,
-        city: draft.city,
-        region: draft.region,
-        country_code: draft.country_code,
-      });
-      if (!parsed.success) {
-        const next: FieldErrors = {};
-        parsed.error.issues.forEach((issue) => {
-          const key = issue.path[0];
-          if (typeof key === "string" && !(key in next)) {
-            next[key as keyof FieldErrors] = issue.message;
-          }
-        });
-        setErrors(next);
-        return;
+      await persist(nextStep);
+      if (nextStep === "complete") {
+        const { error } = await supabase.from("user_profiles").update({
+          onboarding_stage: "profile_setup", profile_status: "active",
+          onboarding_step: "complete", onboarding_completed_at: new Date().toISOString(),
+        }).eq("id", user?.id ?? "");
+        if (error) { setNotice({ tone: "error", title: "Could not finish onboarding", body: error.message }); return; }
+        router.replace("/(app)");
+      } else {
+        setStep(nextStep as OnboardingStep);
       }
-      await persist("bio_goals");
-      setStep("bio_goals");
-    } catch {
-      // handled in persist
-    } finally {
-      setPending(false);
-    }
-  };
-
-  const handleBioGoalsContinue = async () => {
-    setNotice(null);
-    setErrors({});
-    setPending(true);
-    try {
-      const parsed = onboardingBioGoalsSchema.safeParse({
-        bio: draft.bio,
-        relationship_goals: draft.relationship_goals,
-      });
-      if (!parsed.success) {
-        const next: FieldErrors = {};
-        parsed.error.issues.forEach((issue) => {
-          const key = issue.path[0];
-          if (typeof key === "string" && !(key in next)) {
-            next[key as keyof FieldErrors] = issue.message;
-          }
-        });
-        setErrors(next);
-        return;
-      }
-      await persist("interests_lifestyle");
-      setStep("interests_lifestyle");
-    } catch {
-      // handled in persist
-    } finally {
-      setPending(false);
-    }
-  };
-
-  const handleInterestsContinue = async () => {
-    setNotice(null);
-    setErrors({});
-    setPending(true);
-    try {
-      const parsed = onboardingInterestsLifestyleSchema.safeParse({
-        interests: draft.interests,
-        lifestyle_preferences: draft.lifestyle_preferences,
-      });
-      if (!parsed.success) {
-        const next: FieldErrors = {};
-        parsed.error.issues.forEach((issue) => {
-          const key = issue.path[0];
-          if (typeof key === "string" && !(key in next)) {
-            next[key as keyof FieldErrors] = issue.message;
-          }
-        });
-        setErrors(next);
-        return;
-      }
-      await persist("preferences_extras");
-      setStep("preferences_extras");
-    } catch {
-      // handled in persist
-    } finally {
-      setPending(false);
-    }
-  };
-
-  const handlePreferencesContinue = async () => {
-    setNotice(null);
-    setErrors({});
-    setPending(true);
-    try {
-      const parsed = onboardingPreferencesExtrasSchema.safeParse({
-        deal_breakers: draft.deal_breakers,
-        occupation: draft.occupation,
-        education: draft.education,
-      });
-      if (!parsed.success) {
-        const next: FieldErrors = {};
-        parsed.error.issues.forEach((issue) => {
-          const key = issue.path[0];
-          if (typeof key === "string" && !(key in next)) {
-            next[key as keyof FieldErrors] = issue.message;
-          }
-        });
-        setErrors(next);
-        return;
-      }
-      await persist("complete");
-      setStep("complete");
-    } catch {
-      // handled in persist
-    } finally {
-      setPending(false);
-    }
+    } catch { /* handled in persist */ }
+    finally { setPending(false); }
   };
 
   const handleFinish = async () => {
     setNotice(null);
     setPending(true);
     try {
-      const { error } = await supabase
-        .from("user_profiles")
-        .update({
-          onboarding_stage: "profile_setup",
-          profile_status: "active",
-          onboarding_step: "complete",
-          onboarding_completed_at: new Date().toISOString(),
-        })
-        .eq("id", user?.id ?? "");
-
-      if (error) {
-        setNotice({ tone: "error", title: "Could not finish onboarding", body: error.message });
-        return;
-      }
-
+      const { error } = await supabase.from("user_profiles").update({
+        onboarding_stage: "profile_setup", profile_status: "active",
+        onboarding_step: "complete", onboarding_completed_at: new Date().toISOString(),
+      }).eq("id", user?.id ?? "");
+      if (error) { setNotice({ tone: "error", title: "Could not finish onboarding", body: error.message }); return; }
       router.replace("/(app)");
-    } finally {
-      setPending(false);
-    }
+    } finally { setPending(false); }
   };
 
   const handleBack = () => {
-    if (currentIndex === 0) {
-      router.replace("/(app)");
-      return;
-    }
+    if (currentIndex === 0) { router.replace("/(app)"); return; }
     setStep(stepKeys[currentIndex - 1]);
   };
 
@@ -315,18 +161,11 @@ export default function OnboardingScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.headerRow}>
             <Wordmark />
-            <View style={styles.phaseBadge}>
-              <Text style={styles.phaseLabel}>Phase 2</Text>
-            </View>
           </View>
 
           <OnboardingProgress currentIndex={currentIndex} total={stepKeys.length} />
 
-          {notice ? (
-            <View style={styles.noticeWrap}>
-              <NoticeCard {...notice} />
-            </View>
-          ) : null}
+          {notice ? <NoticeCard {...notice} /> : null}
 
           <View style={styles.formCard}>
             <View style={styles.eyebrow}>
@@ -334,12 +173,12 @@ export default function OnboardingScreen() {
               <Text style={styles.eyebrowLabel}>{meta?.label?.toUpperCase() ?? "ONBOARDING"}</Text>
             </View>
             <Text style={styles.title}>
-              {step === "identity" && onboardingIntro.title}
+              {step === "identity" && "Let's start with the basics."}
               {step === "about_you" && "Where you are, how you identify."}
               {step === "bio_goals" && "Your voice, your intentions."}
               {step === "interests_lifestyle" && "What lights you up?"}
               {step === "preferences_extras" && "The finer details."}
-              {step === "complete" && "Your Freeborn profile is live."}
+              {step === "complete" && "Your profile is live."}
             </Text>
             <Text style={styles.description}>
               {step === "identity" && onboardingIntro.description}
@@ -351,46 +190,25 @@ export default function OnboardingScreen() {
             </Text>
 
             <View style={styles.formStack}>
+              {/* Step Identity */}
               {step === "identity" && (
                 <>
-                  <OnboardingInput
-                    label="Display name"
-                    value={draft.display_name}
-                    error={errors.display_name}
-                    placeholder="How should Freeborn introduce you?"
-                    onChangeText={(value) => update("display_name", value)}
-                    hint={onboardingFieldHints.display_name}
-                  />
-                  <OnboardingInput
-                    label="Date of birth"
-                    value={draft.birth_date}
-                    error={errors.birth_date}
-                    placeholder="YYYY-MM-DD"
-                    onChangeText={(value) => update("birth_date", value)}
-                    hint={onboardingFieldHints.birth_date}
-                    keyboardType="numbers-and-punctuation"
-                  />
+                  <OnboardingInput label="Display name" value={draft.display_name} error={errors.display_name} placeholder="How should Freeborn introduce you?" onChangeText={(value) => update("display_name", value)} hint={onboardingFieldHints.display_name} />
+                  <OnboardingInput label="Date of birth" value={draft.birth_date} error={errors.birth_date} placeholder="YYYY-MM-DD" onChangeText={(value) => update("birth_date", value)} hint={onboardingFieldHints.birth_date} keyboardType="numbers-and-punctuation" />
                 </>
               )}
 
+              {/* Step About You */}
               {step === "about_you" && (
                 <>
                   <View style={styles.field}>
-                    <View style={styles.labelRow}>
-                      <Text style={styles.label}>Gender</Text>
-                    </View>
+                    <Text style={styles.label}>Gender</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
                       {genderOptions.map((option) => {
                         const active = draft.gender === option.value;
                         return (
-                          <Pressable
-                            key={option.value}
-                            onPress={() => update("gender", option.value)}
-                            style={[styles.chip, active && styles.chipActive]}
-                          >
-                            <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
-                              {option.label}
-                            </Text>
+                          <Pressable key={option.value} onPress={() => update("gender", option.value)} style={[styles.chip, active && styles.chipActive]}>
+                            <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>{option.label}</Text>
                           </Pressable>
                         );
                       })}
@@ -398,173 +216,81 @@ export default function OnboardingScreen() {
                     {errors.gender ? <Text style={styles.errorText}>{errors.gender}</Text> : null}
                     <Text style={styles.hintText}>{onboardingFieldHints.gender}</Text>
                   </View>
-                  <OnboardingInput
-                    label="City"
-                    value={draft.city}
-                    error={errors.city}
-                    placeholder="Where do you live?"
-                    onChangeText={(value) => update("city", value)}
-                    hint={onboardingFieldHints.city}
-                  />
-                  <OnboardingInput
-                    label="Region"
-                    value={draft.region}
-                    error={errors.region}
-                    placeholder="State, province, or region"
-                    onChangeText={(value) => update("region", value)}
-                    hint={onboardingFieldHints.region}
-                    optional
-                  />
-                  <OnboardingInput
-                    label="Country code"
-                    value={draft.country_code}
-                    error={errors.country_code}
-                    placeholder="US"
-                    onChangeText={(value) => update("country_code", value)}
-                    hint={onboardingFieldHints.country_code}
-                    optional
-                    maxLength={2}
-                  />
+                  <OnboardingInput label="City" value={draft.city} error={errors.city} placeholder="Where do you live?" onChangeText={(value) => update("city", value)} hint={onboardingFieldHints.city} />
+                  <OnboardingInput label="Region" value={draft.region} error={errors.region} placeholder="State, province, or region" onChangeText={(value) => update("region", value)} hint={onboardingFieldHints.region} optional />
+                  <OnboardingInput label="Country code" value={draft.country_code} error={errors.country_code} placeholder="US" onChangeText={(value) => update("country_code", value)} hint={onboardingFieldHints.country_code} optional maxLength={2} />
                 </>
               )}
 
+              {/* Step Bio & Goals */}
               {step === "bio_goals" && (
                 <>
-                  <OnboardingInput
-                    label="Short bio"
-                    value={draft.bio}
-                    error={errors.bio}
-                    placeholder="What do you care about? What does a good Sunday look like?"
-                    onChangeText={(value) => update("bio", value.slice(0, 500))}
-                    hint={`${draft.bio.length}/500 · ${onboardingFieldHints.bio}`}
-                    multiline
-                    style={styles.bioInput}
-                  />
+                  <OnboardingInput label="Short bio" value={draft.bio} error={errors.bio} placeholder="What do you care about? What does a good Sunday look like?" onChangeText={(value) => update("bio", value.slice(0, 500))} hint={`${draft.bio.length}/500 · ${onboardingFieldHints.bio}`} multiline style={styles.bioInput} />
                   <View style={styles.field}>
                     <View style={styles.labelRow}>
                       <Text style={styles.label}>Relationship goals</Text>
                       <Text style={styles.counter}>{draft.relationship_goals.length}/3</Text>
                     </View>
-                    <OptionCardRow
-                      options={relationshipGoalOptions.map((option) => ({
-                        value: option.value,
-                        label: option.label,
-                        caption: option.caption,
-                      }))}
-                      value={draft.relationship_goals}
-                      onChange={(next) => update("relationship_goals", next)}
-                      max={3}
-                    />
-                    {errors.relationship_goals ? (
-                      <Text style={styles.errorText}>{errors.relationship_goals}</Text>
-                    ) : null}
+                    <OptionCardRow options={relationshipGoalOptions.map((option) => ({ value: option.value, label: option.label, caption: option.caption }))} value={draft.relationship_goals} onChange={(next) => update("relationship_goals", next)} max={3} />
+                    {errors.relationship_goals ? <Text style={styles.errorText}>{errors.relationship_goals}</Text> : null}
                   </View>
                 </>
               )}
 
+              {/* Step Interests & Lifestyle */}
               {step === "interests_lifestyle" && (
                 <>
-                  <ChipSelect
-                    label="Interests"
-                    options={interestOptions}
-                    value={draft.interests}
-                    onChange={(next) => update("interests", next)}
-                    error={errors.interests}
-                    hint={onboardingFieldHints.interests}
-                    max={12}
-                  />
-                  <ChipSelect
-                    label="Lifestyle"
-                    options={lifestyleOptions}
-                    value={draft.lifestyle_preferences}
-                    onChange={(next) => update("lifestyle_preferences", next)}
-                    error={errors.lifestyle_preferences}
-                    hint={onboardingFieldHints.lifestyle_preferences}
-                    max={12}
-                  />
+                  <ChipSelect label="Interests" options={interestOptions} value={draft.interests} onChange={(next) => update("interests", next)} error={errors.interests} hint={onboardingFieldHints.interests} max={12} />
+                  <ChipSelect label="Lifestyle" options={lifestyleOptions} value={draft.lifestyle_preferences} onChange={(next) => update("lifestyle_preferences", next)} error={errors.lifestyle_preferences} hint={onboardingFieldHints.lifestyle_preferences} max={12} />
                 </>
               )}
 
+              {/* Step Preferences & Extras */}
               {step === "preferences_extras" && (
                 <>
-                  <ChipSelect
-                    label="Deal breakers"
-                    options={dealBreakerOptions}
-                    value={draft.deal_breakers}
-                    onChange={(next) => update("deal_breakers", next)}
-                    error={errors.deal_breakers}
-                    hint={onboardingFieldHints.deal_breakers}
-                    optional
-                    max={12}
-                  />
-                  <OnboardingInput
-                    label="Occupation"
-                    value={draft.occupation}
-                    error={errors.occupation}
-                    placeholder="What do you do?"
-                    onChangeText={(value) => update("occupation", value)}
-                    hint={onboardingFieldHints.occupation}
-                    optional
-                  />
-                  <OnboardingInput
-                    label="Education"
-                    value={draft.education}
-                    error={errors.education}
-                    placeholder="Where did you study?"
-                    onChangeText={(value) => update("education", value)}
-                    hint={onboardingFieldHints.education}
-                    optional
-                  />
+                  <ChipSelect label="Deal breakers" options={dealBreakerOptions} value={draft.deal_breakers} onChange={(next) => update("deal_breakers", next)} error={errors.deal_breakers} hint={onboardingFieldHints.deal_breakers} optional max={12} />
+                  <OnboardingInput label="Occupation" value={draft.occupation} error={errors.occupation} placeholder="What do you do?" onChangeText={(value) => update("occupation", value)} hint={onboardingFieldHints.occupation} optional />
+                  <OnboardingInput label="Education" value={draft.education} error={errors.education} placeholder="Where did you study?" onChangeText={(value) => update("education", value)} hint={onboardingFieldHints.education} optional />
                 </>
               )}
 
+              {/* Step Complete */}
               {step === "complete" && (
                 <View style={styles.completeCard}>
                   <View style={styles.completeRow}>
                     <View style={styles.completeDot} />
-                    <Text style={styles.completeText}>
-                      Your profile is active and ready for the next phase of Freeborn.
-                    </Text>
+                    <Text style={styles.completeText}>Your profile is active. Start discovering thoughtful people near you.</Text>
                   </View>
                   <View style={styles.completeRow}>
                     <View style={[styles.completeDot, { backgroundColor: colors.accentRose }]} />
-                    <Text style={styles.completeText}>
-                      You can edit any of these details from your profile later.
-                    </Text>
+                    <Text style={styles.completeText}>You can edit any of these details from your profile whenever you want.</Text>
                   </View>
                   <View style={styles.completeRow}>
                     <View style={[styles.completeDot, { backgroundColor: colors.accentBlue }]} />
-                    <Text style={styles.completeText}>
-                      Discovery and matching arrive in the next phase.
-                    </Text>
+                    <Text style={styles.completeText}>Freeborn is built around trust. Your details stay private.</Text>
                   </View>
                 </View>
               )}
 
+              {/* Actions */}
               <View style={styles.actionRow}>
                 <Pressable onPress={handleBack} style={styles.secondaryButton}>
-                  <Text style={styles.secondaryButtonLabel}>
-                    {currentIndex === 0 ? "Exit" : "Back"}
-                  </Text>
+                  <Text style={styles.secondaryButtonLabel}>{currentIndex === 0 ? "Exit" : "Back"}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => {
-                    if (step === "identity") handleIdentityContinue();
-                    else if (step === "about_you") handleAboutYouContinue();
-                    else if (step === "bio_goals") handleBioGoalsContinue();
-                    else if (step === "interests_lifestyle") handleInterestsContinue();
-                    else if (step === "preferences_extras") handlePreferencesContinue();
+                    if (step === "identity") validateAndContinue(onboardingIdentitySchema, { display_name: draft.display_name, birth_date: draft.birth_date }, "about_you");
+                    else if (step === "about_you") validateAndContinue(onboardingAboutYouSchema, { gender: draft.gender, city: draft.city, region: draft.region, country_code: draft.country_code }, "bio_goals");
+                    else if (step === "bio_goals") validateAndContinue(onboardingBioGoalsSchema, { bio: draft.bio, relationship_goals: draft.relationship_goals }, "interests_lifestyle");
+                    else if (step === "interests_lifestyle") validateAndContinue(onboardingInterestsLifestyleSchema, { interests: draft.interests, lifestyle_preferences: draft.lifestyle_preferences }, "preferences_extras");
+                    else if (step === "preferences_extras") validateAndContinue(onboardingPreferencesExtrasSchema, { deal_breakers: draft.deal_breakers, occupation: draft.occupation, education: draft.education }, "complete");
                     else if (step === "complete") handleFinish();
                   }}
                   disabled={pending}
                   style={[styles.primaryButton, pending && styles.disabledButton]}
                 >
                   <Text style={styles.primaryButtonLabel}>
-                    {pending
-                      ? "Saving…"
-                      : step === "complete"
-                        ? "Enter Freeborn"
-                        : "Continue"}
+                    {pending ? "Saving…" : step === "complete" ? "Enter Freeborn" : "Continue"}
                   </Text>
                 </Pressable>
               </View>
@@ -577,206 +303,37 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 42,
-    gap: 18,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  phaseBadge: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  phaseLabel: {
-    color: colors.stone,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 2,
-    textTransform: "uppercase",
-  },
-  noticeWrap: {
-    marginTop: 0,
-  },
-  formCard: {
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(9,16,28,0.82)",
-    padding: 18,
-  },
-  eyebrow: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  eyebrowDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: colors.accentGold,
-  },
-  eyebrowLabel: {
-    color: colors.stone,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 2.2,
-    textTransform: "uppercase",
-  },
-  title: {
-    marginTop: 18,
-    color: colors.pearl,
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: "700",
-    letterSpacing: -1.2,
-  },
-  description: {
-    marginTop: 10,
-    color: colors.mist,
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  formStack: {
-    marginTop: 22,
-    gap: 16,
-  },
-  field: {
-    gap: 8,
-  },
-  labelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  label: {
-    color: colors.pearl,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  counter: {
-    color: colors.stone,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
-  },
-  chipRow: {
-    flexDirection: "row",
-    gap: 8,
-    paddingVertical: 4,
-  },
-  chip: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  chipActive: {
-    borderColor: colors.accentGold,
-    backgroundColor: "rgba(241,201,122,0.18)",
-  },
-  chipLabel: {
-    color: colors.mist,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  chipLabelActive: {
-    color: colors.pearl,
-  },
-  bioInput: {
-    minHeight: 110,
-    textAlignVertical: "top",
-  },
-  hintText: {
-    color: colors.mist,
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  errorText: {
-    color: colors.danger,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  completeCard: {
-    gap: 14,
-    paddingVertical: 8,
-  },
-  completeRow: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start",
-  },
-  completeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: colors.accentGold,
-    marginTop: 7,
-  },
-  completeText: {
-    flex: 1,
-    color: colors.pearl,
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 8,
-  },
-  secondaryButton: {
-    flex: 1,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    paddingVertical: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  secondaryButtonLabel: {
-    color: colors.pearl,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  primaryButton: {
-    flex: 2,
-    borderRadius: 22,
-    backgroundColor: colors.pearl,
-    paddingVertical: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryButtonLabel: {
-    color: colors.ink,
-    fontSize: 14,
-    fontWeight: "800",
-  },
-  disabledButton: {
-    opacity: 0.65,
-  },
+  container: { flex: 1 },
+  safeArea: { flex: 1 },
+  content: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 42, gap: 18 },
+  headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  formCard: { borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.85)", padding: 18 },
+  eyebrow: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.05)", paddingHorizontal: 12, paddingVertical: 8 },
+  eyebrowDot: { width: 8, height: 8, borderRadius: 999, backgroundColor: colors.accentGold },
+  eyebrowLabel: { color: colors.stone, fontSize: 10, fontWeight: "700", letterSpacing: 2.2, textTransform: "uppercase" },
+  title: { marginTop: 18, color: colors.pearl, fontSize: 26, lineHeight: 32, fontWeight: "700", letterSpacing: -1.2 },
+  description: { marginTop: 8, color: colors.mist, fontSize: 14, lineHeight: 22 },
+  formStack: { marginTop: 22, gap: 16 },
+  field: { gap: 8 },
+  labelRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  label: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
+  counter: { color: colors.stone, fontSize: 11, fontWeight: "700", letterSpacing: 1.4, textTransform: "uppercase" },
+  chipRow: { flexDirection: "row", gap: 8, paddingVertical: 4 },
+  chip: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.05)", paddingHorizontal: 14, paddingVertical: 10 },
+  chipActive: { borderColor: colors.accentGold, backgroundColor: "rgba(241,201,122,0.18)" },
+  chipLabel: { color: colors.mist, fontSize: 13, fontWeight: "600" },
+  chipLabelActive: { color: colors.pearl },
+  bioInput: { minHeight: 110, textAlignVertical: "top" },
+  hintText: { color: colors.mist, fontSize: 12, lineHeight: 18 },
+  errorText: { color: colors.danger, fontSize: 12, fontWeight: "600" },
+  completeCard: { gap: 14, paddingVertical: 8 },
+  completeRow: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+  completeDot: { width: 8, height: 8, borderRadius: 999, backgroundColor: colors.accentGold, marginTop: 7 },
+  completeText: { flex: 1, color: colors.pearl, fontSize: 14, lineHeight: 22 },
+  actionRow: { flexDirection: "row", gap: 12, marginTop: 8 },
+  secondaryButton: { flex: 1, borderRadius: 22, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.06)", paddingVertical: 15, alignItems: "center", justifyContent: "center" },
+  secondaryButtonLabel: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
+  primaryButton: { flex: 2, borderRadius: 22, backgroundColor: colors.pearl, paddingVertical: 15, alignItems: "center", justifyContent: "center" },
+  primaryButtonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800" },
+  disabledButton: { opacity: 0.65 },
 });

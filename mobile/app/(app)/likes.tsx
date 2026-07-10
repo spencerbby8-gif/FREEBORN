@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -28,28 +28,54 @@ export default function LikesScreen() {
         <ScrollView contentContainerStyle={styles.content}>
           <Wordmark />
           <Text style={styles.title}>Likes</Text>
-          <Text style={styles.subtitle}>Who’s interested — Phase 3</Text>
+          <Text style={styles.subtitle}>{incoming.length} people have liked your profile</Text>
 
+          {/* Incoming */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Liked you · {incoming.length}</Text>
-            {incoming.map((s) => (
-              <View key={s.liker_id} style={styles.row}>
-                <Text style={styles.mono}>{s.liker_id.slice(0,8)}…</Text>
-                <Text style={styles.meta}>{s.action} · {new Date(s.created_at).toLocaleDateString()}</Text>
-              </View>
-            ))}
-            {!incoming.length && <Text style={styles.empty}>No likes yet — you’re discoverable.</Text>}
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Liked you</Text>
+              <Text style={styles.cardCount}>{incoming.length}</Text>
+            </View>
+            {incoming.length > 0 ? (
+              incoming.map((s, i) => (
+                <View key={s.liker_id} style={[styles.row, i < incoming.length - 1 && styles.rowBorder]}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>FB</Text>
+                  </View>
+                  <View style={styles.rowInfo}>
+                    <Text style={styles.rowTitle}>Freeborn member</Text>
+                    <Text style={styles.rowMeta}>
+                      {s.action === "superlike" ? "★ Super like" : "Liked you"} · {new Date(s.created_at).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.emptyText}>No likes yet — your profile is visible and discoverable.</Text>
+            )}
           </View>
 
+          {/* Outgoing */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>You liked · {outgoing.length}</Text>
-            {outgoing.map((s) => (
-              <View key={s.liked_id} style={styles.row}>
-                <Text style={styles.mono}>{s.liked_id.slice(0,8)}…</Text>
-                <Text style={styles.meta}>{s.action} · {new Date(s.created_at).toLocaleDateString()}</Text>
-              </View>
-            ))}
-            {!outgoing.length && <Text style={styles.empty}>Start discovering profiles.</Text>}
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>You liked</Text>
+              <Text style={styles.cardCount}>{outgoing.length}</Text>
+            </View>
+            {outgoing.length > 0 ? (
+              outgoing.map((s, i) => (
+                <View key={s.liked_id} style={[styles.row, i < outgoing.length - 1 && styles.rowBorder]}>
+                  <View style={[styles.avatar, { backgroundColor: "rgba(140,207,255,0.10)" }]}>
+                    <Text style={[styles.avatarText, { color: colors.accentBlue }]}>★</Text>
+                  </View>
+                  <View style={styles.rowInfo}>
+                    <Text style={styles.rowTitle}>{s.action === "superlike" ? "Super liked" : "Liked"}</Text>
+                    <Text style={styles.rowMeta}>{new Date(s.created_at).toLocaleDateString()}</Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.emptyText}>Start discovering profiles you like.</Text>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -58,13 +84,19 @@ export default function LikesScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 20, paddingBottom: 110, gap: 16 },
-  title: { color: colors.pearl, fontSize: 28, fontWeight: "800", letterSpacing: -1, marginTop: 12 },
+  content: { padding: 20, paddingBottom: 120, gap: 16 },
+  title: { color: colors.pearl, fontSize: 28, fontWeight: "800", letterSpacing: -1, marginTop: 8 },
   subtitle: { color: colors.mist, fontSize: 13 },
-  card: { borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.88)", padding: 16, gap: 10 },
-  cardTitle: { color: colors.pearl, fontSize: 16, fontWeight: "700", marginBottom: 4 },
-  row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)" },
-  mono: { color: colors.pearl, fontFamily: "monospace", fontSize: 12 },
-  meta: { color: colors.mist, fontSize: 12 },
-  empty: { color: colors.mist, fontSize: 13 },
+  card: { borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.88)", padding: 16 },
+  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
+  cardTitle: { color: colors.pearl, fontSize: 16, fontWeight: "700" },
+  cardCount: { color: colors.stone, fontSize: 14, fontWeight: "700" },
+  row: { flexDirection: "row", gap: 12, paddingVertical: 12, alignItems: "center" },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)" },
+  avatar: { width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(255,133,120,0.12)", justifyContent: "center", alignItems: "center" },
+  avatarText: { color: colors.pearl, fontSize: 12, fontWeight: "800" },
+  rowInfo: { flex: 1 },
+  rowTitle: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
+  rowMeta: { color: colors.mist, fontSize: 12, marginTop: 2 },
+  emptyText: { color: colors.mist, fontSize: 13, paddingVertical: 8 },
 });

@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { authTrustPoints, colors, radii } from "@freeborn/shared";
+import { colors, radii } from "@freeborn/shared";
 import { ProfilePreviewCard } from "@/components/profile-preview-card";
 import { Wordmark } from "@/components/wordmark";
 
@@ -30,15 +30,6 @@ export function AuthSurface({
         </View>
 
         <ProfilePreviewCard />
-
-        <View style={styles.trustCard}>
-          {authTrustPoints.map((item) => (
-            <View key={item} style={styles.trustRow}>
-              <View style={styles.trustDot} />
-              <Text style={styles.trustLabel}>{item}</Text>
-            </View>
-          ))}
-        </View>
 
         <View style={styles.formCard}>{children}</View>
       </ScrollView>
@@ -87,10 +78,10 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.pearl,
-    fontSize: 44,
-    lineHeight: 46,
+    fontSize: 40,
+    lineHeight: 44,
     fontWeight: "700",
-    letterSpacing: -2.2,
+    letterSpacing: -1.8,
     maxWidth: 330,
   },
   description: {
@@ -99,36 +90,11 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     maxWidth: 344,
   },
-  trustCard: {
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    padding: 18,
-    gap: 12,
-  },
-  trustRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  trustDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: colors.accentGold,
-    marginTop: 7,
-  },
-  trustLabel: {
-    flex: 1,
-    color: colors.pearl,
-    fontSize: 14,
-    lineHeight: 23,
-  },
   formCard: {
     borderRadius: radii.xl,
     borderWidth: 1,
     borderColor: colors.lineStrong,
-    backgroundColor: "rgba(9,16,28,0.82)",
+    backgroundColor: "rgba(9,16,28,0.85)",
     padding: 18,
   },
 });

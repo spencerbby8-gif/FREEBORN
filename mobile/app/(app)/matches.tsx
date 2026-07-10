@@ -56,11 +56,15 @@ export default function MatchesScreen() {
   const other = otherId ? profiles[otherId] : null;
 
   return (
-    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={{ flex:1 }}>
-      <SafeAreaView style={{ flex:1 }}>
+    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
-          <View style={styles.header}><Wordmark /><Text style={styles.headerTag}>{matches.length} matches</Text></View>
+          <View style={styles.header}>
+            <Wordmark />
+            <Text style={styles.headerTag}>{matches.length} matches</Text>
+          </View>
 
+          {/* Match strip */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.matchStrip}>
             {matches.map(m => {
               const oid = m.user_a === user?.id ? m.user_b : m.user_a;
@@ -68,13 +72,16 @@ export default function MatchesScreen() {
               const isActive = m.id === active;
               return (
                 <Pressable key={m.id} onPress={() => setActive(m.id)} style={[styles.matchPill, isActive && styles.matchPillActive]}>
-                  <Text style={[styles.matchPillText, isActive && { color: colors.ink }]}>{p?.display_name?.split(" ")[0] ?? "Match"}</Text>
+                  <Text style={[styles.matchPillText, isActive && { color: colors.ink }]}>
+                    {p?.display_name?.split(" ")[0] ?? "Match"}
+                  </Text>
                 </Pressable>
               );
             })}
             {!matches.length && <Text style={styles.empty}>No matches yet.</Text>}
           </ScrollView>
 
+          {/* Chat */}
           <View style={styles.chatBox}>
             <Text style={styles.chatTitle}>{other?.display_name ?? "Select a match"}</Text>
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingVertical: 12, gap: 10 }}>
@@ -94,7 +101,9 @@ export default function MatchesScreen() {
               <View style={styles.inputRow}>
                 <TextInput value={body} onChangeText={setBody} placeholder="Message…" placeholderTextColor={colors.mist}
                   style={styles.input} multiline />
-                <Pressable onPress={send} style={styles.sendBtn}><Text style={styles.sendText}>Send</Text></Pressable>
+                <Pressable onPress={send} style={styles.sendBtn}>
+                  <Text style={styles.sendText}>Send</Text>
+                </Pressable>
               </View>
             )}
           </View>
@@ -105,14 +114,14 @@ export default function MatchesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex:1, padding: 16, paddingBottom: 90 },
+  container: { flex: 1, padding: 16, paddingBottom: 100 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   headerTag: { color: colors.mist, fontSize: 12, fontWeight: "700" },
-  matchStrip: { gap: 8, paddingVertical: 6, paddingRight: 16 },
-  matchPill: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.05)", marginRight: 8 },
+  matchStrip: { gap: 8, paddingVertical: 6 },
+  matchPill: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.05)" },
   matchPillActive: { backgroundColor: colors.pearl },
   matchPillText: { color: colors.pearl, fontWeight: "700", fontSize: 13 },
-  empty: { color: colors.mist, paddingVertical: 8 },
+  empty: { color: colors.mist, paddingVertical: 8, textAlign: "center" },
   chatBox: { flex: 1, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.9)", marginTop: 12, padding: 14 },
   chatTitle: { color: colors.pearl, fontSize: 18, fontWeight: "800", marginBottom: 6 },
   bubble: { maxWidth: "80%", borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10 },

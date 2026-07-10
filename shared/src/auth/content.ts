@@ -1,7 +1,7 @@
 export const authModes = {
   signIn: {
     title: "Welcome back",
-    eyebrow: "Phase 1 · Authentication",
+    eyebrow: "Secure sign-in",
     description:
       "Sign in to continue with a calm, secure, and premium-first Freeborn experience.",
     submitLabel: "Sign in",
@@ -30,14 +30,14 @@ export const authModes = {
 } as const;
 
 export const authTrustPoints = [
-  "Supabase Auth with secure session persistence",
+  "End-to-end encrypted sessions",
   "Google sign in for web and mobile",
   "Email verification and recovery flows",
-  "Protected routes with restored sessions",
+  "Privacy-first by design, always",
 ] as const;
 
 export const onboardingIntro = {
-  eyebrow: "Phase 2 · Onboarding",
+  eyebrow: "Your profile",
   title: "Build the profile people will actually remember.",
   description:
     "Take a few minutes to share who you are. Every field is saved automatically, and you can always edit later.",

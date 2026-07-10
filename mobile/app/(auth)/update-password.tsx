@@ -29,67 +29,29 @@ export default function UpdatePasswordScreen() {
         const nextErrors: Errors = {};
         parsed.error.issues.forEach((issue) => {
           const key = issue.path[0];
-          if (typeof key === "string") {
-            nextErrors[key as keyof Errors] = issue.message;
-          }
+          if (typeof key === "string") nextErrors[key as keyof Errors] = issue.message;
         });
         setErrors(nextErrors);
         return;
       }
 
       const result = await updatePassword(parsed.data.password);
-      if (result.error) {
-        throw new Error(result.error);
-      }
-
-      setLocalNotice({
-        tone: "success",
-        title: "Password updated",
-        body: "Your new password has been saved securely.",
-      });
+      if (result.error) throw new Error(result.error);
+      setLocalNotice({ tone: "success", title: "Password updated", body: "Your new password has been saved securely." });
     } catch (error) {
-      setLocalNotice({
-        tone: "error",
-        title: "We couldn’t update your password",
-        body: error instanceof Error ? error.message : "Please try again.",
-      });
+      setLocalNotice({ tone: "error", title: "We couldn't update your password", body: error instanceof Error ? error.message : "Please try again." });
     } finally {
       setPending(false);
     }
   };
 
   return (
-    <AuthSurface
-      eyebrow={authModes.updatePassword.eyebrow}
-      title={authModes.updatePassword.title}
-      description={authModes.updatePassword.description}
-    >
+    <AuthSurface eyebrow={authModes.updatePassword.eyebrow} title={authModes.updatePassword.title} description={authModes.updatePassword.description}>
       {localNotice ?? notice ? <NoticeCard {...(localNotice ?? notice)!} /> : null}
       <View style={styles.stack}>
-        <AuthInput
-          label="New password"
-          value={password}
-          error={errors.password}
-          placeholder="Choose a strong password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          textContentType="newPassword"
-          hint="Use 8+ characters with uppercase, lowercase, and a number."
-          onChangeText={setPassword}
-        />
-        <AuthInput
-          label="Confirm new password"
-          value={confirmPassword}
-          error={errors.confirmPassword}
-          placeholder="Repeat your password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          textContentType="newPassword"
-          onChangeText={setConfirmPassword}
-        />
-        <Pressable style={[styles.button, pending ? styles.disabled : undefined]} onPress={handleSubmit} disabled={pending}>
+        <AuthInput label="New password" value={password} error={errors.password} placeholder="Choose a strong password" secureTextEntry autoCapitalize="none" autoCorrect={false} textContentType="newPassword" hint="Use 8+ characters with uppercase, lowercase, and a number." onChangeText={setPassword} />
+        <AuthInput label="Confirm new password" value={confirmPassword} error={errors.confirmPassword} placeholder="Repeat your password" secureTextEntry autoCapitalize="none" autoCorrect={false} textContentType="newPassword" onChangeText={setConfirmPassword} />
+        <Pressable style={[styles.button, pending ? styles.disabled : null]} onPress={handleSubmit} disabled={pending}>
           <Text style={styles.buttonLabel}>{pending ? "Updating password…" : authModes.updatePassword.submitLabel}</Text>
         </Pressable>
       </View>
@@ -98,23 +60,8 @@ export default function UpdatePasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  stack: {
-    gap: 16,
-    marginTop: 6,
-  },
-  button: {
-    borderRadius: 22,
-    backgroundColor: colors.pearl,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  buttonLabel: {
-    color: colors.ink,
-    fontSize: 14,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-  disabled: {
-    opacity: 0.65,
-  },
+  stack: { gap: 16, marginTop: 6 },
+  button: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16 },
+  buttonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800", textAlign: "center" },
+  disabled: { opacity: 0.65 },
 });

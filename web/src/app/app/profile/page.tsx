@@ -26,27 +26,49 @@ export default async function ProfilePage() {
   return (
     <AppShell displayName={profile.display_name} photoUrl={photoUrl}>
       <div className="mb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">Profile</p>
-        <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(2.1rem,4vw,3.2rem)] text-[var(--color-pearl)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-stone)]">Profile</p>
+        <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(1.8rem,3.5vw,2.8rem)] text-[var(--color-pearl)]">
           Make your profile unforgettable
         </h1>
+        <p className="mt-2 text-sm text-[var(--color-mist)]">Every detail helps you find the right kind of connection.</p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
           <PhotoManager photos={(photos as ProfilePhoto[]) ?? []} />
           <ProfileEditor profile={profile} />
         </div>
         <div className="space-y-6" id="discovery">
           <DiscoveryPreferencesForm prefs={prefs ?? null} profile={profile} />
-          <div className="glass-panel premium-border rounded-[30px] p-6">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-stone)]">Account</p>
-            <div className="mt-4 space-y-3 text-sm text-[var(--color-pearl)]/90">
-              <div className="flex justify-between"><span className="text-[var(--color-mist)]">Email</span><span>{user.email}</span></div>
-              <div className="flex justify-between"><span className="text-[var(--color-mist)]">Verified</span><span>{profile.is_verified ? "Yes" : "Pending"}</span></div>
-              <div className="flex justify-between"><span className="text-[var(--color-mist)]">Status</span><span className="capitalize">{profile.profile_status}</span></div>
-              <div className="flex justify-between"><span className="text-[var(--color-mist)]">Discoverable</span><span>{profile.discoverable ? "On" : "Off"}</span></div>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">Account</p>
+            <div className="mt-4 space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-[var(--color-mist)]">Email</span>
+                <span className="text-[var(--color-pearl)]">{user.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--color-mist)]">Verified</span>
+                <span className={`font-semibold ${profile.is_verified ? "text-emerald-300" : "text-[var(--color-mist)]"}`}>
+                  {profile.is_verified ? "Yes" : "Pending"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--color-mist)]">Status</span>
+                <span className="capitalize text-[var(--color-pearl)]">{profile.profile_status}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--color-mist)]">Discoverable</span>
+                <span className={`font-semibold ${profile.discoverable ? "text-emerald-300" : "text-[var(--color-mist)]"}`}>
+                  {profile.discoverable ? "On" : "Off"}
+                </span>
+              </div>
             </div>
+            <form action="/auth/signout" method="post" className="mt-6">
+              <button className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-[var(--color-mist)] transition hover:bg-white/[0.06] hover:text-red-200">
+                Sign out
+              </button>
+            </form>
           </div>
         </div>
       </div>

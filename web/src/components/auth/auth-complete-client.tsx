@@ -19,7 +19,7 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
   );
   const router = useRouter();
   const [message, setMessage] = useState(
-    intent === "verify" ? "Verifying your Freeborn account…" : "Preparing your password recovery…",
+    intent === "verify" ? "Verifying your account…" : "Preparing your recovery…",
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -43,23 +43,13 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
             access_token: accessToken,
             refresh_token: refreshToken,
           });
-
-          if (error) {
-            throw error;
-          }
+          if (error) throw error;
         }
 
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error("We could not restore your session from this link.");
 
-        if (!session) {
-          throw new Error("We could not restore your session from this link.");
-        }
-
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         router.replace(
           intent === "recovery" || type === "recovery"
@@ -68,33 +58,29 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
         );
         router.refresh();
       } catch (error) {
-        if (!mounted) {
-          return;
-        }
-
+        if (!mounted) return;
         setError(getAuthErrorMessage(error));
         setMessage("That link could not be completed.");
       }
     };
 
     run();
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [intent, router, supabase]);
 
   return (
-    <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 text-center">
-      <div className="mx-auto h-12 w-12 rounded-full border border-white/10 bg-white/7" />
-      <p className="mt-4 text-lg font-semibold text-[var(--color-pearl)]">{message}</p>
+    <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-rose-400/20 to-amber-400/10">
+        <div className={`h-6 w-6 rounded-full border-2 border-[var(--color-accent-gold)] ${error ? "" : "animate-pulse"}`} />
+      </div>
+      <p className="mt-5 text-lg font-semibold text-[var(--color-pearl)]">{message}</p>
       <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
         {error ?? "Please wait a moment while we secure your session."}
       </p>
       {error ? (
         <Link
           href="/auth?mode=sign-in&status=link-invalid"
-          className="mt-5 inline-flex rounded-full bg-[var(--color-pearl)] px-5 py-3 text-sm font-bold text-[var(--color-ink)]"
+          className="mt-6 inline-flex rounded-full bg-[var(--color-pearl)] px-6 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white"
         >
           Return to sign in
         </Link>

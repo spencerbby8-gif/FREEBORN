@@ -1,13 +1,13 @@
 export const brand = {
   name: "Freeborn",
   shortName: "FREEBORN",
-  tagline: "Thoughtful connection starts with intention.",
+  tagline: "Meet with intention.",
   manifesto:
-    "A premium dating experience designed for people who want depth, clarity, and trust from the very first interaction.",
+    "Freeborn is a different kind of dating app — one built for people who have outgrown the swipe. Where depth comes before volume, trust comes before first messages, and every match begins with real intention.",
   trustPillars: [
     "Intent-led profiles",
-    "Verification-minded safety",
-    "Private, respectful conversations",
+    "Verified authenticity",
+    "Private by design",
   ],
 } as const;
 

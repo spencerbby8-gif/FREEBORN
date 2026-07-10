@@ -20,11 +20,9 @@ function SubmitButton() {
 }
 
 export function StepInterestsLifestyle({
-  draft,
-  fieldErrors,
+  draft
 }: {
   draft: { interests: string[]; lifestyle_preferences: string[] };
-  fieldErrors?: Record<string, string>;
 }) {
   const [state, formAction] = useActionState(saveOnboardingInterestsLifestyle, null);
   const [interests, setInterests] = useState<string[]>(draft.interests);
@@ -46,7 +44,7 @@ export function StepInterestsLifestyle({
             options={interestOptions}
             value={interests}
             max={12}
-            error={fieldErrors?.interests}
+            error={state?.fieldErrors?.interests}
             hint={onboardingFieldHints.interests}
             onChange={setInterests}
           />
@@ -56,7 +54,7 @@ export function StepInterestsLifestyle({
             options={lifestyleOptions}
             value={lifestyle}
             max={12}
-            error={fieldErrors?.lifestyle_preferences}
+            error={state?.fieldErrors?.lifestyle_preferences}
             hint={onboardingFieldHints.lifestyle_preferences}
             onChange={setLifestyle}
           />

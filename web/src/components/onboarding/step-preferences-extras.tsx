@@ -21,11 +21,9 @@ function SubmitButton() {
 }
 
 export function StepPreferencesExtras({
-  draft,
-  fieldErrors,
+  draft
 }: {
   draft: { deal_breakers: string[]; occupation: string; education: string };
-  fieldErrors?: Record<string, string>;
 }) {
   const [state, formAction] = useActionState(saveOnboardingPreferencesExtras, null);
   const [dealBreakers, setDealBreakers] = useState<string[]>(draft.deal_breakers);
@@ -47,7 +45,7 @@ export function StepPreferencesExtras({
             value={dealBreakers}
             max={12}
             optional
-            error={fieldErrors?.deal_breakers}
+            error={state?.fieldErrors?.deal_breakers}
             hint={onboardingFieldHints.deal_breakers}
             onChange={setDealBreakers}
           />
@@ -58,7 +56,7 @@ export function StepPreferencesExtras({
               name="occupation"
               placeholder="What do you do?"
               defaultValue={draft.occupation}
-              error={fieldErrors?.occupation}
+              error={state?.fieldErrors?.occupation}
               hint={onboardingFieldHints.occupation}
               optional
             />
@@ -67,7 +65,7 @@ export function StepPreferencesExtras({
               name="education"
               placeholder="Where did you study?"
               defaultValue={draft.education}
-              error={fieldErrors?.education}
+              error={state?.fieldErrors?.education}
               hint={onboardingFieldHints.education}
               optional
             />

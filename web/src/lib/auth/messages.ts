@@ -1,9 +1,12 @@
 export function getAuthErrorMessage(error: unknown) {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return "Something went wrong. Please try again.";
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  if (message.includes("invalid login credentials")) return "That email and password combination isn’t right. Please try again.";
+  if (message.includes("email not confirmed")) return "Confirm your email before signing in. Check your inbox for the verification link.";
+  if (message.includes("already registered") || message.includes("already been registered")) return "An account already exists for this email. Try signing in instead.";
+  if (message.includes("rate limit") || message.includes("too many")) return "Too many attempts. Wait a moment, then try again.";
+  if (message.includes("network") || message.includes("fetch")) return "We couldn’t reach Freeborn. Check your connection and try again.";
+  if (message.includes("expired") || message.includes("invalid token")) return "This secure link has expired. Request a new one to continue.";
+  return "We couldn’t complete that request. Please try again.";
 }
 
 export const authStatusMessages = {
@@ -40,7 +43,7 @@ export const authStatusMessages = {
   "oauth-error": {
     tone: "error" as const,
     title: "Google sign-in could not finish",
-    body: "Please try again. If this continues, check your provider redirect URLs in Supabase.",
+    body: "Please try again. If the problem continues, use email sign-in or contact support.",
   },
   "link-invalid": {
     tone: "error" as const,

@@ -53,7 +53,7 @@ export function StepBioGoals({
             name="bio"
             placeholder="What do you care about? What does a good Sunday look like?"
             defaultValue={draft.bio}
-            error={fieldErrors?.bio}
+            error={state?.fieldErrors?.bio}
             hint={onboardingFieldHints.bio}
             rows={4}
             maxLength={500}

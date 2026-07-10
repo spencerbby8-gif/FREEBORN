@@ -206,7 +206,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         </div>
       ) : null}
 
-      {mode !== "update-password" ? (
+      {mode === "sign-in" || mode === "sign-up" ? (
         <button
           type="button"
           onClick={handleGoogleSignIn}
@@ -223,7 +223,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         </button>
       ) : null}
 
-      {mode !== "update-password" ? (
+      {mode === "sign-in" || mode === "sign-up" ? (
         <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-[var(--color-mist)]">
           <span className="h-px flex-1 bg-white/10" />
           or use email

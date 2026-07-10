@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { onboardingFieldHints } from "@freeborn/shared";
 import { saveOnboardingIdentity } from "@/lib/onboarding/actions";
 import { OnboardingTextInput } from "./onboarding-field";
+import { BirthDateField } from "./birth-date-field";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -20,11 +21,9 @@ function SubmitButton() {
 }
 
 export function StepIdentity({
-  draft,
-  fieldErrors,
+  draft
 }: {
   draft: { display_name: string; birth_date: string };
-  fieldErrors?: Record<string, string>;
 }) {
   const [state, formAction] = useActionState(saveOnboardingIdentity, null);
 
@@ -44,18 +43,14 @@ export function StepIdentity({
             name="display_name"
             placeholder="How should Freeborn introduce you?"
             defaultValue={draft.display_name}
-            error={fieldErrors?.display_name}
+            error={state?.fieldErrors?.display_name}
             hint={onboardingFieldHints.display_name}
             autoComplete="nickname"
           />
-          <OnboardingTextInput
-            label="Date of birth"
-            name="birth_date"
-            type="date"
+          <BirthDateField
             defaultValue={draft.birth_date}
-            error={fieldErrors?.birth_date}
+            error={state?.fieldErrors?.birth_date}
             hint={onboardingFieldHints.birth_date}
-            autoComplete="bday"
           />
 
           {state && !state.ok ? (

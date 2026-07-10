@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { authModes, passwordUpdateSchema } from "@freeborn/shared";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthSurface } from "@/components/auth/auth-surface";
 import { NoticeCard } from "@/components/auth/notice-card";
+import { PasswordStrength } from "@/components/auth/password-strength";
 import { useAuth } from "@/hooks/use-auth";
 import { colors } from "@freeborn/shared";
 
@@ -49,10 +50,34 @@ export default function UpdatePasswordScreen() {
     <AuthSurface eyebrow={authModes.updatePassword.eyebrow} title={authModes.updatePassword.title} description={authModes.updatePassword.description}>
       {localNotice ?? notice ? <NoticeCard {...(localNotice ?? notice)!} /> : null}
       <View style={styles.stack}>
-        <AuthInput label="New password" value={password} error={errors.password} placeholder="Choose a strong password" secureTextEntry autoCapitalize="none" autoCorrect={false} textContentType="newPassword" hint="Use 8+ characters with uppercase, lowercase, and a number." onChangeText={setPassword} />
-        <AuthInput label="Confirm new password" value={confirmPassword} error={errors.confirmPassword} placeholder="Repeat your password" secureTextEntry autoCapitalize="none" autoCorrect={false} textContentType="newPassword" onChangeText={setConfirmPassword} />
+        <View>
+          <AuthInput
+            label="New password"
+            value={password}
+            error={errors.password}
+            placeholder="Choose a strong password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="newPassword"
+            hint="Use 8+ characters with uppercase, lowercase, and a number."
+            onChangeText={setPassword}
+          />
+          <PasswordStrength password={password} />
+        </View>
+        <AuthInput
+          label="Confirm new password"
+          value={confirmPassword}
+          error={errors.confirmPassword}
+          placeholder="Repeat your password"
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+          textContentType="newPassword"
+          onChangeText={setConfirmPassword}
+        />
         <Pressable style={[styles.button, pending ? styles.disabled : null]} onPress={handleSubmit} disabled={pending}>
-          <Text style={styles.buttonLabel}>{pending ? "Updating password…" : authModes.updatePassword.submitLabel}</Text>
+          {pending ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.buttonLabel}>{authModes.updatePassword.submitLabel}</Text>}
         </Pressable>
       </View>
     </AuthSurface>
@@ -61,7 +86,7 @@ export default function UpdatePasswordScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: 16, marginTop: 6 },
-  button: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16 },
+  button: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54 },
   buttonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800", textAlign: "center" },
   disabled: { opacity: 0.65 },
 });

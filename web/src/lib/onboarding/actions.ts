@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import {
   onboardingAboutYouSchema,
   onboardingBioGoalsSchema,
@@ -80,8 +78,7 @@ export async function saveOnboardingIdentity(
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/app/onboarding");
-  redirect("/app/onboarding?step=about_you");
+  return { ok: true };
 }
 
 export async function saveOnboardingAboutYou(
@@ -128,8 +125,7 @@ export async function saveOnboardingAboutYou(
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/app/onboarding");
-  redirect("/app/onboarding?step=bio_goals");
+  return { ok: true };
 }
 
 export async function saveOnboardingBioGoals(
@@ -173,8 +169,7 @@ export async function saveOnboardingBioGoals(
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/app/onboarding");
-  redirect("/app/onboarding?step=interests_lifestyle");
+  return { ok: true };
 }
 
 export async function saveOnboardingInterestsLifestyle(
@@ -220,17 +215,14 @@ export async function saveOnboardingInterestsLifestyle(
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/app/onboarding");
-  redirect("/app/onboarding?step=preferences_extras");
+  return { ok: true };
 }
 
 export async function saveOnboardingPreferencesExtras(
   _: OnboardingActionResponse | null,
   formData: FormData,
 ): Promise<OnboardingActionResponse> {
-  const deal_breakers = normalizeStringArray(
-    formData.getAll("deal_breakers").map(String),
-  );
+  const deal_breakers = normalizeStringArray(formData.getAll("deal_breakers").map(String));
   const occupationRaw = String(formData.get("occupation") ?? "");
   const educationRaw = String(formData.get("education") ?? "");
 
@@ -270,8 +262,7 @@ export async function saveOnboardingPreferencesExtras(
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/app/onboarding");
-  redirect("/app/onboarding?step=complete");
+  return { ok: true };
 }
 
 export async function completeOnboarding(): Promise<OnboardingActionResponse> {
@@ -334,6 +325,5 @@ export async function completeOnboarding(): Promise<OnboardingActionResponse> {
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/app");
-  redirect("/app?status=onboarded");
+  return { ok: true };
 }

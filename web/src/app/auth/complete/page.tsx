@@ -13,7 +13,7 @@ export default async function AuthCompletePage({
 
   return (
     <AuthShell>
-      <AuthCard mode={intent === "recovery" ? "update-password" : "sign-in"}>
+      <AuthCard>
         <AuthCompleteClient intent={intent} />
       </AuthCard>
     </AuthShell>

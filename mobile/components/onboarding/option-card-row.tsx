@@ -12,10 +12,16 @@ type OptionCardRowProps = {
   value: string[];
   onChange: (next: string[]) => void;
   max?: number;
+  single?: boolean;
 };
 
-export function OptionCardRow({ options, value, onChange, max }: OptionCardRowProps) {
+export function OptionCardRow({ options, value, onChange, max, single }: OptionCardRowProps) {
   const toggle = (optionValue: string) => {
+    if (single) {
+      const isSelected = value.includes(optionValue);
+      onChange(isSelected ? [] : [optionValue]);
+      return;
+    }
     if (value.includes(optionValue)) {
       onChange(value.filter((item) => item !== optionValue));
       return;

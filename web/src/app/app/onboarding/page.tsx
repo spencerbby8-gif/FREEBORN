@@ -1,12 +1,7 @@
 import { redirect } from "next/navigation";
 import type { OnboardingStep, UserProfileRow } from "@freeborn/shared";
 import { OnboardingShell } from "@/components/onboarding/onboarding-shell";
-import { StepIdentity } from "@/components/onboarding/step-identity";
-import { StepAboutYou } from "@/components/onboarding/step-about-you";
-import { StepBioGoals } from "@/components/onboarding/step-bio-goals";
-import { StepInterestsLifestyle } from "@/components/onboarding/step-interests-lifestyle";
-import { StepPreferencesExtras } from "@/components/onboarding/step-preferences-extras";
-import { StepComplete } from "@/components/onboarding/step-complete";
+import { OnboardingFlow } from "@/components/onboarding/onboarding-flow";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const validSteps: OnboardingStep[] = [
@@ -61,7 +56,8 @@ export default async function OnboardingPage({
   const requestedIndex = validSteps.indexOf(requestedStep);
   const profileIndex = validSteps.indexOf(profileStep);
   // People may revisit completed steps, but can never skip ahead of saved progress.
-  const step = requestedIndex <= profileIndex ? requestedStep : profileStep;
+  const initialStepIndex = Math.min(requestedIndex, profileIndex);
+  const maxStepIndex = profileIndex;
 
   const draft = {
     display_name: profile.display_name ?? "",
@@ -80,13 +76,12 @@ export default async function OnboardingPage({
   };
 
   return (
-    <OnboardingShell step={step}>
-      {step === "identity" ? <StepIdentity draft={draft} /> : null}
-      {step === "about_you" ? <StepAboutYou draft={draft} /> : null}
-      {step === "bio_goals" ? <StepBioGoals draft={draft} /> : null}
-      {step === "interests_lifestyle" ? <StepInterestsLifestyle draft={draft} /> : null}
-      {step === "preferences_extras" ? <StepPreferencesExtras draft={draft} /> : null}
-      {step === "complete" ? <StepComplete /> : null}
+    <OnboardingShell>
+      <OnboardingFlow
+        initialDraft={draft}
+        initialStepIndex={initialStepIndex}
+        maxStepIndex={maxStepIndex}
+      />
     </OnboardingShell>
   );
 }

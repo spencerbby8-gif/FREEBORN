@@ -111,9 +111,11 @@ export const onboardingRegionSchema = z
 export const onboardingCountryCodeSchema = z
   .string()
   .trim()
-  .length(2, "Use the two-letter country code.")
-  .regex(/^[A-Za-z]{2}$/, "Use letters only.")
   .transform((value) => value.toUpperCase())
+  .refine(
+    (value) => value === "" || /^[A-Za-z]{2}$/.test(value),
+    "Use a two-letter country code like US, CA, GB, or AU.",
+  )
   .optional()
   .default("");
 

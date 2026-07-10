@@ -139,7 +139,7 @@ export async function saveProfileEdit(_prev: unknown, formData: FormData) {
       } catch { return []; }
     })(),
     show_gender: getArray("show_gender"),
-    discoverable: formData.get("discoverable") === "on",
+    discoverable: formData.get("discoverable") === "true",
   };
 
   const parsed = profileEditSchema.safeParse(payload);

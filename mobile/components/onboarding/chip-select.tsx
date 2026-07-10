@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, radii } from "@freeborn/shared";
 
@@ -23,23 +22,20 @@ export function ChipSelect({
   optional,
   max,
 }: ChipSelectProps) {
-  const [selected, setSelected] = useState<string[]>(value);
-
   const toggle = (option: string) => {
-    const isSelected = selected.includes(option);
+    const isSelected = value.includes(option);
     let next: string[];
     if (isSelected) {
-      next = selected.filter((item) => item !== option);
-    } else if (max && selected.length >= max) {
+      next = value.filter((item) => item !== option);
+    } else if (max && value.length >= max) {
       return;
     } else {
-      next = [...selected, option];
+      next = [...value, option];
     }
-    setSelected(next);
     onChange(next);
   };
 
-  const atMax = Boolean(max && selected.length >= max);
+  const atMax = Boolean(max && value.length >= max);
 
   return (
     <View style={styles.wrapper}>
@@ -53,14 +49,14 @@ export function ChipSelect({
           ) : null}
           {max ? (
             <Text style={styles.counter}>
-              {selected.length}/{max}
+              {value.length}/{max}
             </Text>
           ) : null}
         </View>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
         {options.map((option) => {
-          const active = selected.includes(option);
+          const active = value.includes(option);
           return (
             <Pressable
               key={option}

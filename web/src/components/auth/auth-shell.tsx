@@ -1,16 +1,35 @@
 import Link from "next/link";
 import { brand } from "@freeborn/shared";
 import { Wordmark } from "@/components/wordmark";
+import { BadgeIcon, HeartIcon, ShieldIcon } from "@/components/icons";
+
+const trustPoints = [
+  {
+    icon: ShieldIcon,
+    title: "Private by design",
+    body: "Your details stay yours. We verify people, not profiles.",
+  },
+  {
+    icon: BadgeIcon,
+    title: "Real, verified people",
+    body: "Photo verification keeps catfish and bots out the door.",
+  },
+  {
+    icon: HeartIcon,
+    title: "One match at a time",
+    body: "No endless swiping — just thoughtful people, nearby.",
+  },
+] as const;
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 hero-grid opacity-25" />
-      <div className="orb absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[rgba(255,133,120,0.12)]" />
-      <div className="orb orb-alt absolute -right-20 top-10 h-80 w-80 rounded-full bg-[rgba(140,207,255,0.10)]" />
+      <div className="pointer-events-none absolute inset-0 hero-grid opacity-20" />
+      <div className="orb absolute -left-24 -top-24 h-80 w-80 rounded-full bg-[rgba(239,94,94,0.12)] blur-[2px]" />
+      <div className="orb orb-alt absolute -right-24 top-10 h-96 w-96 rounded-full bg-[rgba(138,110,242,0.12)] blur-[2px]" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-[1280px] flex-col px-6 py-6 sm:px-8 lg:px-10">
-        <header className="glass-panel premium-border flex items-center justify-between rounded-full px-4 py-3 sm:px-6">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[1280px] flex-col px-6 py-6 sm:px-8 lg:px-10">
+        <header className="surface ring-pearl flex items-center justify-between rounded-full px-4 py-3 sm:px-6">
           <Wordmark />
           <Link
             href="/"
@@ -20,38 +39,42 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           </Link>
         </header>
 
-        <section className="grid flex-1 items-center gap-10 py-8 lg:grid-cols-[1fr_1fr] lg:py-16">
+        <section className="grid flex-1 items-center gap-10 py-8 lg:grid-cols-[1fr_0.92fr] lg:py-16">
           <div className="hidden lg:block">
-            <div className="glass-panel premium-border rounded-3xl p-8 xl:p-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-stone)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-gold)]" />
-                A premium experience
+            <div className="surface ring-ember relative overflow-hidden rounded-[32px] p-9 xl:p-11">
+              <div
+                className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-70 blur-2xl"
+                style={{ background: "radial-gradient(circle, rgba(217,167,82,0.22), transparent 65%)" }}
+              />
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-stone)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-ember-500)]" />
+                Dating, with intention
               </div>
-              <h1 className="mt-6 font-[family-name:var(--font-display)] text-[clamp(2.5rem,4vw,4rem)] leading-[0.94] tracking-[-0.05em] text-[var(--color-pearl)]">
+              <h1 className="relative mt-6 font-[family-name:var(--font-display)] text-[clamp(2.25rem,3.4vw,3.4rem)] leading-[1.0] tracking-[-0.04em] text-[var(--color-pearl)]">
                 Trust should feel effortless from the first step.
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-8 text-[var(--color-mist)]">
-                {brand.manifesto} Your journey starts with a secure, calm sign-in that respects your privacy.
+              <p className="relative mt-5 max-w-lg text-lg leading-8 text-[var(--color-mist)]">
+                {brand.manifesto}
               </p>
 
-              <div className="mt-10 grid gap-4">
-                {[
-                  { title: "Secure & private", desc: "Your data is encrypted and never shared without your consent." },
-                  { title: "Works everywhere", desc: "Seamless access from your phone, tablet, or computer." },
-                  { title: "Recovery built in", desc: "Forgot your password? Reset it securely in minutes." },
-                ].map((item, i) => (
-                  <div key={item.title} className="flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <div className={`mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br ${
-                      i === 0 ? "from-rose-400/20 to-amber-400/10" : i === 1 ? "from-sky-400/20 to-violet-400/10" : "from-emerald-400/20 to-teal-400/10"
-                    }`}>
-                      <div className="h-2 w-2 rounded-full bg-white/40" />
+              <div className="relative mt-9 space-y-3">
+                {trustPoints.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.title}
+                      className="flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-white/14 hover:bg-white/[0.05]"
+                    >
+                      <span className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-[var(--color-ember-300)]">
+                        <Icon size={18} />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-[var(--color-pearl)]">{item.title}</p>
+                        <p className="mt-0.5 text-[13px] leading-6 text-[var(--color-mist)]">{item.body}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[var(--color-pearl)]">{item.title}</p>
-                      <p className="mt-1 text-sm leading-6 text-[var(--color-mist)]">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

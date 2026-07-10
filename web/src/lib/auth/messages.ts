@@ -52,8 +52,8 @@ export const authStatusMessages = {
   },
   "env-missing": {
     tone: "error" as const,
-    title: "Supabase is not configured",
-    body: "Add the required environment variables before using authentication locally.",
+    title: "We can't sign you in right now",
+    body: "Something on our end isn't quite ready. Please try again in a moment.",
   },
 };
 

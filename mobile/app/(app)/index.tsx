@@ -1,14 +1,41 @@
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors, radii } from "@freeborn/shared";
+import { router } from "expo-router";
+import { colors, radii, type UserProfileRow } from "@freeborn/shared";
 import { GlassCard } from "@/components/glass-card";
 import { NoticeCard } from "@/components/auth/notice-card";
 import { Wordmark } from "@/components/wordmark";
 import { useAuth } from "@/hooks/use-auth";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export default function AccountScreen() {
   const { user, notice, clearNotice, signOut } = useAuth();
+  const [profile, setProfile] = useState<UserProfileRow | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      if (!user || !isSupabaseConfigured) return;
+      const { data } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle<UserProfileRow>();
+      if (mounted) setProfile(data);
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (profile && profile.onboarding_stage === "account_created") {
+      router.replace("/(app)/onboarding");
+    }
+  }, [profile]);
 
   return (
     <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={styles.container}>
@@ -26,9 +53,10 @@ export default function AccountScreen() {
               <View style={styles.eyebrowDot} />
               <Text style={styles.eyebrowLabel}>Protected route</Text>
             </View>
-            <Text style={styles.title}>Authentication now feels native, secure, and calm.</Text>
+            <Text style={styles.title}>Your profile foundation is ready.</Text>
             <Text style={styles.description}>
-              Freeborn is restoring your session automatically, protecting the app shell, and carrying account trust forward into the next phase.
+              Phase 2 is live on mobile. Your onboarding is complete, and the app shell is ready for
+              the next chapter of Freeborn.
             </Text>
           </View>
 
@@ -51,24 +79,26 @@ export default function AccountScreen() {
               </View>
               <View style={styles.statCard}>
                 <Text style={styles.statLabel}>Provider</Text>
-                <Text style={styles.statValue}>{(user?.app_metadata?.providers as string[] | undefined)?.join(", ") || "email"}</Text>
+                <Text style={styles.statValue}>
+                  {(user?.app_metadata?.providers as string[] | undefined)?.join(", ") || "email"}
+                </Text>
               </View>
               <View style={styles.statCard}>
-                <Text style={styles.statLabel}>Session</Text>
-                <Text style={styles.statValue}>Restored</Text>
+                <Text style={styles.statLabel}>Profile</Text>
+                <Text style={styles.statValue}>{profile?.profile_status ?? "draft"}</Text>
               </View>
             </View>
           </GlassCard>
 
           <GlassCard>
-            <Text style={styles.sectionTitle}>Phase 1 delivered</Text>
+            <Text style={styles.sectionTitle}>Phase 2 delivered</Text>
             <View style={styles.list}>
               {[
-                "Email sign up and sign in",
-                "Google sign in on native mobile",
-                "Password reset deep links",
-                "Automatic session restore",
-                "Protected route gating",
+                "Five-step onboarding on native mobile",
+                "Display name, age validation, gender, and location",
+                "Bio, relationship goals, interests, and lifestyle",
+                "Deal breakers, occupation, and education",
+                "Automatic progress saving with shared Zod validation",
               ].map((item) => (
                 <View key={item} style={styles.listRow}>
                   <View style={styles.listDot} />
@@ -189,6 +219,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     lineHeight: 22,
+    textTransform: "capitalize",
   },
   list: {
     marginTop: 18,

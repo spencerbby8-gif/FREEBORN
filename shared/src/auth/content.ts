@@ -17,7 +17,7 @@ export const authModes = {
     title: "Reset your password",
     eyebrow: "Account recovery",
     description:
-      "We’ll send a secure recovery link so you can choose a new password without friction.",
+      "We'll send a secure recovery link so you can choose a new password without friction.",
     submitLabel: "Send reset link",
   },
   updatePassword: {
@@ -35,3 +35,39 @@ export const authTrustPoints = [
   "Email verification and recovery flows",
   "Protected routes with restored sessions",
 ] as const;
+
+export const onboardingIntro = {
+  eyebrow: "Phase 2 · Onboarding",
+  title: "Build the profile people will actually remember.",
+  description:
+    "Take a few minutes to share who you are. Every field is saved automatically, and you can always edit later.",
+} as const;
+
+export const onboardingComplete = {
+  eyebrow: "Profile ready",
+  title: "Your Freeborn profile is live.",
+  description:
+    "You're set up with a thoughtful foundation. You can refine any of this from your profile later.",
+} as const;
+
+export const onboardingFieldHints = {
+  display_name:
+    "This is how you'll appear to others. Use your real name, a nickname, or a handle you like.",
+  birth_date: "We use this to confirm you're 18 or older. It's never shown publicly.",
+  gender: "Choose the option that feels most like you. This shapes who sees your profile.",
+  city: "Share the city you live in so matches feel close enough to be real.",
+  region: "Optional. A state, province, or region helps narrow discovery.",
+  country_code: "Optional. Two-letter country code, like US, CA, GB, or AU.",
+  bio:
+    "A short, honest introduction. What do you care about? What does a good Sunday look like?",
+  relationship_goals:
+    "Pick up to three. This shapes the kind of connections Freeborn encourages for you.",
+  interests:
+    "Choose the things you genuinely enjoy. These power conversation starters and discovery.",
+  lifestyle_preferences:
+    "How do you spend your time? These help surface people who fit your rhythm.",
+  deal_breakers:
+    "Optional. The things that would make a match feel off. Keeps discovery honest.",
+  occupation: "Optional. Share what you do, or keep it private for now.",
+  education: "Optional. A school, field of study, or the last place you learned something meaningful.",
+} as const;

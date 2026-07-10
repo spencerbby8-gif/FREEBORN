@@ -209,3 +209,60 @@ export type OnboardingInterestsLifestyleInput = z.input<typeof onboardingInteres
 export type OnboardingPreferencesExtrasInput = z.input<typeof onboardingPreferencesExtrasSchema>;
 export type OnboardingProfileInput = z.input<typeof onboardingProfileSchema>;
 export type OnboardingProfilePayload = z.output<typeof onboardingProfileSchema>;
+
+// Phase 3: Discovery, profile editing, prompts
+export const profileHeightSchema = z
+  .number()
+  .int()
+  .min(120, "Height must be at least 120 cm.")
+  .max(230, "Height must be under 230 cm.")
+  .nullable()
+  .optional();
+
+export const promptAnswerSchema = z.object({
+  prompt: z.string().trim().min(3).max(120),
+  answer: z.string().trim().min(8, "Answer with at least 8 characters.").max(280, "Keep answers under 280 characters."),
+});
+
+export const profilePromptsSchema = z.array(promptAnswerSchema).max(3);
+
+export const discoveryPreferencesSchema = z.object({
+  age_min: z.number().int().min(18).max(80),
+  age_max: z.number().int().min(18).max(99),
+  distance_km: z.number().int().min(5).max(500),
+  show_genders: z.array(onboardingGenderSchema).min(1, "Select at least one."),
+  relationship_intents: onboardingRelationshipGoalsSchema,
+  verified_only: z.boolean().default(false),
+  photos_required: z.boolean().default(true),
+  deal_breaker_strict: z.boolean().default(true),
+}).refine((v) => v.age_max >= v.age_min, {
+  message: "Maximum age must be at least minimum age.",
+  path: ["age_max"],
+});
+
+export const profileEditSchema = onboardingProfileSchema.extend({
+  height_cm: profileHeightSchema,
+  prompt_answers: profilePromptsSchema.optional().default([]),
+  show_gender: z.array(onboardingGenderSchema).optional().default([]),
+  discoverable: z.boolean().default(true),
+});
+
+export const swipeActionSchema = z.object({
+  liked_id: z.string().uuid(),
+  action: z.enum(["like", "pass", "superlike"]),
+  note: z.string().trim().max(180).optional(),
+});
+
+export const messageSendSchema = z.object({
+  match_id: z.string().uuid(),
+  body: z.string().trim().min(1, "Say something kind to start.").max(2000, "Keep it under 2000 characters."),
+});
+
+export type ProfileEditInput = z.input<typeof profileEditSchema>;
+export type ProfileEditPayload = z.output<typeof profileEditSchema>;
+export type DiscoveryPreferencesInput = z.input<typeof discoveryPreferencesSchema>;
+export type DiscoveryPreferencesPayload = z.output<typeof discoveryPreferencesSchema>;
+export type SwipeActionInput = z.input<typeof swipeActionSchema>;
+export type SwipeActionPayload = z.output<typeof swipeActionSchema>;
+export type MessageSendInput = z.input<typeof messageSendSchema>;
+export type MessageSendPayload = z.output<typeof messageSendSchema>;

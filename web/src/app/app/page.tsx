@@ -1,155 +1,180 @@
 import { redirect } from "next/navigation";
-import type { UserProfileRow } from "@freeborn/shared";
-import { Wordmark } from "@/components/wordmark";
-import { SectionLabel } from "@/components/section-label";
+import type { DiscoveryCandidate, ProfilePhoto, UserProfileRow, DiscoveryPreferencesRow } from "@freeborn/shared";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AppShell } from "@/components/app/app-shell";
+import { DiscoverClient } from "@/components/app/discover-client";
 
-function formatDate(value: string | null | undefined) {
-  if (!value) return "Not available yet";
+export const dynamic = "force-dynamic";
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(value));
-}
-
-export default async function AppPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = await searchParams;
-  const status = Array.isArray(params.status) ? params.status[0] : params.status;
+export default async function DiscoverPage() {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) redirect("/auth?mode=sign-in");
+
   const { data: profile } = await supabase
     .from("user_profiles")
     .select("*")
-    .eq("id", user?.id ?? "")
+    .eq("id", user.id)
     .maybeSingle<UserProfileRow>();
 
-  if (!user) {
-    redirect("/auth?mode=sign-in");
+  if (!profile) redirect("/auth?mode=sign-in");
+  if (profile.onboarding_stage === "account_created") redirect("/app/onboarding");
+
+  // Ensure discovery preferences exist
+  await supabase.from("discovery_preferences").upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
+
+  const { data: myPhotos } = await supabase
+    .from("profile_photos")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("position", { ascending: true });
+
+  const primaryPhoto = (myPhotos as ProfilePhoto[] | null)?.find((p) => p.is_primary) ?? myPhotos?.[0];
+  const photoUrl = primaryPhoto
+    ? supabase.storage.from("profile-photos").getPublicUrl(primaryPhoto.storage_path).data.publicUrl
+    : null;
+
+  // discover candidates via RPC
+  const { data: candidatesRaw } = await supabase.rpc("discover_candidates", {
+    p_user: user.id,
+    p_limit: 24,
+    p_offset: 0,
+  });
+
+  const candidates = (candidatesRaw as DiscoveryCandidate[]) ?? [];
+
+  // fetch photos for candidates
+  const candidateIds = candidates.map((c) => c.id);
+  const photosByUser = new Map<string, ProfilePhoto[]>();
+  if (candidateIds.length) {
+    const { data: photos } = await supabase
+      .from("profile_photos")
+      .select("*")
+      .in("user_id", candidateIds)
+      .order("position", { ascending: true });
+    (photos as ProfilePhoto[] | null)?.forEach((p) => {
+      const arr = photosByUser.get(p.user_id) ?? [];
+      arr.push(p);
+      photosByUser.set(p.user_id, arr);
+    });
   }
 
-  if (profile && profile.onboarding_stage === "account_created") {
-    redirect("/app/onboarding");
-  }
+  // stats
+  const { count: likesCount } = await supabase
+    .from("user_swipes")
+    .select("*", { count: "exact", head: true })
+    .eq("liked_id", user.id)
+    .eq("action", "like");
 
-  const providers = user?.app_metadata?.providers as string[] | undefined;
-  const isVerified = Boolean(user?.email_confirmed_at || profile?.is_verified);
-  const displayName = profile?.display_name ?? user?.email ?? "You";
+  const { count: matchesCount } = await supabase
+    .from("user_matches")
+    .select("*", { count: "exact", head: true })
+    .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
+    .eq("status", "active");
+
+  const { data: prefs } = await supabase
+    .from("discovery_preferences")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle<DiscoveryPreferencesRow>();
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 hero-grid opacity-30" />
-      <div className="orb absolute left-[8%] top-20 h-56 w-56 rounded-full bg-[rgba(255,133,120,0.16)]" />
-      <div className="orb orb-alt absolute right-[10%] top-12 h-72 w-72 rounded-full bg-[rgba(140,207,255,0.15)]" />
-      <div className="relative mx-auto flex min-h-screen max-w-[1240px] flex-col px-6 py-6 sm:px-8 lg:px-10">
-        <header className="glass-panel premium-border flex items-center justify-between rounded-full px-4 py-3 sm:px-6">
-          <Wordmark />
-          <form action="/auth/signout" method="post">
-            <button className="rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/10">
-              Sign out
-            </button>
-          </form>
-        </header>
-
-        <section className="grid flex-1 gap-6 py-10 lg:grid-cols-[1.04fr_0.96fr]">
-          <div className="glass-panel premium-border rounded-[40px] p-7 sm:p-10">
-            <SectionLabel label="Protected account area" />
-            <h1 className="mt-5 max-w-[11ch] font-[family-name:var(--font-display)] text-[clamp(3rem,6vw,5rem)] leading-[0.94] tracking-[-0.05em] text-[var(--color-pearl)]">
-              Welcome home, {displayName.split(" ")[0]}.
-            </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-mist)]">
-              Phase 2 is live. Your profile foundation is in place, and the app shell is ready for
-              the next chapter of Freeborn.
-            </p>
-
-            {status === "verified" || status === "password-updated" || status === "onboarded" ? (
-              <div className="mt-7 rounded-[28px] border border-emerald-300/24 bg-emerald-300/10 p-5 text-emerald-50">
-                <p className="text-sm font-semibold">
-                  {status === "verified"
-                    ? "Email confirmed"
-                    : status === "password-updated"
-                      ? "Password updated"
-                      : "Profile complete"}
-                </p>
-                <p className="mt-1 text-sm leading-6 opacity-90">
-                  {status === "verified"
-                    ? "Your account is active and ready for the next phase."
-                    : status === "password-updated"
-                      ? "Your new password has been saved securely."
-                      : "Your Freeborn profile is live. Discovery and matching arrive in the next phase."}
-                </p>
-              </div>
-            ) : null}
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              <article className="premium-border rounded-[28px] bg-white/[0.05] p-5">
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-stone)]">Email</p>
-                <p className="mt-3 text-base font-semibold text-[var(--color-pearl)]">{user?.email}</p>
-              </article>
-              <article className="premium-border rounded-[28px] bg-white/[0.05] p-5">
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-stone)]">Verification</p>
-                <p className="mt-3 text-base font-semibold text-[var(--color-pearl)]">
-                  {isVerified ? "Verified" : "Pending confirmation"}
-                </p>
-              </article>
-              <article className="premium-border rounded-[28px] bg-white/[0.05] p-5">
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-stone)]">Providers</p>
-                <p className="mt-3 text-base font-semibold capitalize text-[var(--color-pearl)]">
-                  {providers?.join(", ") || "email"}
-                </p>
-              </article>
+    <AppShell displayName={profile.display_name} photoUrl={photoUrl}>
+      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+        <div>
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
+                Discovery · Phase 3
+              </p>
+              <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(2.2rem,4vw,3.3rem)] leading-[0.95] tracking-[-0.045em] text-[var(--color-pearl)]">
+                Thoughtful people, nearby.
+              </h1>
+            </div>
+            <div className="hidden text-right text-xs text-[var(--color-mist)] sm:block">
+              <div>{matchesCount ?? 0} matches</div>
+              <div>{likesCount ?? 0} likes received</div>
             </div>
           </div>
 
-          <div className="grid gap-5">
-            <article className="premium-border rounded-[34px] bg-[rgba(247,241,232,0.96)] p-7 text-[var(--color-ink)] shadow-[0_24px_70px_rgba(5,10,18,0.28)] sm:p-8">
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[rgba(11,19,32,0.48)]">
-                Session state
-              </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-sm text-[rgba(11,19,32,0.58)]">Last identity update</p>
-                  <p className="mt-2 text-lg font-semibold">{formatDate(user?.updated_at)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[rgba(11,19,32,0.58)]">Profile row updated</p>
-                  <p className="mt-2 text-lg font-semibold">{formatDate(profile?.updated_at)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[rgba(11,19,32,0.58)]">Onboarding stage</p>
-                  <p className="mt-2 text-lg font-semibold capitalize">
-                    {profile?.onboarding_stage?.replaceAll("_", " ") || "Account created"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-[rgba(11,19,32,0.58)]">Profile status</p>
-                  <p className="mt-2 text-lg font-semibold capitalize">{profile?.profile_status || "draft"}</p>
-                </div>
-              </div>
-            </article>
+          <DiscoverClient
+            initialCandidates={candidates}
+            photosByUser={Object.fromEntries(photosByUser)}
+            emptyState={!candidates.length}
+          />
+        </div>
 
-            <article className="glass-panel premium-border rounded-[34px] p-7 sm:p-8">
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
-                What Phase 2 now guarantees
+        <aside className="space-y-5">
+          <div className="glass-panel premium-border rounded-[32px] p-6 sm:p-7">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-stone)]">
+              Your filters
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-[var(--color-mist)]">Age</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--color-pearl)]">
+                  {prefs?.age_min ?? profile.age_min_preference} – {prefs?.age_max ?? profile.age_max_preference}
+                </p>
               </div>
-              <ul className="mt-5 space-y-4 text-sm leading-7 text-[var(--color-pearl)]/92 sm:text-base">
-                <li>• A polished, five-step onboarding flow across web and mobile.</li>
-                <li>• Display name, age validation, gender, location, bio, and relationship goals.</li>
-                <li>• Interests, lifestyle preferences, deal breakers, occupation, and education.</li>
-                <li>• Automatic progress saving with shared Zod validation and premium UI.</li>
-              </ul>
-            </article>
+              <div>
+                <p className="text-[var(--color-mist)]">Distance</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--color-pearl)]">
+                  {prefs?.distance_km ?? profile.max_distance_km} km
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-[var(--color-mist)]">Showing</p>
+                <p className="mt-1 text-[15px] font-semibold capitalize text-[var(--color-pearl)]">
+                  {(prefs?.show_genders ?? []).join(", ") || "Everyone thoughtful"}
+                </p>
+              </div>
+            </div>
+            <a
+              href="/app/profile#discovery"
+              className="mt-5 inline-flex text-sm font-semibold text-[var(--color-accent-gold)] hover:underline"
+            >
+              Adjust preferences →
+            </a>
           </div>
-        </section>
+
+          <div className="premium-border rounded-[32px] bg-[rgba(247,241,232,0.97)] p-6 text-[var(--color-ink)] shadow-[var(--shadow-card)] sm:p-7">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgba(11,19,32,0.5)]">
+              Profile strength
+            </p>
+            <div className="mt-3 flex items-baseline gap-3">
+              <span className="font-[family-name:var(--font-display)] text-4xl">
+                {Math.min(35 + (profile.photo_count ?? 0) * 15 + (profile.bio ? 20 : 0) + (profile.interests?.length ? 15 : 0), 98)}%
+              </span>
+              <span className="text-sm text-[rgba(11,19,32,0.66)]">complete</span>
+            </div>
+            <ul className="mt-4 space-y-2 text-sm text-[rgba(11,19,32,0.78)]">
+              <li>• {profile.photo_count} {profile.photo_count === 1 ? "photo" : "photos"} uploaded</li>
+              <li>• {profile.interests?.length ?? 0} interests selected</li>
+              <li>• {profile.is_verified ? "Verified email" : "Email pending verify"}</li>
+            </ul>
+            <a
+              href="/app/profile"
+              className="mt-5 inline-flex w-full items-center justify-center rounded-[18px] bg-[var(--color-ink)] px-4 py-3 text-sm font-bold text-white hover:bg-black"
+            >
+              Edit profile
+            </a>
+          </div>
+
+          <div className="glass-panel premium-border rounded-[32px] p-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-stone)]">
+              Trust signals
+            </p>
+            <div className="mt-4 space-y-3 text-[14px] leading-6 text-[var(--color-pearl)]/92">
+              <p>• Verification-minded safety is built into every profile.</p>
+              <p>• Private, respectful conversations — no screenshots broadcast.</p>
+              <p>• Human moderation + clear reporting tools.</p>
+            </div>
+          </div>
+        </aside>
       </div>
-    </main>
+    </AppShell>
   );
 }

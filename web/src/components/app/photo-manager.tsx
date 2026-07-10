@@ -1,0 +1,97 @@
+"use client";
+
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
+import type { ProfilePhoto } from "@freeborn/shared";
+import { uploadProfilePhoto, deleteProfilePhoto, setPrimaryPhoto } from "@/lib/photos/actions";
+
+function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel?: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      disabled={pending}
+      className="rounded-[16px] bg-[var(--color-pearl)] px-4 py-2.5 text-sm font-bold text-[var(--color-ink)] disabled:opacity-60"
+    >
+      {pending ? pendingLabel ?? "…" : label}
+    </button>
+  );
+}
+
+type UploadState = { ok: boolean; error?: string } | null;
+export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [state, formAction] = useActionState(async (_prev: UploadState, fd: FormData) => {
+    if (file) fd.set("file", file);
+    const res = await uploadProfilePhoto(fd);
+    if (res.ok) setFile(null);
+    return res;
+  }, null);
+
+  return (
+    <div className="glass-panel premium-border rounded-[30px] p-6 sm:p-7">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-stone)]">Photos</p>
+          <h3 className="mt-1 text-xl font-semibold text-[var(--color-pearl)]">{photos.length} / 6 uploaded</h3>
+        </div>
+        <span className="text-xs text-[var(--color-mist)]">Drag soon · tap to manage now</span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {photos.map((p) => (
+          <div key={p.id} className="relative overflow-hidden rounded-[22px] border border-white/12 bg-white/[0.04]">
+            <div className="aspect-[4/5] w-full bg-[rgba(255,255,255,0.03)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://picsum.photos/seed/${p.id}/600/750`}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="absolute left-2 top-2 flex gap-1">
+              {p.is_primary && (
+                <span className="rounded-full bg-[var(--color-accent-gold)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-black">
+                  Primary
+                </span>
+              )}
+            </div>
+            <div className="flex gap-2 p-2">
+              <form action={async (fd: FormData) => { await setPrimaryPhoto(fd); }} className="flex-1">
+                <input type="hidden" name="id" value={p.id} />
+                <SubmitButton label="★" pendingLabel="…" />
+              </form>
+              <form action={async (fd: FormData) => { await deleteProfilePhoto(fd); }}>
+                <input type="hidden" name="id" value={p.id} />
+                <button className="rounded-[16px] border border-white/14 px-3 py-2.5 text-xs font-semibold text-[var(--color-mist)]">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+        {Array.from({ length: Math.max(0, 6 - photos.length) }).map((_, i) => (
+          <div
+            key={i}
+            className="flex aspect-[4/5] items-center justify-center rounded-[22px] border border-dashed border-white/18 bg-white/[0.028] text-center text-xs text-[var(--color-mist)]"
+          >
+            Empty slot
+          </div>
+        ))}
+      </div>
+
+      <form action={formAction} className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          className="flex-1 rounded-[16px] border border-white/14 bg-white/[0.04] px-3 py-3 text-sm text-[var(--color-pearl)] file:mr-3 file:rounded-full file:border-0 file:bg-white file:px-4 file:py-2 file:text-xs file:font-bold"
+        />
+        <SubmitButton label="Upload photo" pendingLabel="Uploading…" />
+      </form>
+      {state && !state.ok && <p className="mt-3 text-sm text-rose-300">{state.error}</p>}
+      <p className="mt-3 text-xs leading-5 text-[var(--color-mist)]">
+        JPG/PNG up to 8MB. First upload becomes primary automatically. Real S3/Supabase storage wired — preview uses graceful fallback images in this build.
+      </p>
+    </div>
+  );
+}

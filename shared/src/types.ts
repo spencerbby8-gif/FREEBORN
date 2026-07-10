@@ -31,6 +31,68 @@ export type OnboardingStep =
   | "preferences_extras"
   | "complete";
 
+export type ProfilePhoto = {
+  id: string;
+  user_id: string;
+  storage_path: string;
+  blurhash: string | null;
+  width: number | null;
+  height: number | null;
+  position: number;
+  is_primary: boolean;
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type DiscoveryPreferencesRow = {
+  user_id: string;
+  age_min: number;
+  age_max: number;
+  distance_km: number;
+  show_genders: string[];
+  relationship_intents: string[];
+  deal_breaker_strict: boolean;
+  verified_only: boolean;
+  photos_required: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserSwipeAction = "like" | "pass" | "superlike";
+
+export type UserSwipeRow = {
+  liker_id: string;
+  liked_id: string;
+  action: UserSwipeAction;
+  note: string | null;
+  created_at: string;
+};
+
+export type UserMatchRow = {
+  id: string;
+  user_a: string;
+  user_b: string;
+  initiated_by: string | null;
+  status: "active" | "archived" | "blocked";
+  last_message_at: string | null;
+  created_at: string;
+};
+
+export type MatchMessageRow = {
+  id: string;
+  match_id: string;
+  sender_id: string;
+  body: string;
+  read_at: string | null;
+  created_at: string;
+};
+
+export type PromptAnswer = {
+  prompt: string;
+  answer: string;
+};
+
 export type UserProfileRow = {
   id: string;
   email: string;
@@ -59,6 +121,44 @@ export type UserProfileRow = {
   created_at: string;
   updated_at: string;
   onboarding_completed_at: string | null;
+  // Phase 3 additions
+  height_cm: number | null;
+  prompt_answers: PromptAnswer[];
+  show_gender: string[];
+  age_min_preference: number;
+  age_max_preference: number;
+  max_distance_km: number;
+  discoverable: boolean;
+  last_active_at: string;
+  photo_count: number;
+  verified_photo: boolean;
+  auth_providers: string[];
+};
+
+export type DiscoveryCandidate = {
+  id: string;
+  display_name: string | null;
+  bio: string | null;
+  city: string | null;
+  region: string | null;
+  country_code: string | null;
+  gender: string | null;
+  birth_date: string | null;
+  age: number | null;
+  relationship_goals: string[];
+  interests: string[];
+  lifestyle_preferences: string[];
+  occupation: string | null;
+  education: string | null;
+  is_verified: boolean;
+  photo_count: number;
+  last_active_at: string | null;
+  photos?: ProfilePhoto[];
+};
+
+export type ProfileWithPhotos = UserProfileRow & {
+  age: number | null;
+  photos: ProfilePhoto[];
 };
 
 export type OnboardingDraft = {

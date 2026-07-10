@@ -215,6 +215,28 @@ export const onboardingStepOrder: OnboardingStep[] = [
   "preferences_extras",
 ];
 
+export const profilePrompts = [
+  "The way to win me over is…",
+  "My perfect Sunday looks like…",
+  "I’m looking for someone who…",
+  "A hill I will die on…",
+  "My love language is…",
+  "You should leave a comment if…",
+  "The last great book I read…",
+  "Teach me something about…",
+  "I geek out on…",
+  "My most controversial opinion…",
+  "A life goal I’m working toward…",
+  "I’m known for…",
+] as const;
+
+export const discoveryNav = [
+  { id: "discover", label: "Discover", icon: "spark" },
+  { id: "likes", label: "Likes", icon: "heart" },
+  { id: "matches", label: "Matches", icon: "chat" },
+  { id: "profile", label: "Profile", icon: "user" },
+] as const;
+
 export const emptyOnboardingDraft = {
   display_name: "",
   birth_date: "",
@@ -229,4 +251,12 @@ export const emptyOnboardingDraft = {
   deal_breakers: [] as string[],
   occupation: "",
   education: "",
+};
+
+export const emptyProfileDraft = {
+  ...emptyOnboardingDraft,
+  height_cm: null as number | null,
+  prompt_answers: [] as Array<{ prompt: string; answer: string }>,
+  show_gender: [] as string[],
+  discoverable: true,
 };

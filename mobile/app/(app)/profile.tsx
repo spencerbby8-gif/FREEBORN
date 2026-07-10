@@ -43,24 +43,35 @@ export default function ProfileScreen() {
     <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.header}><Wordmark /><Pressable onPress={signOut}><Text style={styles.signout}>Sign out</Text></Pressable></View>
+          <View style={styles.header}>
+            <Wordmark />
+            <Pressable onPress={signOut}>
+              <Text style={styles.signout}>Sign out</Text>
+            </Pressable>
+          </View>
 
           <Text style={styles.title}>Your profile</Text>
-          <Text style={styles.subtitle}>Phase 3 · photos, prompts, discovery controls</Text>
+          <Text style={styles.subtitle}>Make it unforgettable</Text>
 
+          {/* Photos section */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Photos · {photos.length}/6</Text>
             <View style={styles.photoGrid}>
               {photos.map(p => (
-                <View key={p.id} style={styles.photoSlot}><Text style={styles.photoText}>Photo {p.position+1}</Text></View>
+                <View key={p.id} style={styles.photoSlot}>
+                  <Text style={styles.photoText}>📷</Text>
+                </View>
               ))}
-              {Array.from({ length: Math.max(0, 3 - photos.length) }).map((_,i)=>(
-                <View key={i} style={[styles.photoSlot, { opacity: 0.5 }]}><Text style={styles.photoText}>Empty</Text></View>
+              {Array.from({ length: Math.max(0, 3 - photos.length) }).map((_, i) => (
+                <View key={i} style={[styles.photoSlot, { opacity: 0.4 }]}>
+                  <Text style={styles.photoText}>+</Text>
+                </View>
               ))}
             </View>
-            <Text style={styles.hint}>Upload via web for now — native picker coming next.</Text>
+            <Text style={styles.hint}>Add photos from your profile on the web.</Text>
           </View>
 
+          {/* Edit fields */}
           <View style={styles.card}>
             <Text style={styles.label}>Display name</Text>
             <Text style={styles.value}>{profile?.display_name ?? "—"}</Text>
@@ -84,12 +95,12 @@ export default function ProfileScreen() {
             </Pressable>
           </View>
 
+          {/* Account info */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Account</Text>
             <Text style={styles.meta}>{user?.email}</Text>
             <Text style={styles.meta}>Verified: {profile?.is_verified ? "Yes" : "No"}</Text>
             <Text style={styles.meta}>Status: {profile?.profile_status}</Text>
-            <Text style={styles.meta}>Photos: {profile?.photo_count ?? 0}</Text>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -98,7 +109,7 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 20, paddingBottom: 110, gap: 16 },
+  content: { padding: 20, paddingBottom: 120, gap: 16 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   signout: { color: colors.mist, fontSize: 13, fontWeight: "700" },
   title: { color: colors.pearl, fontSize: 28, fontWeight: "800", letterSpacing: -1, marginTop: 8 },
@@ -114,7 +125,7 @@ const styles = StyleSheet.create({
   saveText: { color: colors.ink, fontWeight: "900" },
   photoGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   photoSlot: { width: "30%", aspectRatio: 0.8, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: colors.lineStrong, alignItems: "center", justifyContent: "center" },
-  photoText: { color: colors.mist, fontSize: 11, fontWeight: "700" },
+  photoText: { color: colors.mist, fontSize: 18, fontWeight: "700" },
   hint: { color: colors.mist, fontSize: 12 },
   meta: { color: colors.mist, fontSize: 13, marginTop: 2 },
 });

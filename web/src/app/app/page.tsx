@@ -8,10 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DiscoverPage() {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth?mode=sign-in");
 
   const { data: profile } = await supabase
@@ -23,7 +20,6 @@ export default async function DiscoverPage() {
   if (!profile) redirect("/auth?mode=sign-in");
   if (profile.onboarding_stage === "account_created") redirect("/app/onboarding");
 
-  // Ensure discovery preferences exist
   await supabase.from("discovery_preferences").upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
 
   const { data: myPhotos } = await supabase
@@ -37,16 +33,11 @@ export default async function DiscoverPage() {
     ? supabase.storage.from("profile-photos").getPublicUrl(primaryPhoto.storage_path).data.publicUrl
     : null;
 
-  // discover candidates via RPC
   const { data: candidatesRaw } = await supabase.rpc("discover_candidates", {
-    p_user: user.id,
-    p_limit: 24,
-    p_offset: 0,
+    p_user: user.id, p_limit: 24, p_offset: 0,
   });
-
   const candidates = (candidatesRaw as DiscoveryCandidate[]) ?? [];
 
-  // fetch photos for candidates
   const candidateIds = candidates.map((c) => c.id);
   const photosByUser = new Map<string, ProfilePhoto[]>();
   if (candidateIds.length) {
@@ -62,7 +53,6 @@ export default async function DiscoverPage() {
     });
   }
 
-  // stats
   const { count: likesCount } = await supabase
     .from("user_swipes")
     .select("*", { count: "exact", head: true })
@@ -83,21 +73,18 @@ export default async function DiscoverPage() {
 
   return (
     <AppShell displayName={profile.display_name} photoUrl={photoUrl}>
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+      <div className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
-                Discovery · Phase 3
-              </p>
-              <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(2.2rem,4vw,3.3rem)] leading-[0.95] tracking-[-0.045em] text-[var(--color-pearl)]">
-                Thoughtful people, nearby.
-              </h1>
-            </div>
-            <div className="hidden text-right text-xs text-[var(--color-mist)] sm:block">
-              <div>{matchesCount ?? 0} matches</div>
-              <div>{likesCount ?? 0} likes received</div>
-            </div>
+          <div className="mb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-stone)]">
+              Discover
+            </p>
+            <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(1.8rem,3.5vw,2.8rem)] leading-[0.95] tracking-[-0.045em] text-[var(--color-pearl)]">
+              Thoughtful people, nearby.
+            </h1>
+            <p className="mt-2 text-sm text-[var(--color-mist)]">
+              {profile.display_name ? `Welcome back, ${profile.display_name.split(" ")[0]}.` : "Your curated feed is ready."}
+            </p>
           </div>
 
           <DiscoverClient
@@ -108,70 +95,90 @@ export default async function DiscoverPage() {
         </div>
 
         <aside className="space-y-5">
-          <div className="glass-panel premium-border rounded-[32px] p-6 sm:p-7">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-stone)]">
+          {/* Profile summary */}
+          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/8">
+                {photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img alt="" src={photoUrl} className="h-full w-full object-cover" />
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--color-stone)]">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[var(--color-pearl)]">{profile.display_name || "You"}</p>
+                <p className="text-xs text-[var(--color-mist)]">{matchesCount ?? 0} matches · {likesCount ?? 0} likes</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Filter summary */}
+          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">
               Your filters
             </p>
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-[var(--color-mist)]">Age</p>
-                <p className="mt-1 text-lg font-semibold text-[var(--color-pearl)]">
+                <p className="text-[var(--color-mist)] text-xs">Age range</p>
+                <p className="mt-1 text-base font-semibold text-[var(--color-pearl)]">
                   {prefs?.age_min ?? profile.age_min_preference} – {prefs?.age_max ?? profile.age_max_preference}
                 </p>
               </div>
               <div>
-                <p className="text-[var(--color-mist)]">Distance</p>
-                <p className="mt-1 text-lg font-semibold text-[var(--color-pearl)]">
+                <p className="text-[var(--color-mist)] text-xs">Distance</p>
+                <p className="mt-1 text-base font-semibold text-[var(--color-pearl)]">
                   {prefs?.distance_km ?? profile.max_distance_km} km
                 </p>
               </div>
-              <div className="col-span-2">
-                <p className="text-[var(--color-mist)]">Showing</p>
-                <p className="mt-1 text-[15px] font-semibold capitalize text-[var(--color-pearl)]">
-                  {(prefs?.show_genders ?? []).join(", ") || "Everyone thoughtful"}
-                </p>
-              </div>
             </div>
-            <a
-              href="/app/profile#discovery"
-              className="mt-5 inline-flex text-sm font-semibold text-[var(--color-accent-gold)] hover:underline"
-            >
+            <div className="mt-4">
+              <p className="text-[var(--color-mist)] text-xs">Showing</p>
+              <p className="mt-1 text-sm font-semibold capitalize text-[var(--color-pearl)]">
+                {(prefs?.show_genders ?? []).join(", ") || "Everyone"}
+              </p>
+            </div>
+            <a href="/app/profile#discovery" className="mt-5 inline-flex text-sm font-semibold text-[var(--color-accent-gold)] hover:text-[var(--color-pearl)] transition">
               Adjust preferences →
             </a>
           </div>
 
-          <div className="premium-border rounded-[32px] bg-[rgba(247,241,232,0.97)] p-6 text-[var(--color-ink)] shadow-[var(--shadow-card)] sm:p-7">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgba(11,19,32,0.5)]">
+          {/* Profile strength */}
+          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">
               Profile strength
             </p>
-            <div className="mt-3 flex items-baseline gap-3">
-              <span className="font-[family-name:var(--font-display)] text-4xl">
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="font-[family-name:var(--font-display)] text-3xl text-[var(--color-pearl)]">
                 {Math.min(35 + (profile.photo_count ?? 0) * 15 + (profile.bio ? 20 : 0) + (profile.interests?.length ? 15 : 0), 98)}%
               </span>
-              <span className="text-sm text-[rgba(11,19,32,0.66)]">complete</span>
+              <span className="text-xs text-[var(--color-mist)]">complete</span>
             </div>
-            <ul className="mt-4 space-y-2 text-sm text-[rgba(11,19,32,0.78)]">
-              <li>• {profile.photo_count} {profile.photo_count === 1 ? "photo" : "photos"} uploaded</li>
-              <li>• {profile.interests?.length ?? 0} interests selected</li>
-              <li>• {profile.is_verified ? "Verified email" : "Email pending verify"}</li>
+            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/8">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[var(--color-accent-rose)] to-[var(--color-accent-gold)]"
+                style={{ width: `${Math.min(35 + (profile.photo_count ?? 0) * 15 + (profile.bio ? 20 : 0) + (profile.interests?.length ? 15 : 0), 98)}%` }}
+              />
+            </div>
+            <ul className="mt-4 space-y-2 text-xs text-[var(--color-mist)]">
+              <li className="flex items-center gap-2">
+                <span className={`h-1.5 w-1.5 rounded-full ${profile.photo_count ? "bg-emerald-400" : "bg-white/20"}`} />
+                {profile.photo_count} photo{profile.photo_count !== 1 ? "s" : ""}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className={`h-1.5 w-1.5 rounded-full ${(profile.interests?.length ?? 0) > 0 ? "bg-emerald-400" : "bg-white/20"}`} />
+                {profile.interests?.length ?? 0} interests
+              </li>
+              <li className="flex items-center gap-2">
+                <span className={`h-1.5 w-1.5 rounded-full ${profile.is_verified ? "bg-emerald-400" : "bg-white/20"}`} />
+                {profile.is_verified ? "Verified" : "Not verified"}
+              </li>
             </ul>
-            <a
-              href="/app/profile"
-              className="mt-5 inline-flex w-full items-center justify-center rounded-[18px] bg-[var(--color-ink)] px-4 py-3 text-sm font-bold text-white hover:bg-black"
-            >
+            <a href="/app/profile" className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[var(--color-pearl)] px-4 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
               Edit profile
             </a>
-          </div>
-
-          <div className="glass-panel premium-border rounded-[32px] p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-stone)]">
-              Trust signals
-            </p>
-            <div className="mt-4 space-y-3 text-[14px] leading-6 text-[var(--color-pearl)]/92">
-              <p>• Verification-minded safety is built into every profile.</p>
-              <p>• Private, respectful conversations — no screenshots broadcast.</p>
-              <p>• Human moderation + clear reporting tools.</p>
-            </div>
           </div>
         </aside>
       </div>

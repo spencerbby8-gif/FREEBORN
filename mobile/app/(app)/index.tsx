@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { colors, radii, type DiscoveryCandidate, type ProfilePhoto, type UserProfileRow } from "@freeborn/shared";
 import { Wordmark } from "@/components/wordmark";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 export default function DiscoverScreen() {
   const { user, signOut } = useAuth();
@@ -23,10 +23,7 @@ export default function DiscoverScreen() {
     setLoading(true);
     const { data: p } = await supabase.from("user_profiles").select("*").eq("id", user.id).maybeSingle<UserProfileRow>();
     setProfile(p ?? null);
-    if (p?.onboarding_stage === "account_created") {
-      router.replace("/(app)/onboarding");
-      return;
-    }
+    if (p?.onboarding_stage === "account_created") { router.replace("/(app)/onboarding"); return; }
     const { data } = await supabase.rpc("discover_candidates", { p_user: user.id, p_limit: 24, p_offset: 0 });
     const cands = (data as DiscoveryCandidate[]) ?? [];
     setCandidates(cands);
@@ -35,13 +32,9 @@ export default function DiscoverScreen() {
     if (ids.length) {
       const { data: ph } = await supabase.from("profile_photos").select("*").in("user_id", ids).order("position");
       const map: Record<string, ProfilePhoto[]> = {};
-      (ph as ProfilePhoto[] ?? []).forEach(pp => {
-        (map[pp.user_id] ||= []).push(pp);
-      });
+      (ph as ProfilePhoto[] ?? []).forEach(pp => { (map[pp.user_id] ||= []).push(pp); });
       setPhotos(map);
-    } else {
-      setPhotos({});
-    }
+    } else { setPhotos({}); }
     setLoading(false);
   }, [user]);
 
@@ -52,21 +45,13 @@ export default function DiscoverScreen() {
     if (!current || !user || acting) return;
     setActing(true);
     const { error } = await supabase.from("user_swipes").upsert({
-      liker_id: user.id,
-      liked_id: current.id,
-      action,
+      liker_id: user.id, liked_id: current.id, action,
     }, { onConflict: "liker_id,liked_id" });
     if (!error && (action === "like" || action === "superlike")) {
-      // check match
-      const { data: m } = await supabase
-        .from("user_matches")
-        .select("id")
+      const { data: m } = await supabase.from("user_matches").select("id")
         .or(`and(user_a.eq.${user.id},user_b.eq.${current.id}),and(user_a.eq.${current.id},user_b.eq.${user.id})`)
         .maybeSingle();
-      if (m) {
-        setMatchedName(current.display_name ?? "Someone thoughtful");
-        setTimeout(() => setMatchedName(null), 2200);
-      }
+      if (m) { setMatchedName(current.display_name ?? "Someone thoughtful"); setTimeout(() => setMatchedName(null), 2200); }
     }
     setIndex(i => i + 1);
     setActing(false);
@@ -78,70 +63,104 @@ export default function DiscoverScreen() {
     <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={styles.container}>
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          {/* Header */}
           <View style={styles.header}>
             <Wordmark />
-            <Pressable onPress={signOut} style={styles.signout}><Text style={styles.signoutText}>Sign out</Text></Pressable>
+            <Pressable onPress={signOut} style={styles.signoutBtn}>
+              <Text style={styles.signoutText}>Sign out</Text>
+            </Pressable>
           </View>
 
-          <Text style={styles.eyebrow}>Phase 3 · Discovery</Text>
-          <Text style={styles.title}>Thoughtful people, nearby.</Text>
+          <Text style={styles.title}>Discover</Text>
           <Text style={styles.subtitle}>
-            {profile?.display_name ? `Welcome back, ${profile.display_name.split(" ")[0]}.` : "Your curated feed is live."} Swipe with intention.
+            {profile?.display_name ? `Welcome back, ${profile.display_name.split(" ")[0]}.` : "Your curated feed is live."}
           </Text>
 
           {loading ? (
-            <View style={styles.card}><ActivityIndicator color={colors.pearl} /><Text style={styles.loadingText}>Finding thoughtful profiles…</Text></View>
-          ) : !current ? (
             <View style={styles.card}>
+              <ActivityIndicator color={colors.pearl} size="large" />
+              <Text style={styles.loadingText}>Finding thoughtful profiles…</Text>
+            </View>
+          ) : !current ? (
+            <View style={[styles.card, styles.emptyCard]}>
+              <View style={styles.emptyIcon}>
+                <Text style={styles.emptyIconText}>✨</Text>
+              </View>
               <Text style={styles.emptyTitle}>All caught up</Text>
-              <Text style={styles.emptyBody}>You’ve seen everyone for now. Check back soon — Freeborn refreshes as new intentional profiles join.</Text>
-              <Pressable onPress={load} style={styles.primaryBtn}><Text style={styles.primaryBtnText}>Refresh</Text></Pressable>
+              <Text style={styles.emptyBody}>
+                {candidates.length === 0
+                  ? "We're finding thoughtful people near you. New profiles join every day."
+                  : "You've seen everyone for now. Check back soon."}
+              </Text>
+              <Pressable onPress={load} style={styles.primaryBtn}>
+                <Text style={styles.primaryBtnText}>Refresh</Text>
+              </Pressable>
             </View>
           ) : (
             <View style={styles.card}>
+              {/* Photo area */}
               <View style={styles.photoBox}>
-                <Text style={styles.initials}>{(current.display_name ?? "FB").slice(0,2).toUpperCase()}</Text>
-                <View style={styles.verifiedBadge}><Text style={styles.verifiedText}>{current.is_verified ? "Verified" : "New"}</Text></View>
+                <View style={styles.initialsContainer}>
+                  <Text style={styles.initials}>{(current.display_name ?? "FB").slice(0, 2).toUpperCase()}</Text>
+                </View>
+                <View style={styles.verifiedBadge}>
+                  <Text style={styles.verifiedText}>{current.is_verified ? "Verified" : "New"}</Text>
+                </View>
               </View>
-              <Text style={styles.name}>{current.display_name ?? "Freeborn member"}  <Text style={styles.age}>{current.age ?? "—"}</Text></Text>
-              <Text style={styles.location}>{[current.city, current.region].filter(Boolean).join(", ") || "Somewhere thoughtful"}</Text>
-              <Text style={styles.bio} numberOfLines={4}>{current.bio ?? "Thoughtful, intentional, and looking for something real."}</Text>
+
+              {/* Info */}
+              <Text style={styles.name}>
+                {current.display_name ?? "Freeborn member"}
+                <Text style={styles.age}>  {current.age ?? "—"}</Text>
+              </Text>
+              <Text style={styles.location}>
+                {[current.city, current.region].filter(Boolean).join(", ") || "Nearby"}
+                {current.occupation ? ` · ${current.occupation}` : ""}
+              </Text>
+              <Text style={styles.bio} numberOfLines={4}>
+                {current.bio ?? "Thoughtful, intentional, and looking for something real."}
+              </Text>
+
+              {/* Chips */}
               <View style={styles.chips}>
-                {(current.relationship_goals ?? []).slice(0,2).map(g => (
-                  <View key={g} style={styles.chip}><Text style={styles.chipText}>{g.replace("_"," ")}</Text></View>
+                {(current.relationship_goals ?? []).slice(0, 2).map(g => (
+                  <View key={g} style={styles.chip}>
+                    <Text style={styles.chipText}>{g.replace("_", " ")}</Text>
+                  </View>
                 ))}
-                {(current.interests ?? []).slice(0,4).map(i => (
-                  <View key={i} style={[styles.chip, styles.chipSoft]}><Text style={[styles.chipText, { color: colors.mist }]}>{i}</Text></View>
+                {(current.interests ?? []).slice(0, 4).map(i => (
+                  <View key={i} style={[styles.chip, styles.chipSoft]}>
+                    <Text style={[styles.chipText, { color: colors.mist }]}>{i}</Text>
+                  </View>
                 ))}
               </View>
 
+              {/* Match banner */}
               {matchedName && (
                 <View style={styles.matchBanner}>
-                  <Text style={styles.matchTitle}>It’s a match!</Text>
+                  <Text style={styles.matchTitle}>It's a match!</Text>
                   <Text style={styles.matchBody}>You and {matchedName} liked each other.</Text>
                 </View>
               )}
 
+              {/* Actions */}
               <View style={styles.actions}>
                 <Pressable disabled={acting} onPress={() => swipe("pass")} style={[styles.actionBtn, styles.passBtn]}>
-                  <Text style={styles.passText}>Pass</Text>
+                  <Text style={styles.passIcon}>✕</Text>
+                  <Text style={styles.actionLabel}>Pass</Text>
                 </Pressable>
                 <Pressable disabled={acting} onPress={() => swipe("superlike")} style={[styles.actionBtn, styles.superBtn]}>
-                  <Text style={styles.superText}>Super</Text>
+                  <Text style={styles.superIcon}>★</Text>
+                  <Text style={[styles.actionLabel, { color: colors.accentBlue }]}>Super</Text>
                 </Pressable>
                 <Pressable disabled={acting} onPress={() => swipe("like")} style={[styles.actionBtn, styles.likeBtn]}>
-                  <Text style={styles.likeText}>{acting ? "…" : "Like"}</Text>
+                  <Text style={styles.likeIcon}>♥</Text>
+                  <Text style={[styles.actionLabel, { color: colors.ink }]}>{acting ? "…" : "Like"}</Text>
                 </Pressable>
               </View>
               <Text style={styles.remaining}>{Math.max(candidates.length - index - 1, 0)} remaining</Text>
             </View>
           )}
-
-          <View style={styles.statsRow}>
-            <View style={styles.stat}><Text style={styles.statNum}>{profile?.photo_count ?? 0}</Text><Text style={styles.statLabel}>Photos</Text></View>
-            <View style={styles.stat}><Text style={styles.statNum}>{(profile?.interests ?? []).length}</Text><Text style={styles.statLabel}>Interests</Text></View>
-            <View style={styles.stat}><Text style={styles.statNum}>{profile?.is_verified ? "✓" : "—"}</Text><Text style={styles.statLabel}>Verified</Text></View>
-          </View>
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -151,16 +170,21 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safe: { flex: 1 },
-  content: { padding: 20, paddingBottom: 110, gap: 16 },
+  content: { padding: 20, paddingBottom: 120, gap: 14 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  signout: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: "rgba(255,255,255,0.05)" },
+  signoutBtn: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: "rgba(255,255,255,0.05)" },
   signoutText: { color: colors.pearl, fontSize: 12, fontWeight: "700" },
-  eyebrow: { color: colors.stone, fontSize: 11, textTransform: "uppercase", letterSpacing: 2.2, fontWeight: "700", marginTop: 10 },
-  title: { color: colors.pearl, fontSize: 30, fontWeight: "800", letterSpacing: -1.2, marginTop: 4 },
+  title: { color: colors.pearl, fontSize: 30, fontWeight: "800", letterSpacing: -1.2, marginTop: 6 },
   subtitle: { color: colors.mist, fontSize: 14, lineHeight: 22 },
   card: { borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.9)", padding: 18, minHeight: 420 },
-  photoBox: { height: 270, borderRadius: 24, backgroundColor: "rgba(255,133,120,0.10)", alignItems: "center", justifyContent: "center", marginBottom: 14, overflow: "hidden" },
-  initials: { color: colors.pearl, fontSize: 42, fontWeight: "800", letterSpacing: -1 },
+  emptyCard: { justifyContent: "center", alignItems: "center", paddingVertical: 40 },
+  emptyIcon: { width: 60, height: 60, borderRadius: 30, backgroundColor: "rgba(241,201,122,0.12)", justifyContent: "center", alignItems: "center", marginBottom: 16 },
+  emptyIconText: { fontSize: 24 },
+  emptyTitle: { color: colors.pearl, fontSize: 22, fontWeight: "800", textAlign: "center" },
+  emptyBody: { color: colors.mist, marginTop: 8, lineHeight: 20, textAlign: "center", paddingHorizontal: 20 },
+  photoBox: { height: 280, borderRadius: 24, backgroundColor: "rgba(255,133,120,0.08)", alignItems: "center", justifyContent: "center", marginBottom: 14, overflow: "hidden" },
+  initialsContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: "rgba(255,255,255,0.08)", justifyContent: "center", alignItems: "center" },
+  initials: { color: colors.pearl, fontSize: 32, fontWeight: "800", letterSpacing: -1 },
   verifiedBadge: { position: "absolute", right: 12, top: 12, backgroundColor: "rgba(255,255,255,0.10)", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: "rgba(255,255,255,0.14)" },
   verifiedText: { color: colors.pearl, fontSize: 10, fontWeight: "800", textTransform: "uppercase", letterSpacing: 1.2 },
   name: { color: colors.pearl, fontSize: 24, fontWeight: "800", letterSpacing: -0.8 },
@@ -171,25 +195,20 @@ const styles = StyleSheet.create({
   chip: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.05)", paddingHorizontal: 10, paddingVertical: 6 },
   chipSoft: { backgroundColor: "rgba(255,255,255,0.033)" },
   chipText: { color: colors.pearl, fontSize: 11, fontWeight: "700", textTransform: "capitalize" },
-  actions: { flexDirection: "row", gap: 10, marginTop: 18 },
-  actionBtn: { flex: 1, borderRadius: 18, paddingVertical: 15, alignItems: "center" },
-  passBtn: { backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: colors.lineStrong },
-  passText: { color: colors.mist, fontWeight: "800" },
-  superBtn: { backgroundColor: "rgba(140,207,255,0.10)", borderWidth: 1, borderColor: "rgba(140,207,255,0.28)" },
-  superText: { color: colors.accentBlue, fontWeight: "800" },
-  likeBtn: { backgroundColor: colors.pearl },
-  likeText: { color: colors.ink, fontWeight: "900" },
-  remaining: { textAlign: "center", color: colors.stone, fontSize: 11, marginTop: 10, textTransform: "uppercase", letterSpacing: 1.4 },
-  loadingText: { color: colors.mist, marginTop: 10, textAlign: "center" },
-  emptyTitle: { color: colors.pearl, fontSize: 22, fontWeight: "800" },
-  emptyBody: { color: colors.mist, marginTop: 8, lineHeight: 20 },
-  primaryBtn: { backgroundColor: colors.pearl, borderRadius: 18, paddingVertical: 14, alignItems: "center", marginTop: 16 },
-  primaryBtnText: { color: colors.ink, fontWeight: "900" },
   matchBanner: { backgroundColor: "rgba(241,201,122,0.12)", borderWidth: 1, borderColor: "rgba(241,201,122,0.32)", borderRadius: 18, padding: 14, marginTop: 12 },
   matchTitle: { color: colors.accentGold, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.6, fontSize: 11 },
   matchBody: { color: colors.pearl, marginTop: 4, fontWeight: "700" },
-  statsRow: { flexDirection: "row", gap: 12 },
-  stat: { flex: 1, borderRadius: 20, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.045)", padding: 14, alignItems: "center" },
-  statNum: { color: colors.pearl, fontSize: 20, fontWeight: "800" },
-  statLabel: { color: colors.stone, fontSize: 11, textTransform: "uppercase", letterSpacing: 1.2, marginTop: 4, fontWeight: "700" },
+  actions: { flexDirection: "row", gap: 10, marginTop: 18 },
+  actionBtn: { flex: 1, borderRadius: 18, paddingVertical: 14, alignItems: "center", gap: 4 },
+  passBtn: { backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: colors.lineStrong },
+  passIcon: { color: colors.mist, fontSize: 18, fontWeight: "700" },
+  superBtn: { backgroundColor: "rgba(140,207,255,0.10)", borderWidth: 1, borderColor: "rgba(140,207,255,0.28)" },
+  superIcon: { color: colors.accentBlue, fontSize: 18, fontWeight: "700" },
+  likeBtn: { backgroundColor: colors.pearl },
+  likeIcon: { color: colors.ink, fontSize: 18, fontWeight: "700" },
+  actionLabel: { color: colors.mist, fontSize: 11, fontWeight: "600" },
+  remaining: { textAlign: "center", color: colors.stone, fontSize: 11, marginTop: 10, textTransform: "uppercase", letterSpacing: 1.4 },
+  loadingText: { color: colors.mist, marginTop: 14, textAlign: "center", fontSize: 14 },
+  primaryBtn: { backgroundColor: colors.pearl, borderRadius: 18, paddingVertical: 14, alignItems: "center", marginTop: 20, paddingHorizontal: 40 },
+  primaryBtnText: { color: colors.ink, fontWeight: "900", fontSize: 14 },
 });

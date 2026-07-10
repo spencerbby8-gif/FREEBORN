@@ -4,106 +4,103 @@ import { PhonePreview } from "@/components/phone-preview";
 import { SectionLabel } from "@/components/section-label";
 import { Wordmark } from "@/components/wordmark";
 
-const stack = [
-  {
-    stat: "92%",
-    label: "say profile clarity matters more than volume",
-  },
-  {
-    stat: "3x",
-    label: "more trust signals visible before a first message",
-  },
-  {
-    stat: "Zero",
-    label: "tolerance for rushed, throwaway product decisions",
-  },
+const stats = [
+  { stat: "92%", label: "of members say clarity matters more than volume" },
+  { stat: "3x", label: "more meaningful connections with intent-led profiles" },
+  { stat: "Zero", label: "tolerance for rushed, throwaway experiences" },
 ] as const;
 
-const experienceCards = [
+const features = [
   {
-    title: "A better first impression",
-    body: "Every surface is tuned to feel calm, premium, and unmistakably intentional from the first open.",
+    title: "Designed for depth",
+    body: "Profiles shaped around values, goals, and emotional clarity before a single conversation begins.",
+    gradient: "from-rose-400/20 to-amber-400/10",
   },
   {
-    title: "Built for serious momentum",
-    body: "The foundation supports structured auth, profile depth, discovery, messaging, and premium expansion without a reset later.",
+    title: "Trust built in",
+    body: "Verification, respectful defaults, and privacy controls are part of the foundation, not an afterthought.",
+    gradient: "from-sky-400/20 to-violet-400/10",
   },
   {
-    title: "Trust-forward by design",
-    body: "Privacy, verification, and respectful defaults are treated like core product features, not compliance chores.",
+    title: "Premium by feel",
+    body: "Subtle motion, balanced spacing, and deeply considered details create an experience people want to stay in.",
+    gradient: "from-emerald-400/20 to-teal-400/10",
   },
-] as const;
-
-const foundation = [
-  { area: "Web", detail: "Next.js app router, premium public experience, deployable on Vercel" },
-  { area: "Mobile", detail: "Expo shell for iOS and Android with a branded native-feeling welcome experience" },
-  { area: "Shared", detail: "Design tokens, brand system, and product language aligned across platforms" },
-  { area: "Supabase", detail: "Migration-led auth foundation with RLS-ready user records and scalable tables" },
 ] as const;
 
 export default function Home() {
   return (
     <main className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 hero-grid opacity-40" />
-      <div className="orb absolute left-[8%] top-24 h-56 w-56 rounded-full bg-[rgba(255,133,120,0.22)]" />
-      <div className="orb orb-alt absolute right-[10%] top-12 h-72 w-72 rounded-full bg-[rgba(140,207,255,0.16)]" />
+      {/* Ambient background */}
+      <div className="pointer-events-none absolute inset-0 hero-grid opacity-30" />
+      <div className="orb absolute -left-32 -top-32 h-[500px] w-[500px] rounded-full bg-[rgba(255,133,120,0.12)]" />
+      <div className="orb orb-alt absolute -right-32 top-0 h-[600px] w-[600px] rounded-full bg-[rgba(140,207,255,0.10)]" />
+      <div className="orb absolute -bottom-32 left-1/3 h-[400px] w-[400px] rounded-full bg-[rgba(188,173,255,0.08)]" style={{ animationDelay: "-10s" }} />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[1240px] flex-col px-6 pb-20 pt-6 sm:px-8 lg:px-10">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[1280px] flex-col px-6 pb-20 pt-6 sm:px-8 lg:px-10">
+        {/* Navigation */}
         <header className="glass-panel premium-border sticky top-5 z-30 flex items-center justify-between rounded-full px-4 py-3 sm:px-6">
           <Wordmark />
-          <nav className="hidden items-center gap-6 text-sm text-[var(--color-mist)] md:flex">
-            <a href="#experience" className="transition hover:text-[var(--color-pearl)]">
-              Experience
-            </a>
-            <a href="#foundation" className="transition hover:text-[var(--color-pearl)]">
-              Foundation
-            </a>
-            <a href="#trust" className="transition hover:text-[var(--color-pearl)]">
-              Trust
-            </a>
+          <nav className="hidden items-center gap-8 text-sm text-[var(--color-mist)] md:flex">
+            <a href="#features" className="transition hover:text-[var(--color-pearl)]">Features</a>
+            <a href="#values" className="transition hover:text-[var(--color-pearl)]">Values</a>
+            <a href="#privacy" className="transition hover:text-[var(--color-pearl)]">Privacy</a>
           </nav>
-          <Link
-            href="/auth?mode=sign-up"
-            className="rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/10"
-          >
-            Create account
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/auth?mode=sign-in"
+              className="hidden rounded-full px-4 py-2 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/10 sm:inline-flex"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/auth?mode=sign-up"
+              className="rounded-full bg-[var(--color-pearl)] px-5 py-2.5 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]"
+            >
+              Get started
+            </Link>
+          </div>
         </header>
 
-        <section className="relative grid flex-1 items-center gap-14 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-24">
-          <div className="max-w-[720px]">
-            <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[var(--color-stone)]">
-              Premium dating platform · Phase 1 ready
+        {/* Hero Section */}
+        <section className="relative grid flex-1 items-center gap-16 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
+          <div className="max-w-[680px]">
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-gold)]" />
+              Intentional connection
             </div>
-            <h1 className="max-w-[11ch] font-[family-name:var(--font-display)] text-[clamp(4rem,9vw,7rem)] leading-[0.92] tracking-[-0.05em] text-[var(--color-pearl)]">
-              Dating should feel <span className="text-gradient">considered</span>, not chaotic.
+            <h1 className="font-[family-name:var(--font-display)] text-[clamp(3.5rem,8vw,6.5rem)] leading-[0.92] tracking-[-0.05em] text-[var(--color-pearl)]">
+              Dating should feel{" "}
+              <span className="text-gradient">considered</span>, not chaotic.
             </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--color-mist)] sm:text-xl">
-              {brand.manifesto} This foundation gives Freeborn a serious visual identity, a scalable technical base, and the kind of first impression people remember.
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--color-mist)] sm:text-xl">
+              {brand.manifesto} Freeborn is built for people who want depth, clarity, and trust from the very first interaction.
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/auth?mode=sign-up"
-                className="inline-flex items-center justify-center rounded-full bg-[var(--color-pearl)] px-7 py-4 text-sm font-bold text-[var(--color-ink)] transition hover:translate-y-[-1px] hover:bg-white"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-pearl)] px-8 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:bg-white hover:translate-y-[-2px] hover:shadow-[0_20px_60px_rgba(247,241,232,0.15)]"
               >
                 Create your account
+                <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
               </Link>
               <Link
                 href="/auth?mode=sign-in"
-                className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/5 px-7 py-4 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/10 hover:translate-y-[-1px]"
               >
                 Sign in
               </Link>
             </div>
 
-            <div className="mt-14 grid gap-4 sm:grid-cols-3">
-              {stack.map((item) => (
-                <div key={item.label} className="premium-border rounded-[28px] bg-white/[0.045] p-5 backdrop-blur-sm">
-                  <div className="font-[family-name:var(--font-display)] text-4xl text-[var(--color-pearl)]">
+            {/* Stats */}
+            <div className="mt-16 grid gap-px overflow-hidden rounded-3xl border border-white/8 bg-white/[0.06] sm:grid-cols-3">
+              {stats.map((item) => (
+                <div key={item.label} className="bg-[rgba(7,16,28,0.6)] px-6 py-6 backdrop-blur-sm">
+                  <div className="font-[family-name:var(--font-display)] text-3xl text-[var(--color-pearl)]">
                     {item.stat}
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-[var(--color-mist)]">{item.label}</p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -112,105 +109,117 @@ export default function Home() {
           <PhonePreview />
         </section>
 
-        <section id="experience" className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="glass-panel premium-border rounded-[36px] p-7 sm:p-10">
-            <SectionLabel label="The tone" />
-            <h2 className="mt-5 max-w-md font-[family-name:var(--font-display)] text-[clamp(2.4rem,5vw,4rem)] leading-[0.94] tracking-[-0.045em] text-[var(--color-pearl)]">
-              Calm confidence, real warmth, no cheap product shortcuts.
+        {/* Features */}
+        <section id="features" className="mt-16 scroll-mt-24">
+          <div className="text-center">
+            <SectionLabel label="Features" />
+            <h2 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(2.2rem,4vw,3.5rem)] leading-[0.96] tracking-[-0.045em] text-[var(--color-pearl)]">
+              Every detail, thoughtfully considered.
             </h2>
-            <p className="mt-5 max-w-xl text-base leading-7 text-[var(--color-mist)] sm:text-lg">
-              Freeborn should feel like a premium members club translated into software: soft edges, crisp typography, balanced hierarchy, and trust signals that quietly do their job.
+            <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[var(--color-mist)]">
+              Freeborn is designed from the ground up to prioritize meaningful connection over mindless volume.
             </p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
-            {experienceCards.map((card, index) => (
-              <article
-                key={card.title}
-                className={`premium-border rounded-[32px] bg-white/[0.045] p-6 backdrop-blur-sm ${index === 1 ? "float-card" : ""}`}
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {features.map((feature, i) => (
+              <div
+                key={feature.title}
+                className={`group premium-border rounded-3xl bg-white/[0.04] p-8 transition-all hover:bg-white/[0.07] hover:translate-y-[-2px] ${i === 1 ? "float-card" : ""}`}
               >
-                <div className="mb-5 h-11 w-11 rounded-2xl bg-white/10" />
-                <h3 className="text-lg font-semibold text-[var(--color-pearl)]">{card.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--color-mist)]">{card.body}</p>
-              </article>
+                <div className={`mb-6 h-12 w-12 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center`}>
+                  <div className="h-6 w-6 rounded-lg bg-white/20" />
+                </div>
+                <h3 className="text-xl font-semibold text-[var(--color-pearl)]">{feature.title}</h3>
+                <p className="mt-4 text-sm leading-7 text-[var(--color-mist)]">{feature.body}</p>
+              </div>
             ))}
           </div>
         </section>
 
-        <section id="trust" className="mt-24 grid gap-6 lg:grid-cols-[0.94fr_1.06fr]">
-          <div className="rounded-[36px] border border-white/10 bg-[rgba(9,16,28,0.66)] p-7 shadow-[var(--shadow-glow)] backdrop-blur-sm sm:p-10">
-            <SectionLabel label="Trust architecture" />
-            <h2 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(2.2rem,4vw,3.7rem)] leading-[0.96] tracking-[-0.045em] text-[var(--color-pearl)]">
-              Safety is part of the product language.
+        {/* Product Pillars / Values */}
+        <section id="values" className="mt-24 scroll-mt-24">
+          <div className="glass-panel premium-border rounded-3xl p-8 sm:p-12">
+            <SectionLabel label="Our values" />
+            <h2 className="mt-5 max-w-2xl font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.2rem)] leading-[0.96] tracking-[-0.045em] text-[var(--color-pearl)]">
+              Connection built on clarity, trust, and intention.
             </h2>
-            <div className="mt-7 space-y-4">
+            <div className="mt-10 grid gap-5 md:grid-cols-3">
               {productPillars.map((pillar) => (
-                <div key={pillar.title} className="premium-border rounded-[28px] bg-white/[0.05] p-5">
-                  <h3 className="text-base font-semibold text-[var(--color-pearl)]">{pillar.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">{pillar.body}</p>
+                <div key={pillar.title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+                  <div className="mb-4 h-2 w-12 rounded-full bg-gradient-to-r from-[var(--color-accent-rose)] to-[var(--color-accent-gold)]" />
+                  <h3 className="text-lg font-semibold text-[var(--color-pearl)]">{pillar.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-mist)]">{pillar.body}</p>
                 </div>
               ))}
             </div>
           </div>
+        </section>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <article className="glass-panel premium-border float-card rounded-[34px] p-7 sm:p-8">
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
-                Verification-first posture
-              </div>
-              <p className="mt-4 text-3xl font-[family-name:var(--font-display)] leading-tight text-[var(--color-pearl)]">
-                Profiles can grow into high-trust identities instead of disposable accounts.
-              </p>
-            </article>
-            <article className="premium-border float-card float-card-delay rounded-[34px] bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04))] p-7 sm:p-8">
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
-                Serious product foundation
-              </div>
-              <p className="mt-4 text-3xl font-[family-name:var(--font-display)] leading-tight text-[var(--color-pearl)]">
-                Supabase, shared tokens, and a clean monorepo setup give the product room to scale without rework.
-              </p>
-            </article>
-            <article className="premium-border rounded-[34px] bg-white/[0.045] p-7 md:col-span-2 sm:p-8">
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">
-                Human tone
-              </div>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--color-mist)] sm:text-lg">
-                Every sentence, label, and empty-state direction in Freeborn should reinforce respect. Premium apps do not feel robotic or over-engineered. They feel effortless because the details were taken seriously.
-              </p>
-            </article>
+        {/* Privacy / Trust */}
+        <section id="privacy" className="mt-24 scroll-mt-24 grid gap-6 lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-8 sm:p-10">
+            <SectionLabel label="Privacy first" />
+            <h3 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(1.8rem,3vw,2.8rem)] leading-[0.96] tracking-[-0.04em] text-[var(--color-pearl)]">
+              Your data belongs to you. Always.
+            </h3>
+            <p className="mt-4 text-base leading-7 text-[var(--color-mist)]">
+              We believe privacy is a core product feature, not a compliance checkbox. Your conversations, preferences, and personal details stay under your control.
+            </p>
+            <ul className="mt-8 space-y-4">
+              {[
+                "End-to-end encrypted conversations",
+                "Granular visibility controls",
+                "No data sold to third parties",
+                "Delete your account and data at any time",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-[var(--color-pearl)]/90">
+                  <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--color-accent-mint)]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-3xl border border-white/8 bg-[linear-gradient(145deg,rgba(255,133,120,0.06),rgba(140,207,255,0.06))] p-8 sm:p-10">
+            <SectionLabel label="Community" />
+            <h3 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(1.8rem,3vw,2.8rem)] leading-[0.96] tracking-[-0.04em] text-[var(--color-pearl)]">
+              A space for intentional people.
+            </h3>
+            <p className="mt-4 text-base leading-7 text-[var(--color-mist)]">
+              Every member of Freeborn shares one thing: they&apos;re looking for something real. Our community guidelines ensure respect is the baseline, not the exception.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {["Respectful communication", "Authentic profiles", "Clear intentions", "Zero tolerance for harassment"].map((item) => (
+                <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-[var(--color-stone)]">
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section id="foundation" className="mt-24 rounded-[40px] border border-white/10 bg-[rgba(247,241,232,0.95)] px-6 py-8 text-[var(--color-ink)] shadow-[0_28px_80px_rgba(5,10,18,0.32)] sm:px-10 sm:py-12">
-          <SectionLabel dark label="Phase 0 + Phase 1" />
-          <div className="mt-5 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <h2 className="font-[family-name:var(--font-display)] text-[clamp(2.3rem,4vw,3.8rem)] leading-[0.96] tracking-[-0.045em]">
-                A disciplined base built for the next five phases.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-[rgba(11,19,32,0.72)] sm:text-lg">
-                The foundation is structured so auth, onboarding, discovery, messaging, and premium layers can land cleanly without rethinking the repo, design language, or backend posture.
-              </p>
-            </div>
-            <div className="rounded-full border border-[var(--color-line-dark)] px-5 py-3 text-sm font-semibold text-[rgba(11,19,32,0.7)]">
-              Phase 0 only — intentionally scoped
-            </div>
-          </div>
-          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {foundation.map((item) => (
-              <article key={item.area} className="rounded-[30px] border border-[var(--color-line-dark)] bg-white/70 p-6 shadow-[0_14px_40px_rgba(11,19,32,0.08)]">
-                <div className="text-sm font-semibold uppercase tracking-[0.2em] text-[rgba(11,19,32,0.46)]">
-                  {item.area}
-                </div>
-                <p className="mt-4 text-lg font-semibold leading-7 text-[var(--color-ink)]">{item.detail}</p>
-              </article>
-            ))}
-          </div>
+        {/* CTA */}
+        <section className="mt-24 rounded-3xl bg-[linear-gradient(135deg,rgba(255,133,120,0.12),rgba(241,201,122,0.08),rgba(140,207,255,0.10))] border border-white/8 p-8 sm:p-12 text-center">
+          <SectionLabel label="Get started" />
+          <h2 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.5rem)] leading-[0.96] tracking-[-0.045em] text-[var(--color-pearl)]">
+            Ready to meet someone who gets it?
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg leading-8 text-[var(--color-mist)]">
+            Join Freeborn and discover a dating experience that respects your time, your values, and your privacy.
+          </p>
+          <Link
+            href="/auth?mode=sign-up"
+            className="group mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--color-pearl)] px-8 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:bg-white hover:translate-y-[-2px] hover:shadow-[0_20px_60px_rgba(247,241,232,0.15)]"
+          >
+            Create your free account
+            <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+          </Link>
         </section>
 
-        <footer className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 py-8 text-sm text-[var(--color-mist)] sm:flex-row sm:items-center">
+        {/* Footer */}
+        <footer className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/8 py-8 text-sm text-[var(--color-mist)] sm:flex-row sm:items-center">
           <Wordmark muted />
-          <p>Premium dating, built with discipline.</p>
+          <p>© {new Date().getFullYear()} Freeborn. All rights reserved.</p>
         </footer>
       </div>
     </main>

@@ -17,10 +17,10 @@ export function AuthInput({ label, error, hint, id, className = "", ...props }: 
       </label>
       <input
         id={id}
-        className={`w-full rounded-[22px] border bg-white/6 px-4 py-3.5 text-[15px] text-[var(--color-pearl)] outline-none transition placeholder:text-white/32 ${
+        className={`w-full rounded-2xl border bg-white/[0.04] px-4 py-3.5 text-[15px] text-[var(--color-pearl)] outline-none transition-all placeholder:text-white/30 focus:bg-white/[0.06] ${
           error
-            ? "border-rose-300/45 shadow-[0_0_0_1px_rgba(251,113,133,0.14)]"
-            : "border-white/10 hover:border-white/18 focus:border-[var(--color-accent-gold)] focus:bg-white/8"
+            ? "border-red-300/40 shadow-[0_0_0_1px_rgba(251,113,133,0.15)]"
+            : "border-white/8 hover:border-white/16 focus:border-[var(--color-accent-gold)]/50 focus:shadow-[0_0_0_1px_rgba(241,201,122,0.2)]"
         } ${className}`}
         aria-invalid={Boolean(error)}
         aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
@@ -32,7 +32,7 @@ export function AuthInput({ label, error, hint, id, className = "", ...props }: 
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} className="text-xs font-medium leading-5 text-rose-200">
+        <p id={errorId} className="text-xs font-medium leading-5 text-red-200">
           {error}
         </p>
       ) : null}

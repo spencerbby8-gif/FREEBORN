@@ -51,22 +51,25 @@ export default async function MatchesPage({
 
   return (
     <AppShell displayName={profile?.display_name}>
-      <div className="mb-5 flex items-end justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-stone)]">Matches</p>
-          <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3rem)] text-[var(--color-pearl)]">
-            Conversations that matter
-          </h1>
-        </div>
-        <p className="text-sm text-[var(--color-mist)]">{matchRows.length} active</p>
+      <div className="mb-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-stone)]">Matches</p>
+        <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(1.8rem,3.5vw,2.8rem)] text-[var(--color-pearl)]">
+          Conversations that matter
+        </h1>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[340px_1fr]">
-        <aside className="glass-panel premium-border rounded-[28px] p-4 max-h-[760px] overflow-auto">
+      <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
+        {/* Match list */}
+        <aside className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 max-h-[720px] overflow-auto">
           {matchRows.length === 0 && (
-            <p className="p-3 text-sm text-[var(--color-mist)]">No matches yet — keep discovering thoughtful profiles.</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--color-mist)]">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <p className="mt-4 text-sm text-[var(--color-mist)]">No matches yet — keep discovering thoughtful profiles.</p>
+            </div>
           )}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {matchRows.map(m => {
               const oid = m.user_a === user.id ? m.user_b : m.user_a;
               const o = otherMap.get(oid);
@@ -77,15 +80,24 @@ export default async function MatchesPage({
                 <Link
                   key={m.id}
                   href={`/app/matches?m=${m.id}`}
-                  className={`flex items-center gap-3 rounded-[20px] px-3 py-3 transition ${active ? "bg-white text-[var(--color-ink)]" : "hover:bg-white/6 text-[var(--color-pearl)]"}`}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-3 transition-all ${
+                    active ? "bg-white/10" : "hover:bg-white/[0.04]"
+                  }`}
                 >
-                  <div className="h-12 w-12 overflow-hidden rounded-2xl bg-white/8 border border-white/12">
-                    {url ? <img src={url} className="h-full w-full object-cover" alt="" /> : <div className="flex h-full w-full items-center justify-center text-[11px] font-bold">{(o?.display_name ?? "F").slice(0,1)}</div>}
+                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-rose-400/20 to-sky-400/10">
+                    {url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={url} className="h-full w-full object-cover" alt="" />
+                    ) : (
+                      <span className="text-xs font-bold text-[var(--color-stone)]">
+                        {(o?.display_name ?? "F").slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className={`truncate text-sm font-semibold ${active ? "" : ""}`}>{o?.display_name ?? "Freeborn member"}</p>
-                    <p className={`truncate text-xs ${active ? "text-[rgba(11,19,32,0.62)]" : "text-[var(--color-mist)]"}`}>
-                      {o?.city ?? "Nearby"} • matched {new Date(m.created_at).toLocaleDateString()}
+                    <p className="truncate text-sm font-semibold text-[var(--color-pearl)]">{o?.display_name ?? "Freeborn member"}</p>
+                    <p className="truncate text-xs text-[var(--color-mist)]">
+                      {o?.city ?? "Nearby"}
                     </p>
                   </div>
                 </Link>
@@ -94,23 +106,50 @@ export default async function MatchesPage({
           </div>
         </aside>
 
-        <section className="glass-panel premium-border rounded-[32px] flex min-h-[520px] flex-col">
+        {/* Chat */}
+        <section className="flex min-h-[520px] flex-col rounded-2xl border border-white/8 bg-white/[0.03]">
           {!activeMatch ? (
             <div className="flex flex-1 items-center justify-center p-10 text-center text-[var(--color-mist)]">
-              Select a match to start a thoughtful conversation.
+              <div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto text-[var(--color-mist)]">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <p className="mt-4 text-sm">Select a match to start a conversation.</p>
+              </div>
             </div>
           ) : (
             <>
-              <div className="border-b border-white/10 px-5 py-4 sm:px-7">
-                <p className="text-sm text-[var(--color-mist)]">Matched with</p>
-                <p className="text-xl font-semibold text-[var(--color-pearl)]">{activeOther?.display_name ?? "Freeborn member"}</p>
+              <div className="flex items-center gap-3 border-b border-white/8 px-5 py-4">
+                <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-rose-400/20 to-sky-400/10">
+                  {(() => {
+                    const ph = photoMap.get(activeOtherId!);
+                    const url = ph ? supabase.storage.from("profile-photos").getPublicUrl(ph.storage_path).data.publicUrl : null;
+                    return url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={url} className="h-full w-full object-cover" alt="" />
+                    ) : (
+                      <span className="text-xs font-bold text-[var(--color-stone)]">
+                        {(activeOther?.display_name ?? "F").slice(0, 2).toUpperCase()}
+                      </span>
+                    );
+                  })()}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--color-pearl)]">{activeOther?.display_name ?? "Freeborn member"}</p>
+                  <p className="text-xs text-[var(--color-mist)]">{activeOther?.city ?? "Nearby"}</p>
+                </div>
               </div>
-              <div className="flex-1 space-y-3 overflow-auto px-5 py-5 sm:px-7">
+
+              <div className="flex-1 space-y-3 overflow-auto px-5 py-5">
                 {(messages ?? []).map(msg => {
                   const mine = msg.sender_id === user.id;
                   return (
                     <div key={msg.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[72%] rounded-[22px] px-4 py-3 text-sm leading-6 ${mine ? "bg-[var(--color-pearl)] text-[var(--color-ink)]" : "bg-white/[0.07] text-[var(--color-pearl)] border border-white/10"}`}>
+                      <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-6 ${
+                        mine
+                          ? "bg-[var(--color-pearl)] text-[var(--color-ink)]"
+                          : "bg-white/[0.06] text-[var(--color-pearl)] border border-white/8"
+                      }`}>
                         {msg.body}
                         <div className={`mt-1 text-[10px] ${mine ? "text-[rgba(11,19,32,0.55)]" : "text-[var(--color-stone)]"}`}>
                           {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -120,26 +159,32 @@ export default async function MatchesPage({
                   );
                 })}
                 {!(messages ?? []).length && (
-                  <div className="text-center text-sm text-[var(--color-mist)] py-10">
+                  <div className="flex items-center justify-center py-12 text-sm text-[var(--color-mist)]">
                     Say hello — thoughtful first messages get thoughtful replies.
                   </div>
                 )}
               </div>
-              <form action={async (fd: FormData) => {
-                "use server";
-                const { sendMessage } = await import("@/lib/discover/actions");
-                await sendMessage(null, fd);
-              }} className="border-t border-white/10 px-5 py-4 sm:px-7">
+
+              <form
+                action={async (fd: FormData) => {
+                  "use server";
+                  const { sendMessage } = await import("@/lib/discover/actions");
+                  await sendMessage(null, fd);
+                }}
+                className="border-t border-white/8 px-5 py-4"
+              >
                 <input type="hidden" name="match_id" value={activeMatch.id} />
                 <div className="flex gap-3">
                   <input
                     name="body"
                     placeholder={`Message ${activeOther?.display_name?.split(" ")[0] ?? "them"}…`}
-                    className="flex-1 rounded-[18px] border border-white/14 bg-white/[0.05] px-4 py-3 text-sm text-[var(--color-pearl)] outline-none placeholder:text-[var(--color-mist)]"
+                    className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[var(--color-pearl)] outline-none placeholder:text-[var(--color-mist)] focus:border-white/20 transition"
                     maxLength={2000}
                     required
                   />
-                  <button className="rounded-[18px] bg-[var(--color-pearl)] px-5 py-3 text-sm font-bold text-[var(--color-ink)]">Send</button>
+                  <button className="rounded-xl bg-[var(--color-pearl)] px-5 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
+                    Send
+                  </button>
                 </div>
               </form>
             </>

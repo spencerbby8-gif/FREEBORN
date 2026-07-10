@@ -28,7 +28,7 @@ export function OnboardingInput({
       </View>
       <TextInput
         placeholderTextColor="rgba(255,250,245,0.34)"
-        style={[styles.input, error ? styles.inputError : undefined, style]}
+        style={[styles.input, error ? styles.inputError : undefined, style as any]}
         selectionColor={colors.accentGold}
         {...props}
       />
@@ -39,55 +39,13 @@ export function OnboardingInput({
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    gap: 8,
-  },
-  labelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  label: {
-    color: colors.pearl,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  optionalBadge: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  optionalLabel: {
-    color: colors.stone,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
-  },
-  input: {
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-    color: colors.pearl,
-    fontSize: 15,
-  },
-  inputError: {
-    borderColor: "rgba(255, 158, 160, 0.6)",
-  },
-  hint: {
-    color: colors.mist,
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  error: {
-    color: colors.danger,
-    fontSize: 12,
-    fontWeight: "600",
-  },
+  wrapper: { gap: 8 },
+  labelRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  label: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
+  optionalBadge: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.04)", paddingHorizontal: 8, paddingVertical: 3 },
+  optionalLabel: { color: colors.stone, fontSize: 10, fontWeight: "700", letterSpacing: 1.4, textTransform: "uppercase" },
+  input: { borderRadius: radii.md, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.06)", paddingHorizontal: 16, paddingVertical: 15, color: colors.pearl, fontSize: 15 },
+  inputError: { borderColor: "rgba(255, 158, 160, 0.6)" },
+  hint: { color: colors.mist, fontSize: 12, lineHeight: 18 },
+  error: { color: colors.danger, fontSize: 12, fontWeight: "600" },
 });

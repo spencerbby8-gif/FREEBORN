@@ -30,6 +30,7 @@ import { NoticeCard } from "@/components/auth/notice-card";
 import { OnboardingInput } from "@/components/onboarding/onboarding-input";
 import { OnboardingProgress } from "@/components/onboarding/onboarding-progress";
 import { OptionCardRow } from "@/components/onboarding/option-card-row";
+import { MagicBackground, emberShadow, premiumShadow } from "@/components/magic-background";
 import { Wordmark } from "@/components/wordmark";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
@@ -211,7 +212,8 @@ export default function OnboardingScreen() {
   const dobValue = formatDob(draft.birth_date);
 
   return (
-    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={styles.container}>
+    <LinearGradient colors={["#03050b", colors.night, colors.midnight, colors.slate]} style={styles.container}>
+      <MagicBackground />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.headerRow}>
@@ -475,7 +477,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   content: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 42, gap: 18 },
   headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  formCard: { borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.85)", padding: 18 },
+  formCard: { borderRadius: radii.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.16)", backgroundColor: "rgba(9,16,28,0.86)", padding: 18, ...premiumShadow },
   eyebrow: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.05)", paddingHorizontal: 12, paddingVertical: 8 },
   eyebrowDot: { width: 8, height: 8, borderRadius: 999, backgroundColor: colors.accentGold },
   eyebrowLabel: { color: colors.stone, fontSize: 10, fontWeight: "700", letterSpacing: 2.2, textTransform: "uppercase" },
@@ -517,6 +519,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.accentGold,
+    ...emberShadow,
   },
   completeCheckGlyph: { color: colors.ink, fontSize: 32, fontWeight: "800" },
   completeTitle: { marginTop: 6, color: colors.pearl, fontSize: 22, fontWeight: "700", letterSpacing: -0.6 },

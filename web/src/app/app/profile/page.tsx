@@ -40,7 +40,7 @@ export default async function ProfilePage() {
         </div>
         <div className="space-y-6" id="discovery">
           <DiscoveryPreferencesForm prefs={prefs ?? null} profile={profile} />
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+          <div className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">Account</p>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between">

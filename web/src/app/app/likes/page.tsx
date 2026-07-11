@@ -69,7 +69,7 @@ export default async function LikesPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+        <section className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-[var(--color-pearl)]">Liked you</h2>
@@ -84,7 +84,7 @@ export default async function LikesPage() {
               const person = peopleMap.get(signal.liker_id);
               const url = photoUrl(signal.liker_id);
               return (
-                <div key={signal.liker_id} className="rounded-xl border border-white/8 bg-white/[0.02] p-4 transition hover:bg-white/[0.04]">
+                <div key={signal.liker_id} className="hover-lift rounded-xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-white/15 hover:bg-white/[0.06]">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-rose-400/20 to-amber-400/10">
                       {url ? (
@@ -104,7 +104,7 @@ export default async function LikesPage() {
                   </div>
                   <Link
                     href="/app"
-                    className="mt-3 flex w-full items-center justify-center rounded-xl bg-[var(--color-pearl)] py-2.5 text-xs font-bold text-[var(--color-ink)] transition hover:bg-white"
+                    className="mt-3 flex w-full items-center justify-center magic-button rounded-xl bg-[var(--color-pearl)] py-2.5 text-xs font-bold text-[var(--color-ink)] transition hover:bg-white"
                   >
                     Read profiles in Discover
                   </Link>
@@ -112,7 +112,7 @@ export default async function LikesPage() {
               );
             })}
             {!(incoming ?? []).length && (
-              <div className="col-span-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-center">
+              <div className="col-span-2 empty-glow rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-8 text-center">
                 <p className="text-sm font-semibold text-[var(--color-pearl)]">No likes yet.</p>
                 <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
                   Add clear photos, a specific bio, and a few interests. Trustworthy profiles invite better attention.
@@ -125,7 +125,7 @@ export default async function LikesPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+        <section className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-[var(--color-pearl)]">You noticed</h2>
@@ -164,12 +164,12 @@ export default async function LikesPage() {
               );
             })}
             {!(outgoing ?? []).length && (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-center">
+              <div className="empty-glow rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-8 text-center">
                 <p className="text-sm font-semibold text-[var(--color-pearl)]">No outgoing likes yet.</p>
                 <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
                   Start in Discover and look for the details you would actually ask about.
                 </p>
-                <Link href="/app" className="mt-4 inline-flex rounded-full bg-[var(--color-pearl)] px-4 py-2 text-xs font-bold text-[var(--color-ink)] hover:bg-white">
+                <Link href="/app" className="mt-4 inline-flex magic-button rounded-full bg-[var(--color-pearl)] px-4 py-2 text-xs font-bold text-[var(--color-ink)] hover:bg-white">
                   Go to Discover
                 </Link>
               </div>

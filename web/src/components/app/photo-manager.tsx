@@ -8,7 +8,7 @@ import { uploadProfilePhoto, deleteProfilePhoto, setPrimaryPhoto } from "@/lib/p
 function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel?: string }) {
   const { pending } = useFormStatus();
   return (
-    <button disabled={pending} className="rounded-xl bg-[var(--color-pearl)] px-4 py-2.5 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white disabled:opacity-60">
+    <button disabled={pending} className="magic-button rounded-xl bg-[var(--color-pearl)] px-4 py-2.5 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white disabled:opacity-60">
       {pending ? pendingLabel ?? "…" : label}
     </button>
   );
@@ -33,7 +33,7 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
   }, null);
 
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 sm:p-7">
+    <div className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6 sm:p-7">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">Photos</p>

@@ -60,7 +60,7 @@ export default async function MatchesPage({
 
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         {/* Match list */}
-        <aside className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 max-h-[720px] overflow-auto">
+        <aside className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-4 max-h-[720px] overflow-auto">
           {matchRows.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--color-mist)]">
@@ -182,7 +182,7 @@ export default async function MatchesPage({
                     maxLength={2000}
                     required
                   />
-                  <button className="rounded-xl bg-[var(--color-pearl)] px-5 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
+                  <button className="magic-button rounded-xl bg-[var(--color-pearl)] px-5 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
                     Send
                   </button>
                 </div>

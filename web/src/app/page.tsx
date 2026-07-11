@@ -56,7 +56,7 @@ function Nav() {
           </Link>
           <Link
             href="/auth?mode=sign-up"
-            className="group relative overflow-hidden rounded-full bg-[var(--color-pearl)] px-5 py-2.5 text-[13px] font-bold text-[var(--color-ink)] shadow-[0_6px_20px_-4px_rgba(251,247,242,0.25)] transition hover:translate-y-[-1px] hover:shadow-[0_10px_28px_-4px_rgba(251,247,242,0.35)] btn-shine"
+            className="magic-button group relative overflow-hidden rounded-full bg-[var(--color-pearl)] px-5 py-2.5 text-[13px] font-bold text-[var(--color-ink)] shadow-[0_6px_20px_-4px_rgba(251,247,242,0.25)] transition hover:translate-y-[-1px] hover:shadow-[0_10px_28px_-4px_rgba(251,247,242,0.35)] btn-shine"
           >
             Join Freeborn
             <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
@@ -75,7 +75,8 @@ function Hero() {
   return (
     <section className="relative overflow-hidden pt-6">
       {/* Ambient lighting */}
-      <div className="pointer-events-none absolute inset-0 grid-lines opacity-50" />
+      <div className="aurora-field" />
+      <div className="pointer-events-none absolute inset-0 grid-lines opacity-55" />
       <div className="orb drift" style={{ top: "-6%", left: "-8%", width: 560, height: 560, background: "radial-gradient(circle, rgba(239,94,94,0.35), transparent 60%)" }} />
       <div className="orb drift-alt" style={{ top: "-4%", right: "-10%", width: 640, height: 640, background: "radial-gradient(circle, rgba(138,110,242,0.30), transparent 60%)" }} />
       <div className="orb drift-slow" style={{ bottom: "-20%", left: "30%", width: 500, height: 500, background: "radial-gradient(circle, rgba(217,167,82,0.22), transparent 65%)" }} />
@@ -111,7 +112,7 @@ function Hero() {
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/auth?mode=sign-up"
-                  className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--gradient-ember-warm)] px-8 py-4 text-[14px] font-bold text-white shadow-[var(--shadow-ember)] transition hover:translate-y-[-2px] hover:shadow-[0_20px_50px_-8px_rgba(239,94,94,0.55)] btn-shine"
+                  className="magic-button group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--gradient-ember-warm)] px-8 py-4 text-[14px] font-bold text-white shadow-[var(--shadow-ember)] transition hover:translate-y-[-2px] hover:shadow-[0_20px_50px_-8px_rgba(239,94,94,0.55)] btn-shine"
                 >
                   Create your profile
                   <ArrowIcon size={16} className="transition-transform group-hover:translate-x-0.5" />
@@ -284,7 +285,7 @@ function HowItWorks() {
                                  "var(--color-teal-500)";
           return (
             <Reveal key={step.step} delay={(i + 1) as 1 | 2 | 3 | 4}>
-              <div className="group relative h-full overflow-hidden rounded-3xl border border-[var(--color-line)] bg-gradient-to-b from-white/[0.04] to-white/[0.015] p-7 transition hover:border-white/15 hover:bg-white/[0.05]">
+              <div className="hover-lift group relative h-full overflow-hidden rounded-3xl border border-[var(--color-line)] bg-gradient-to-b from-white/[0.04] to-white/[0.015] p-7 transition hover:border-white/15 hover:bg-white/[0.05]">
                 <div
                   className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-60"
                   style={{ background: `radial-gradient(circle, ${accentVar}50, transparent 60%)` }}
@@ -347,7 +348,7 @@ function Pillars() {
         <div className="space-y-4">
           {productPillars.map((pillar, i) => (
             <Reveal key={pillar.title} delay={((i % 3) + 1) as 1 | 2 | 3}>
-              <div className="group relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-gradient-to-br from-[var(--color-abyss)] to-[var(--color-midnight)] p-8 transition hover:border-white/12">
+              <div className="hover-lift group relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-gradient-to-br from-[var(--color-abyss)] to-[var(--color-midnight)] p-8 transition hover:border-white/12">
                 <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 aurora-anim"
                   style={{ background: "linear-gradient(135deg, rgba(239,94,94,0.06), rgba(138,110,242,0.06), rgba(79,184,167,0.06))" }} />
                 <div className="relative flex items-start gap-6">
@@ -374,7 +375,7 @@ function Pillars() {
                 { icon: EyeIcon, title: "Discoverability control", body: "Choose whether your profile is visible while you refine it.", color: "var(--color-violet-300)" },
                 { icon: StarIcon, title: "Profile depth cues", body: "Photos, bio, interests, and intentions all shape quality.", color: "var(--color-ember-300)" },
               ].map(({ icon: Icon, title, body, color }) => (
-                <div key={title} className="rounded-2xl border border-[var(--color-line)] bg-white/[0.02] p-5 transition hover:bg-white/[0.04]">
+                <div key={title} className="hover-lift luminous-card rounded-2xl border border-[var(--color-line)] bg-white/[0.025] p-5 transition hover:bg-white/[0.05]">
                   <Icon size={22} style={{ color }} />
                   <p className="mt-4 text-[15px] font-semibold text-[var(--color-pearl)]">{title}</p>
                   <p className="mt-1 text-[13px] leading-relaxed text-[var(--color-mist)]">{body}</p>
@@ -480,7 +481,7 @@ function Community() {
         <div className="space-y-5">
           {communityPrinciples.map((item, i) => (
             <Reveal key={item.title} delay={((i % 3) + 1) as 1 | 2 | 3}>
-              <div className="group relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-gradient-to-br from-white/[0.045] to-white/[0.015] p-8 transition hover:border-white/15">
+              <div className="hover-lift group relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-gradient-to-br from-white/[0.045] to-white/[0.015] p-8 transition hover:border-white/15">
                 <div
                   className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-70"
                   style={{ background: i === 0 ? "rgba(239,94,94,0.22)" : i === 1 ? "rgba(217,167,82,0.20)" : "rgba(79,184,167,0.20)" }}
@@ -638,7 +639,7 @@ function Cta() {
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/auth?mode=sign-up"
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--color-pearl)] px-9 py-4 text-[15px] font-bold text-[var(--color-ink)] shadow-[0_20px_60px_-10px_rgba(251,247,242,0.3)] transition hover:translate-y-[-2px] hover:bg-white btn-shine"
+                className="magic-button group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--color-pearl)] px-9 py-4 text-[15px] font-bold text-[var(--color-ink)] shadow-[0_20px_60px_-10px_rgba(251,247,242,0.3)] transition hover:translate-y-[-2px] hover:bg-white btn-shine"
               >
                 Create your free profile
                 <ArrowIcon size={16} className="transition-transform group-hover:translate-x-0.5" />

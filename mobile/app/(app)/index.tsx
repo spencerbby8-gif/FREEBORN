@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { colors, radii, type DiscoveryCandidate, type ProfilePhoto, type UserProfileRow } from "@freeborn/shared";
+import { MagicBackground, emberShadow, premiumShadow } from "@/components/magic-background";
 import { Wordmark } from "@/components/wordmark";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
@@ -72,7 +73,8 @@ export default function DiscoverScreen() {
   const currentPhotoUrl = publicPhotoUrl(currentPhoto?.storage_path);
 
   return (
-    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={styles.container}>
+    <LinearGradient colors={["#03050b", colors.night, colors.midnight, colors.slate]} style={styles.container}>
+      <MagicBackground />
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {/* Header */}
@@ -193,9 +195,9 @@ const styles = StyleSheet.create({
   signoutText: { color: colors.pearl, fontSize: 12, fontWeight: "700" },
   title: { color: colors.pearl, fontSize: 30, fontWeight: "800", letterSpacing: -1.2, marginTop: 6 },
   subtitle: { color: colors.mist, fontSize: 14, lineHeight: 22 },
-  card: { borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.9)", padding: 18, minHeight: 420 },
+  card: { borderRadius: radii.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.16)", backgroundColor: "rgba(9,16,28,0.9)", padding: 18, minHeight: 420, ...premiumShadow },
   emptyCard: { justifyContent: "center", alignItems: "center", paddingVertical: 40 },
-  emptyIcon: { width: 60, height: 60, borderRadius: 30, backgroundColor: "rgba(241,201,122,0.12)", justifyContent: "center", alignItems: "center", marginBottom: 16 },
+  emptyIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: "rgba(241,201,122,0.16)", justifyContent: "center", alignItems: "center", marginBottom: 16, ...emberShadow },
   emptyIconText: { fontSize: 24 },
   emptyTitle: { color: colors.pearl, fontSize: 22, fontWeight: "800", textAlign: "center" },
   emptyBody: { color: colors.mist, marginTop: 8, lineHeight: 20, textAlign: "center", paddingHorizontal: 20 },
@@ -223,7 +225,7 @@ const styles = StyleSheet.create({
   passIcon: { color: colors.mist, fontSize: 18, fontWeight: "700" },
   superBtn: { backgroundColor: "rgba(140,207,255,0.10)", borderWidth: 1, borderColor: "rgba(140,207,255,0.28)" },
   superIcon: { color: colors.accentBlue, fontSize: 18, fontWeight: "700" },
-  likeBtn: { backgroundColor: colors.pearl },
+  likeBtn: { backgroundColor: colors.pearl, ...emberShadow },
   likeIcon: { color: colors.ink, fontSize: 18, fontWeight: "700" },
   actionLabel: { color: colors.mist, fontSize: 11, fontWeight: "600" },
   remaining: { textAlign: "center", color: colors.stone, fontSize: 11, marginTop: 10, textTransform: "uppercase", letterSpacing: 1.4 },

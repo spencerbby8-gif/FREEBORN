@@ -6,8 +6,9 @@ export function ProfilePreviewCard() {
   const profile = previewProfiles[0];
 
   return (
-    <LinearGradient colors={["#6f405d", "#223a55"]} style={styles.shell}>
+    <LinearGradient colors={[profile.palette[0], "#6f405d", profile.palette[1]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.shell}>
       <View style={styles.card}>
+        <View style={styles.innerGlow} />
         <View style={styles.rowBetween}>
           <View>
             <Text style={styles.name}>
@@ -37,16 +38,26 @@ const styles = StyleSheet.create({
     borderRadius: radii.xl,
     padding: 1,
     shadowColor: "#02060d",
-    shadowOpacity: 0.36,
-    shadowRadius: 30,
-    shadowOffset: { width: 0, height: 18 },
-    elevation: 18,
+    shadowOpacity: 0.48,
+    shadowRadius: 36,
+    shadowOffset: { width: 0, height: 22 },
+    elevation: 24,
   },
   card: {
     borderRadius: radii.xl - 1,
     padding: 22,
     minHeight: 270,
-    backgroundColor: "rgba(7,16,28,0.42)",
+    backgroundColor: "rgba(7,16,28,0.38)",
+    overflow: "hidden",
+  },
+  innerGlow: {
+    position: "absolute",
+    width: 210,
+    height: 210,
+    right: -80,
+    top: -70,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   rowBetween: {
     flexDirection: "row",

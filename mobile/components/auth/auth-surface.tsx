@@ -2,6 +2,7 @@ import { PropsWithChildren } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, radii } from "@freeborn/shared";
+import { MagicBackground, premiumShadow } from "@/components/magic-background";
 import { ProfilePreviewCard } from "@/components/profile-preview-card";
 import { Wordmark } from "@/components/wordmark";
 
@@ -16,7 +17,8 @@ export function AuthSurface({
   description: string;
 }>) {
   return (
-    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={styles.container}>
+    <LinearGradient colors={["#03050b", colors.night, colors.midnight, colors.slate]} style={styles.container}>
+      <MagicBackground />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Wordmark />
 
@@ -93,8 +95,9 @@ const styles = StyleSheet.create({
   formCard: {
     borderRadius: radii.xl,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(9,16,28,0.85)",
+    borderColor: "rgba(255,255,255,0.16)",
+    backgroundColor: "rgba(9,16,28,0.86)",
     padding: 18,
+    ...premiumShadow,
   },
 });

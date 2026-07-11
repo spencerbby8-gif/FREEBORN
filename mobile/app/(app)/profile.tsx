@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { colors, radii, type UserProfileRow, type ProfilePhoto } from "@freeborn/shared";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
+import { MagicBackground, emberShadow, premiumShadow } from "@/components/magic-background";
 import { Wordmark } from "@/components/wordmark";
 
 function publicPhotoUrl(path?: string | null) {
@@ -48,7 +49,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
+    <LinearGradient colors={["#03050b", colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
+      <MagicBackground />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.header}>
@@ -134,14 +136,14 @@ const styles = StyleSheet.create({
   signout: { color: colors.mist, fontSize: 13, fontWeight: "700" },
   title: { color: colors.pearl, fontSize: 28, fontWeight: "800", letterSpacing: -1, marginTop: 8 },
   subtitle: { color: colors.mist, fontSize: 13, marginBottom: 4 },
-  card: { backgroundColor: "rgba(9,16,28,0.9)", borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, padding: 16, gap: 10 },
+  card: { backgroundColor: "rgba(9,16,28,0.9)", borderRadius: radii.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.16)", padding: 16, gap: 10, ...premiumShadow },
   cardTitle: { color: colors.pearl, fontSize: 16, fontWeight: "700" },
   label: { color: colors.stone, fontSize: 11, textTransform: "uppercase", letterSpacing: 1.4, fontWeight: "700", marginTop: 6 },
   value: { color: colors.pearl, fontSize: 16, fontWeight: "700" },
   input: { backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: colors.lineStrong, borderRadius: 14, padding: 12, color: colors.pearl, fontSize: 14 },
   switchRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 },
   switchLabel: { color: colors.pearl, fontWeight: "700" },
-  saveBtn: { backgroundColor: colors.pearl, borderRadius: 16, paddingVertical: 14, alignItems: "center", marginTop: 8 },
+  saveBtn: { backgroundColor: colors.pearl, borderRadius: 16, paddingVertical: 14, alignItems: "center", marginTop: 8, ...emberShadow },
   saveText: { color: colors.ink, fontWeight: "900" },
   photoGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   photoSlot: { width: "30%", aspectRatio: 0.8, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: colors.lineStrong, alignItems: "center", justifyContent: "center", overflow: "hidden" },

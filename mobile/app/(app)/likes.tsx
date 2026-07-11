@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { colors, radii, type UserProfileRow } from "@freeborn/shared";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
+import { MagicBackground, premiumShadow } from "@/components/magic-background";
 import { Wordmark } from "@/components/wordmark";
 
 export default function LikesScreen() {
@@ -35,7 +36,8 @@ export default function LikesScreen() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
+    <LinearGradient colors={["#03050b", colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
+      <MagicBackground />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content}>
           <Wordmark />
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 120, gap: 16 },
   title: { color: colors.pearl, fontSize: 28, fontWeight: "800", letterSpacing: -1, marginTop: 8 },
   subtitle: { color: colors.mist, fontSize: 13 },
-  card: { borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.88)", padding: 16 },
+  card: { borderRadius: radii.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.16)", backgroundColor: "rgba(9,16,28,0.88)", padding: 16, ...premiumShadow },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   cardTitle: { color: colors.pearl, fontSize: 16, fontWeight: "700" },
   cardCount: { color: colors.stone, fontSize: 14, fontWeight: "700" },

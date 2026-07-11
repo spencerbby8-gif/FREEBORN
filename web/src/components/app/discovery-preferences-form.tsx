@@ -9,7 +9,7 @@ import { saveDiscoveryPreferences } from "@/lib/discover/actions";
 function Submit() {
   const { pending } = useFormStatus();
   return (
-    <button disabled={pending} className="w-full rounded-xl bg-[var(--color-pearl)] py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white disabled:opacity-60">
+    <button disabled={pending} className="w-full magic-button rounded-xl bg-[var(--color-pearl)] py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white disabled:opacity-60">
       {pending ? "Saving…" : "Save preferences"}
     </button>
   );
@@ -31,7 +31,7 @@ export function DiscoveryPreferencesForm({
   const rel = prefs?.relationship_intents ?? profile.relationship_goals ?? ["long_term","meaningful_connection"];
 
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 sm:p-7">
+    <div className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6 sm:p-7">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">Discovery preferences</p>
       <h3 className="mt-1 text-xl font-semibold text-[var(--color-pearl)]">Who you&apos;ll see</h3>
 

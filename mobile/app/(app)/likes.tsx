@@ -68,7 +68,10 @@ export default function LikesScreen() {
                 );
               })
             ) : (
-              <Text style={styles.emptyText}>No likes yet — your profile is visible and discoverable.</Text>
+              <View style={styles.emptyBox}>
+                <Text style={styles.emptyTitle}>No likes yet</Text>
+                <Text style={styles.emptyText}>Clear photos and a specific bio invite better attention.</Text>
+              </View>
             )}
           </View>
 
@@ -94,7 +97,10 @@ export default function LikesScreen() {
                 );
               })
             ) : (
-              <Text style={styles.emptyText}>Start discovering profiles you like.</Text>
+              <View style={styles.emptyBox}>
+                <Text style={styles.emptyTitle}>Nothing sent yet</Text>
+                <Text style={styles.emptyText}>Start in Discover and choose profiles you would genuinely ask about.</Text>
+              </View>
             )}
           </View>
         </ScrollView>
@@ -118,5 +124,7 @@ const styles = StyleSheet.create({
   rowInfo: { flex: 1 },
   rowTitle: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
   rowMeta: { color: colors.mist, fontSize: 12, marginTop: 2 },
-  emptyText: { color: colors.mist, fontSize: 13, paddingVertical: 8 },
+  emptyBox: { borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", borderStyle: "dashed", backgroundColor: "rgba(255,255,255,0.025)", padding: 16 },
+  emptyTitle: { color: colors.pearl, fontSize: 14, fontWeight: "800", textAlign: "center" },
+  emptyText: { color: colors.mist, fontSize: 13, lineHeight: 20, marginTop: 6, textAlign: "center" },
 });

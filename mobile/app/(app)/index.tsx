@@ -130,7 +130,7 @@ export default function DiscoverScreen() {
               {/* Info */}
               <Text style={styles.name}>
                 {current.display_name ?? "Freeborn member"}
-                <Text style={styles.age}>  {current.age ?? "—"}</Text>
+                {current.age ? <Text style={styles.age}>  {current.age}</Text> : null}
               </Text>
               <Text style={styles.location}>
                 {[current.city, current.region].filter(Boolean).join(", ") || "Nearby"}

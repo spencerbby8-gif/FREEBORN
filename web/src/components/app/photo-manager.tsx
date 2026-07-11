@@ -52,7 +52,7 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={url} alt={p.is_primary ? "Your primary profile photo" : "Your profile photo"} className="h-full w-full object-cover" />
               ) : (
-                <span className="px-3 text-center text-xs leading-5 text-[var(--color-mist)]">Photo stored privately until your media URL is configured.</span>
+                <span className="px-3 text-center text-xs leading-5 text-[var(--color-mist)]">Photo preview unavailable. Your image remains saved.</span>
               )}
             </div>
             <div className="absolute inset-x-0 top-2 flex justify-center gap-1">

@@ -80,7 +80,12 @@ export default function MatchesScreen() {
                 </Pressable>
               );
             })}
-            {!matches.length && <Text style={styles.empty}>No matches yet.</Text>}
+            {!matches.length && (
+              <View style={styles.emptyPill}>
+                <Text style={styles.emptyPillTitle}>No matches yet</Text>
+                <Text style={styles.emptyPillText}>Keep discovering with care.</Text>
+              </View>
+            )}
           </ScrollView>
 
           {/* Chat */}
@@ -97,7 +102,12 @@ export default function MatchesScreen() {
                   </View>
                 );
               })}
-              {!messages.length && active && <Text style={styles.empty}>Say hello — thoughtful first messages win.</Text>}
+              {!messages.length && active && (
+                <View style={styles.emptyConversation}>
+                  <Text style={styles.emptyPillTitle}>Start with something specific.</Text>
+                  <Text style={styles.emptyPillText}>A detail from their profile beats a generic hello.</Text>
+                </View>
+              )}
             </ScrollView>
             {active && (
               <View style={styles.inputRow}>
@@ -124,6 +134,10 @@ const styles = StyleSheet.create({
   matchPillActive: { backgroundColor: colors.pearl, ...emberShadow },
   matchPillText: { color: colors.pearl, fontWeight: "700", fontSize: 13 },
   empty: { color: colors.mist, paddingVertical: 8, textAlign: "center" },
+  emptyPill: { borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,0.12)", backgroundColor: "rgba(255,255,255,0.04)", paddingHorizontal: 18, paddingVertical: 14, minWidth: 190 },
+  emptyPillTitle: { color: colors.pearl, fontSize: 14, fontWeight: "800", textAlign: "center" },
+  emptyPillText: { color: colors.mist, fontSize: 12, lineHeight: 18, marginTop: 4, textAlign: "center" },
+  emptyConversation: { borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", borderStyle: "dashed", backgroundColor: "rgba(255,255,255,0.025)", padding: 18, marginTop: 16 },
   chatBox: { flex: 1, borderRadius: radii.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.16)", backgroundColor: "rgba(9,16,28,0.9)", marginTop: 12, padding: 14, ...premiumShadow },
   chatTitle: { color: colors.pearl, fontSize: 18, fontWeight: "800", marginBottom: 6 },
   bubble: { maxWidth: "80%", borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10 },

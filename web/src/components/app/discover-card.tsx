@@ -35,7 +35,7 @@ export function DiscoverCard({
   const [photoIndex, setPhotoIndex] = useState(0);
   const displayPhoto = photos[photoIndex];
   const displayPhotoUrl = publicPhotoUrl(displayPhoto?.storage_path);
-  const age = candidate.age ?? "—";
+  const age = candidate.age;
   const location = [candidate.city, candidate.region].filter(Boolean).join(", ");
 
   return (
@@ -94,7 +94,7 @@ export function DiscoverCard({
             <div>
               <h2 className="font-[family-name:var(--font-display)] text-[clamp(1.8rem,4vw,2.8rem)] leading-[0.95] tracking-[-0.04em] text-white">
                 {candidate.display_name ?? "Freeborn member"}
-                <span className="ml-2 text-xl font-sans font-semibold text-white/80">{age}</span>
+                {age ? <span className="ml-2 text-xl font-sans font-semibold text-white/80">{age}</span> : null}
               </h2>
               <p className="mt-1.5 text-sm text-white/70">
                 {location || "Nearby"}{candidate.occupation ? ` · ${candidate.occupation}` : ""}

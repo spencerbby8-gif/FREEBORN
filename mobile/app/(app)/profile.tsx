@@ -90,13 +90,13 @@ export default function ProfileScreen() {
                 </View>
               ))}
             </View>
-            <Text style={styles.hint}>Add photos from your profile on the web.</Text>
+            <Text style={styles.hint}>Choose recent photos that make you easy to recognize and remember.</Text>
           </View>
 
           {/* Edit fields */}
           <View style={styles.card}>
             <Text style={styles.label}>Display name</Text>
-            <Text style={styles.value}>{profile?.display_name ?? "—"}</Text>
+            <Text style={styles.value}>{profile?.display_name ?? "Name not set"}</Text>
 
             <Text style={styles.label}>Bio</Text>
             <TextInput value={bio} onChangeText={setBio} multiline style={styles.input} placeholder="Tell your story…" placeholderTextColor={colors.mist} />

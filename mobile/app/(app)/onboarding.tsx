@@ -414,9 +414,9 @@ export default function OnboardingScreen() {
                       You can refine anything from your profile later.
                     </Text>
                     {[
-                      "Add photos to increase visibility — profiles with photos get far more connections.",
-                      "The more interests you add, the better your matches will be.",
-                      "Keep your bio current — it's the first thing people read.",
+                      "Add clear, recent photos so people can recognize you with confidence.",
+                      "Specific interests give better conversation starters than generic lists.",
+                      "Keep your bio current — it sets the tone before a first message.",
                     ].map((tip) => (
                       <View key={tip} style={styles.completeRow}>
                         <View style={styles.completeDot} />

@@ -8,6 +8,7 @@ import { ModeSwitch } from "@/components/auth/mode-switch";
 import { NoticeCard } from "@/components/auth/notice-card";
 import { PasswordStrength } from "@/components/auth/password-strength";
 import { GoogleGlyph } from "@/components/google-glyph";
+import { emberShadow } from "@/components/magic-background";
 import { useAuth } from "@/hooks/use-auth";
 import { colors } from "@freeborn/shared";
 
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
   dividerLabel: { color: colors.mist, fontSize: 11, fontWeight: "700", letterSpacing: 1.8, textTransform: "uppercase" },
   formStack: { gap: 16 },
   linkLabel: { color: colors.stone, fontSize: 13, fontWeight: "700", textAlign: "right" },
-  primaryButton: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54 },
+  primaryButton: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54, ...emberShadow },
   primaryButtonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800", textAlign: "center" },
   footerLabel: { color: colors.mist, fontSize: 13, textAlign: "center" },
   disabled: { opacity: 0.65 },

@@ -518,9 +518,9 @@ export function OnboardingFlow({
 
               <div className="mt-7 w-full max-w-md space-y-3 text-left">
                 {[
-                  "Add photos to increase visibility — profiles with photos get far more connections.",
-                  "The more interests you add, the better your matches will be.",
-                  "Keep your bio current — it's the first thing people read.",
+                  "Add clear, recent photos so people can recognize you with confidence.",
+                  "Specific interests give better conversation starters than generic lists.",
+                  "Keep your bio current — it sets the tone before a first message.",
                 ].map((tip) => (
                   <div key={tip} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3.5">
                     <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-gold-500)]/15 text-[var(--color-gold-300)]">

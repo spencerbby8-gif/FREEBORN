@@ -45,7 +45,7 @@ export default async function ProfilePage() {
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--color-mist)]">Email</span>
-                <span className="text-[var(--color-pearl)]">{user.email}</span>
+                <span className="break-all text-right text-[var(--color-pearl)]">{user.email}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--color-mist)]">Verified</span>

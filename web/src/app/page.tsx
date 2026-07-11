@@ -473,7 +473,7 @@ function Community() {
             Memorable profiles. <span className="text-ember">Responsible promises.</span>
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
-            Freeborn should never feel like a template pretending to be a community. Every public claim has to earn its place,
+            Freeborn should feel like a living room with standards, not a feed assembled from interchangeable parts. Every public claim has to earn its place,
             every profile preview is labeled honestly, and every member is asked to help protect the room.
           </p>
         </Reveal>

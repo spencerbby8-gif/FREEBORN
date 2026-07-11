@@ -13,6 +13,14 @@ function initials(name?: string | null) {
     .toUpperCase();
 }
 
+function publicPhotoUrl(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base) return null;
+  return `${base}/storage/v1/object/public/profile-photos/${path.split("/").map(encodeURIComponent).join("/")}`;
+}
+
 export function DiscoverCard({
   candidate,
   photos,
@@ -26,6 +34,7 @@ export function DiscoverCard({
 }) {
   const [photoIndex, setPhotoIndex] = useState(0);
   const displayPhoto = photos[photoIndex];
+  const displayPhotoUrl = publicPhotoUrl(displayPhoto?.storage_path);
   const age = candidate.age ?? "—";
   const location = [candidate.city, candidate.region].filter(Boolean).join(", ");
 
@@ -33,13 +42,11 @@ export function DiscoverCard({
     <article className="relative overflow-hidden rounded-3xl border border-white/10 bg-[rgba(9,16,28,0.85)] shadow-[var(--shadow-glow)] backdrop-blur-sm">
       {/* Photo area */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-rose-400/8 to-sky-400/8 sm:aspect-[3/4]">
-        {displayPhoto ? (
+        {displayPhotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={displayPhoto.storage_path.startsWith("http")
-              ? displayPhoto.storage_path
-              : `https://picsum.photos/seed/${candidate.id}/900/1200`}
-            alt={candidate.display_name ?? "Profile"}
+            src={displayPhotoUrl}
+            alt={candidate.display_name ? `${candidate.display_name}'s profile photo` : "Profile photo"}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -105,7 +112,7 @@ export function DiscoverCard({
       {/* Content */}
       <div className="p-6 sm:p-8">
         <p className="text-base leading-7 text-[var(--color-pearl)]/90">
-          {candidate.bio ?? "Thoughtful, intentional, and looking for something real."}
+          {candidate.bio ?? "This member has not added a bio yet. Use their interests and intentions to decide with care."}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -136,7 +143,7 @@ export function DiscoverCard({
             className="group rounded-2xl border border-[var(--color-accent-blue)]/20 bg-[var(--color-accent-blue)]/8 py-4 text-sm font-bold text-[var(--color-accent-blue)] transition hover:bg-[var(--color-accent-blue)]/14 disabled:opacity-60"
           >
             <span className="block transition-transform group-hover:scale-110">★</span>
-            <span className="block text-xs font-normal mt-1 opacity-70">Super</span>
+            <span className="block text-xs font-normal mt-1 opacity-70">Spark</span>
           </button>
           <button
             disabled={pending}

@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { brand, trustStats, testimonials, safetyFeatures, howItWorks, faqs, productPillars } from "@freeborn/shared";
+import {
+  brand,
+  communityPrinciples,
+  faqs,
+  howItWorks,
+  productPillars,
+  profileProofPoints,
+  safetyFeatures,
+  trustStats,
+} from "@freeborn/shared";
 import { PhonePreview } from "@/components/phone-preview";
 import { SectionLabel } from "@/components/section-label";
 import { Wordmark } from "@/components/wordmark";
@@ -34,7 +43,7 @@ function Nav() {
         <nav className="hidden items-center gap-8 text-[13px] font-medium text-[var(--color-sand)] md:flex">
           <a href="#how" className="transition hover:text-[var(--color-pearl)]">How it works</a>
           <a href="#safety" className="transition hover:text-[var(--color-pearl)]">Safety</a>
-          <a href="#stories" className="transition hover:text-[var(--color-pearl)]">Stories</a>
+          <a href="#community" className="transition hover:text-[var(--color-pearl)]">Community</a>
           <a href="#faq" className="transition hover:text-[var(--color-pearl)]">FAQ</a>
         </nav>
 
@@ -259,7 +268,7 @@ function HowItWorks() {
         </Reveal>
         <Reveal delay={2}>
           <p className="mt-5 text-lg leading-relaxed text-[var(--color-sand)]">
-            Four quiet steps. No games, no gimmicks, no &ldquo;boosts&rdquo; or paywalls between you and a good conversation.
+            Four grounded steps. No fake scarcity, no invented compatibility scores, and no pressure to decide without context.
           </p>
         </Reveal>
       </div>
@@ -360,10 +369,10 @@ function Pillars() {
           <Reveal>
             <div className="grid gap-4 sm:grid-cols-2">
               {[
-                { icon: BadgeIcon, title: "Verified photos", body: "Live-selfie checks. What you see is who they are.", color: "var(--color-teal-300)" },
-                { icon: LockIcon, title: "Incognito mode", body: "Only be seen by people you&apos;ve liked.", color: "var(--color-gold-300)" },
-                { icon: EyeIcon, title: "Read receipts off", body: "Reply when you want to. No pressure.", color: "var(--color-violet-300)" },
-                { icon: StarIcon, title: "Curated daily", body: "Fresh, thoughtful profiles each afternoon.", color: "var(--color-ember-300)" },
+                { icon: BadgeIcon, title: "Earned badges", body: "Verification status appears only when a profile has it.", color: "var(--color-teal-300)" },
+                { icon: LockIcon, title: "Hidden essentials", body: "Email and full birth date stay out of discovery.", color: "var(--color-gold-300)" },
+                { icon: EyeIcon, title: "Discoverability control", body: "Choose whether your profile is visible while you refine it.", color: "var(--color-violet-300)" },
+                { icon: StarIcon, title: "Profile depth cues", body: "Photos, bio, interests, and intentions all shape quality.", color: "var(--color-ember-300)" },
               ].map(({ icon: Icon, title, body, color }) => (
                 <div key={title} className="rounded-2xl border border-[var(--color-line)] bg-white/[0.02] p-5 transition hover:bg-white/[0.04]">
                   <Icon size={22} style={{ color }} />
@@ -407,8 +416,8 @@ function Safety() {
               You should feel <span className="text-warm">safe</span> before you feel sparks.
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
-              Trust is not a feature we ship and forget. It is the foundation the app sits on — verification,
-              moderation, privacy, and a zero-tolerance bar for anyone who doesn&apos;t treat people with respect.
+              Trust is not a vibe; it is visible product behavior. Freeborn is careful about what it shows,
+              what it hides, and which badges or claims are allowed to appear on a profile.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -416,13 +425,13 @@ function Safety() {
                 href="/auth?mode=sign-up"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-pearl)] px-6 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white"
               >
-                Join safely →
+                Create a careful profile →
               </Link>
               <a
                 href="#faq"
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-6 py-3 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/5"
               >
-                Our safety principles
+                Read the trust standard
               </a>
             </div>
           </Reveal>
@@ -447,172 +456,107 @@ function Safety() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Testimonials / Stories                                                    */
+/*  Community standard                                                        */
 /* -------------------------------------------------------------------------- */
 
-function Stories() {
+function Community() {
   return (
-    <Section id="stories">
-      <div className="mx-auto max-w-3xl text-center">
-        <Reveal>
-          <SectionLabel label="Stories from Freeborn" dot="violet" />
-        </Reveal>
-        <Reveal delay={1}>
+    <Section id="community">
+      <div className="grid items-start gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-18">
+        <Reveal className="lg:sticky lg:top-28">
+          <SectionLabel label="The community standard" dot="violet" />
           <h2
             className="mt-6 text-[var(--font-display-section)] leading-[1.02] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
             style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450, 'SOFT' 30" }}
           >
-            The people who have already <span className="text-ember">found each other.</span>
+            Memorable profiles. <span className="text-ember">Responsible promises.</span>
           </h2>
+          <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
+            Freeborn should never feel like a template pretending to be a community. Every public claim has to earn its place,
+            every profile preview is labeled honestly, and every member is asked to help protect the room.
+          </p>
         </Reveal>
-      </div>
 
-      <div className="mt-16 grid gap-6 lg:grid-cols-3">
-        {testimonials.map((t, i) => {
-          const palettes = [
-            ["#ef5e5e", "#d9a752"],
-            ["#8a6ef2", "#4fb8a7"],
-            ["#d9a752", "#ef5e5e"],
-          ] as const;
-          const p = palettes[i];
-          return (
-            <Reveal key={t.name} delay={((i % 3) + 1) as 1 | 2 | 3}>
-              <figure className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[var(--color-line)] p-8 transition hover:border-white/15"
-                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))" }}
-              >
-                <QuoteIcon size={36} className="text-[var(--color-gold-300)]/70" />
-                <blockquote
-                  className="mt-6 flex-1 text-[18px] leading-[1.5] tracking-[-0.01em] text-[var(--color-pearl)]"
-                  style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 400, 'SOFT' 50" }}
-                >
-                  &ldquo;{t.quote}&rdquo;
-                </blockquote>
-                <figcaption className="mt-8 flex items-center gap-3 border-t border-[var(--color-line)] pt-6">
-                  <div
-                    className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold text-white"
-                    style={{ background: `linear-gradient(135deg, ${p[0]}, ${p[1]})` }}
-                  >
-                    {t.name.charAt(0)}
-                  </div>
+        <div className="space-y-5">
+          {communityPrinciples.map((item, i) => (
+            <Reveal key={item.title} delay={((i % 3) + 1) as 1 | 2 | 3}>
+              <div className="group relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-gradient-to-br from-white/[0.045] to-white/[0.015] p-8 transition hover:border-white/15">
+                <div
+                  className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-70"
+                  style={{ background: i === 0 ? "rgba(239,94,94,0.22)" : i === 1 ? "rgba(217,167,82,0.20)" : "rgba(79,184,167,0.20)" }}
+                />
+                <div className="relative flex gap-5">
+                  <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] font-mono text-xs font-bold text-[var(--color-gold-300)]">
+                    0{i + 1}
+                  </span>
                   <div>
-                    <p className="text-sm font-semibold text-[var(--color-pearl)]">{t.name}</p>
-                    <p className="text-[12px] text-[var(--color-mist)]">{t.meta}</p>
+                    <h3 className="text-xl font-semibold tracking-tight text-[var(--color-pearl)]">{item.title}</h3>
+                    <p className="mt-2 text-[15px] leading-relaxed text-[var(--color-mist)]">{item.body}</p>
                   </div>
-                </figcaption>
-              </figure>
+                </div>
+              </div>
             </Reveal>
-          );
-        })}
-      </div>
-
-      {/* Press / as-seen-in strip */}
-      <Reveal>
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-60 grayscale">
-          {["THE NEW YORK TIMES", "VOGUE", "THE CUT", "GQ", "FAST COMPANY", "MONOCLE"].map((n) => (
-            <span key={n} className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--color-mist)]">
-              {n}
-            </span>
           ))}
         </div>
-      </Reveal>
+      </div>
     </Section>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Pricing / Membership teaser                                              */
+/*  Trust ledger                                                              */
 /* -------------------------------------------------------------------------- */
 
-function Membership() {
+function TrustLedger() {
   return (
-    <Section id="membership">
+    <Section id="trust-ledger">
       <div className="relative overflow-hidden rounded-[40px] border border-[var(--color-line)]">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 60% 60% at 20% 30%, rgba(239,94,94,0.18), transparent 60%), radial-gradient(ellipse 60% 60% at 80% 70%, rgba(217,167,82,0.14), transparent 60%), linear-gradient(160deg, #0d1122, #151a33)",
+              "radial-gradient(ellipse 60% 60% at 20% 30%, rgba(239,94,94,0.16), transparent 60%), radial-gradient(ellipse 60% 60% at 80% 70%, rgba(79,184,167,0.14), transparent 60%), linear-gradient(160deg, #0d1122, #151a33)",
           }}
         />
-        <div className="relative grid gap-12 p-10 sm:p-14 lg:grid-cols-2 lg:p-16">
+        <div className="relative grid gap-12 p-10 sm:p-14 lg:grid-cols-[0.9fr_1.1fr] lg:p-16">
           <Reveal>
-            <SectionLabel label="Free, always" dot="gold" />
+            <SectionLabel label="Trust ledger" dot="gold" />
             <h2
               className="mt-6 text-[var(--font-display-section)] leading-[1.02] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
               style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450, 'SOFT' 30" }}
             >
-              Meeting someone should not <span className="text-warm">cost anything.</span>
+              The fastest way to lose trust is to <span className="text-warm">overclaim.</span>
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
-              Freeborn is free for matching, messaging, and meeting. An optional membership exists for people who want
-              deeper insight — but you will never need to pay to connect with someone great.
+              So Freeborn names what is true in the current product and leaves the fantasy metrics out. No fake press strip,
+              no invented couples, no promised outcomes — just a polished path to meet with more context.
             </p>
-
-            <ul className="mt-8 space-y-3">
-              {[
-                "Unlimited matching & messaging",
-                "Photo verification for all members",
-                "Advanced privacy & incognito controls",
-                "Thoughtful conversation prompts",
-              ].map((f) => (
-                <li key={f} className="flex items-center gap-3 text-[15px] text-[var(--color-pearl)]/90">
-                  <CheckIcon size={18} className="flex-shrink-0 text-[var(--color-teal-300)]" />
-                  {f}
-                </li>
-              ))}
-            </ul>
+            <Link
+              href="/auth?mode=sign-up"
+              className="group mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--color-pearl)] px-7 py-3.5 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white"
+            >
+              Build your profile honestly
+              <ArrowIcon size={15} className="transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </Reveal>
 
-          <Reveal delay={2}>
-            <div className="relative">
-              <div
-                className="pointer-events-none absolute -inset-6 rounded-3xl blur-2xl"
-                style={{ background: "radial-gradient(circle, rgba(239,94,94,0.25), transparent 70%)" }}
-              />
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[rgba(10,13,24,0.7)] p-8 backdrop-blur-xl">
-                <div className="flex items-baseline justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[var(--color-gold-300)]">
-                      Freeborn+
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--color-sand)]">For people who want a little more.</p>
-                  </div>
-                  <div className="text-right">
-                    <p
-                      className="text-4xl text-[var(--color-pearl)]"
-                      style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'wght' 500" }}
-                    >
-                      $14
-                    </p>
-                    <p className="text-xs text-[var(--color-mist)]">per month</p>
+          <div className="grid gap-4">
+            {profileProofPoints.map((item, i) => (
+              <Reveal key={item.title} delay={((i % 3) + 1) as 1 | 2 | 3}>
+                <div className="rounded-3xl border border-white/10 bg-[rgba(10,13,24,0.62)] p-6 backdrop-blur-xl">
+                  <div className="flex items-start gap-4">
+                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-[var(--color-gold-500)]/15 text-[var(--color-gold-300)]">
+                      <CheckIcon size={18} />
+                    </span>
+                    <div>
+                      <h3 className="text-base font-semibold text-[var(--color-pearl)]">{item.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-[var(--color-mist)]">{item.body}</p>
+                    </div>
                   </div>
                 </div>
-
-                <ul className="mt-7 space-y-3 text-sm text-[var(--color-sand)]">
-                  {[
-                    "See who liked you before you match",
-                    "Unlimited advanced preferences",
-                    "Priority profile visibility twice daily",
-                    "Read receipts & activity insights",
-                    "Rewind a mistaken pass",
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-3">
-                      <CheckIcon size={16} className="mt-0.5 flex-shrink-0 text-[var(--color-gold-300)]" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/auth?mode=sign-up"
-                  className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-[var(--color-pearl)] py-3.5 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white"
-                >
-                  Start free, upgrade when it&apos;s worth it
-                </Link>
-                <p className="mt-3 text-center text-[11px] text-[var(--color-mist)]">Cancel anytime. No nonsense.</p>
-              </div>
-            </div>
-          </Reveal>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </Section>
@@ -680,16 +624,16 @@ function Cta() {
 
           <div className="relative mx-auto max-w-2xl">
             <div className="flex justify-center">
-              <SectionLabel label="Your person is waiting" dot="ember" />
+              <SectionLabel label="Meet with intention" dot="ember" />
             </div>
             <h2
               className="mx-auto mt-8 text-[var(--font-display-massive)] leading-[0.97] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
               style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 400, 'SOFT' 30" }}
             >
-              The next hello could be <span className="text-ember">the one.</span>
+              Make the next hello <span className="text-ember">mean something.</span>
             </h2>
             <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-[var(--color-sand)]">
-              Free to join. Built with care. Full of people who, like you, are tired of the noise.
+              Freeborn is built for people who want to be clear, careful, and memorable from the first line of their profile.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
@@ -722,6 +666,33 @@ function Cta() {
 /* -------------------------------------------------------------------------- */
 
 function Footer() {
+  const columns = [
+    {
+      title: "Explore",
+      links: [
+        ["How it works", "#how"],
+        ["Safety", "#safety"],
+        ["Community", "#community"],
+        ["Trust ledger", "#trust-ledger"],
+      ],
+    },
+    {
+      title: "Account",
+      links: [
+        ["Create profile", "/auth?mode=sign-up"],
+        ["Sign in", "/auth?mode=sign-in"],
+        ["FAQ", "#faq"],
+      ],
+    },
+    {
+      title: "Contact",
+      links: [
+        ["hello@freeborn.app", "mailto:hello@freeborn.app"],
+        ["safety@freeborn.app", "mailto:safety@freeborn.app"],
+      ],
+    },
+  ] as const;
+
   return (
     <footer className="border-t border-[var(--color-line)]">
       <div className="mx-auto w-full max-w-[1200px] px-6 py-14 sm:px-8 lg:px-10">
@@ -731,26 +702,21 @@ function Footer() {
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-[var(--color-mist)]">
               {brand.manifesto}
             </p>
-            <div className="mt-6 flex gap-2">
-              {["Instagram", "TikTok", "Twitter", "Substack"].map((s) => (
-                <a key={s} href="#" aria-label={s} className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-line)] text-[var(--color-sand)] transition hover:bg-white/5 hover:text-[var(--color-pearl)]">
-                  <span className="text-[10px] font-bold uppercase">{s.charAt(0)}</span>
-                </a>
-              ))}
+            <div className="mt-6 rounded-2xl border border-[var(--color-line)] bg-white/[0.03] p-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--color-sand)]">Brand promise</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
+                No fake press. No invented success rates. No public exposure of private essentials.
+              </p>
             </div>
           </div>
 
-          {[
-            { title: "Product", links: ["How it works", "Safety", "Stories", "Freeborn+", "Download"] },
-            { title: "Company", links: ["About", "Careers", "Press", "Blog", "Contact"] },
-            { title: "Legal", links: ["Privacy", "Terms", "Community", "Cookies", "Safety center"] },
-          ].map((col) => (
+          {columns.map((col) => (
             <div key={col.title}>
               <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--color-sand)]">{col.title}</p>
               <ul className="mt-5 space-y-3 text-sm text-[var(--color-mist)]">
-                {col.links.map((l) => (
-                  <li key={l}>
-                    <a href="#" className="transition hover:text-[var(--color-pearl)]">{l}</a>
+                {col.links.map(([label, href]) => (
+                  <li key={label}>
+                    <a href={href} className="transition hover:text-[var(--color-pearl)]">{label}</a>
                   </li>
                 ))}
               </ul>
@@ -761,7 +727,7 @@ function Footer() {
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-[var(--color-line)] pt-8 text-[12px] text-[var(--color-mist)] sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} Freeborn. Made with care for people looking for something real.</p>
           <div className="flex items-center gap-5">
-            <span>Designed in New York · Paris · London</span>
+            <span>Designed for clarity, consent, and connection.</span>
           </div>
         </div>
       </div>
@@ -781,8 +747,8 @@ export default function Home() {
       <HowItWorks />
       <Pillars />
       <Safety />
-      <Stories />
-      <Membership />
+      <Community />
+      <TrustLedger />
       <Faq />
       <Cta />
       <Footer />

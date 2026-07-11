@@ -19,7 +19,12 @@ type UploadState = { ok: boolean; error?: string } | null;
 export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const publicPhotoUrl = (path: string) => `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profile-photos/${path.split("/").map(encodeURIComponent).join("/")}`;
+  const publicPhotoUrl = (path: string) => {
+    if (path.startsWith("http")) return path;
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base) return null;
+    return `${base}/storage/v1/object/public/profile-photos/${path.split("/").map(encodeURIComponent).join("/")}`;
+  };
   const [state, formAction] = useActionState(async (_prev: UploadState, fd: FormData) => {
     if (file) fd.set("file", file);
     const res = await uploadProfilePhoto(fd);
@@ -32,16 +37,23 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">Photos</p>
-          <h3 className="mt-1 text-xl font-semibold text-[var(--color-pearl)]">{photos.length} / 6</h3>
+          <h3 className="mt-1 text-xl font-semibold text-[var(--color-pearl)]">{photos.length} / 6 intentional photos</h3>
+          <p className="mt-1 text-xs leading-5 text-[var(--color-mist)]">Use recent images that make you recognizable. The first photo becomes your discovery cover.</p>
         </div>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {photos.map((p) => (
+        {photos.map((p) => {
+          const url = publicPhotoUrl(p.storage_path);
+          return (
           <div key={p.id} className="group relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
-            <div className="aspect-[4/5] w-full bg-gradient-to-br from-rose-400/10 to-sky-400/10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={publicPhotoUrl(p.storage_path)} alt={p.is_primary ? "Your primary profile photo" : "Your profile photo"} className="h-full w-full object-cover" />
+            <div className="flex aspect-[4/5] w-full items-center justify-center bg-gradient-to-br from-rose-400/10 to-sky-400/10">
+              {url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={url} alt={p.is_primary ? "Your primary profile photo" : "Your profile photo"} className="h-full w-full object-cover" />
+              ) : (
+                <span className="px-3 text-center text-xs leading-5 text-[var(--color-mist)]">Photo stored privately until your media URL is configured.</span>
+              )}
             </div>
             <div className="absolute inset-x-0 top-2 flex justify-center gap-1">
               {p.is_primary && (
@@ -63,7 +75,8 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
               </form>
             </div>
           </div>
-        ))}
+          );
+        })}
         {Array.from({ length: Math.max(0, 6 - photos.length) }).map((_, i) => (
           <div key={i} className="flex aspect-[4/5] items-center justify-center rounded-xl border border-dashed border-white/10 bg-white/[0.02] text-center text-xs text-[var(--color-mist)]">
             <div>

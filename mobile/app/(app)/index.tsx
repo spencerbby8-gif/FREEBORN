@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -7,6 +7,14 @@ import { colors, radii, type DiscoveryCandidate, type ProfilePhoto, type UserPro
 import { Wordmark } from "@/components/wordmark";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
+
+function publicPhotoUrl(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  if (!base) return null;
+  return `${base}/storage/v1/object/public/profile-photos/${path.split("/").map(encodeURIComponent).join("/")}`;
+}
 
 export default function DiscoverScreen() {
   const { user, signOut } = useAuth();
@@ -58,6 +66,10 @@ export default function DiscoverScreen() {
   };
 
   const current = candidates[index];
+  const currentPhoto = current
+    ? (photos[current.id] ?? []).find((photo) => photo.is_primary) ?? (photos[current.id] ?? [])[0]
+    : null;
+  const currentPhotoUrl = publicPhotoUrl(currentPhoto?.storage_path);
 
   return (
     <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={styles.container}>
@@ -100,11 +112,16 @@ export default function DiscoverScreen() {
             <View style={styles.card}>
               {/* Photo area */}
               <View style={styles.photoBox}>
-                <View style={styles.initialsContainer}>
-                  <Text style={styles.initials}>{(current.display_name ?? "FB").slice(0, 2).toUpperCase()}</Text>
-                </View>
+                {currentPhotoUrl ? (
+                  <Image source={{ uri: currentPhotoUrl }} style={styles.profilePhoto} resizeMode="cover" />
+                ) : (
+                  <View style={styles.initialsContainer}>
+                    <Text style={styles.initials}>{(current.display_name ?? "FB").slice(0, 2).toUpperCase()}</Text>
+                    <Text style={styles.noPhotoText}>No public photo yet</Text>
+                  </View>
+                )}
                 <View style={styles.verifiedBadge}>
-                  <Text style={styles.verifiedText}>{current.is_verified ? "Verified" : "New"}</Text>
+                  <Text style={styles.verifiedText}>{current.is_verified ? "Verified" : "Unverified"}</Text>
                 </View>
               </View>
 
@@ -118,7 +135,7 @@ export default function DiscoverScreen() {
                 {current.occupation ? ` · ${current.occupation}` : ""}
               </Text>
               <Text style={styles.bio} numberOfLines={4}>
-                {current.bio ?? "Thoughtful, intentional, and looking for something real."}
+                {current.bio ?? "This member has not added a bio yet. Look for their interests and intentions before deciding."}
               </Text>
 
               {/* Chips */}
@@ -151,7 +168,7 @@ export default function DiscoverScreen() {
                 </Pressable>
                 <Pressable disabled={acting} onPress={() => swipe("superlike")} style={[styles.actionBtn, styles.superBtn]}>
                   <Text style={styles.superIcon}>★</Text>
-                  <Text style={[styles.actionLabel, { color: colors.accentBlue }]}>Super</Text>
+                  <Text style={[styles.actionLabel, { color: colors.accentBlue }]}>Spark</Text>
                 </Pressable>
                 <Pressable disabled={acting} onPress={() => swipe("like")} style={[styles.actionBtn, styles.likeBtn]}>
                   <Text style={styles.likeIcon}>♥</Text>
@@ -183,8 +200,10 @@ const styles = StyleSheet.create({
   emptyTitle: { color: colors.pearl, fontSize: 22, fontWeight: "800", textAlign: "center" },
   emptyBody: { color: colors.mist, marginTop: 8, lineHeight: 20, textAlign: "center", paddingHorizontal: 20 },
   photoBox: { height: 280, borderRadius: 24, backgroundColor: "rgba(255,133,120,0.08)", alignItems: "center", justifyContent: "center", marginBottom: 14, overflow: "hidden" },
-  initialsContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: "rgba(255,255,255,0.08)", justifyContent: "center", alignItems: "center" },
+  profilePhoto: { width: "100%", height: "100%" },
+  initialsContainer: { width: 130, minHeight: 110, borderRadius: 28, backgroundColor: "rgba(255,255,255,0.08)", justifyContent: "center", alignItems: "center", padding: 14 },
   initials: { color: colors.pearl, fontSize: 32, fontWeight: "800", letterSpacing: -1 },
+  noPhotoText: { color: colors.mist, fontSize: 11, fontWeight: "700", marginTop: 8, textAlign: "center" },
   verifiedBadge: { position: "absolute", right: 12, top: 12, backgroundColor: "rgba(255,255,255,0.10)", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: "rgba(255,255,255,0.14)" },
   verifiedText: { color: colors.pearl, fontSize: 10, fontWeight: "800", textTransform: "uppercase", letterSpacing: 1.2 },
   name: { color: colors.pearl, fontSize: 24, fontWeight: "800", letterSpacing: -0.8 },

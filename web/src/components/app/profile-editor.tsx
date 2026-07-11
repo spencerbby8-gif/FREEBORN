@@ -38,6 +38,7 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
   const [interests, setInterests] = useState<string[]>(profile.interests ?? []);
   const [lifestyle, setLifestyle] = useState<string[]>(profile.lifestyle_preferences ?? []);
   const [dealBreakers, setDealBreakers] = useState<string[]>(profile.deal_breakers ?? []);
+  const [bio, setBio] = useState(profile.bio ?? "");
   const [goals, setGoals] = useState<string[]>(profile.relationship_goals ?? []);
   const [showGender, setShowGender] = useState<string[]>(profile.show_gender ?? []);
   const [prompts, setPrompts] = useState<{ prompt: string; answer: string }[]>(
@@ -61,8 +62,11 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
         Edit profile
       </p>
       <h3 className="mt-1 text-xl font-semibold text-[var(--color-pearl)]">
-        Your story, well-told
+        Your story, well-told and easy to trust
       </h3>
+      <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
+        The strongest Freeborn profiles feel specific without exposing private essentials. Share enough to be remembered; keep what matters offline.
+      </p>
 
       <form action={formAction} className="mt-6 space-y-5">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -127,16 +131,25 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
               className={fieldClass}
             />
           </label>
+          <label className="block">
+            <span className="text-xs text-[var(--color-mist)]">Education</span>
+            <input
+              name="education"
+              defaultValue={profile.education ?? ""}
+              className={fieldClass}
+            />
+          </label>
         </div>
 
         <label className="block">
           <div className="flex items-center justify-between">
             <span className="text-xs text-[var(--color-mist)]">Bio</span>
-            <span className="text-xs text-[var(--color-mist)]">{(profile.bio ?? "").length} / 500</span>
+            <span className="text-xs text-[var(--color-mist)]">{bio.length} / 500</span>
           </div>
           <textarea
             name="bio"
-            defaultValue={profile.bio ?? ""}
+            value={bio}
+            onChange={(event) => setBio(event.target.value.slice(0, 500))}
             maxLength={500}
             rows={4}
             className={`${fieldClass} resize-none`}
@@ -306,8 +319,6 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
           </span>
         </button>
         <input type="hidden" name="discoverable" value={String(discoverable)} />
-
-        <input type="hidden" name="education" value={profile.education ?? ""} />
 
         {state && !state.ok && <p className="text-sm text-red-200">{state.error}</p>}
         {state && state.ok && <p className="text-sm text-emerald-200">Profile saved.</p>}

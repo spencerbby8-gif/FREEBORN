@@ -98,7 +98,7 @@ export function DiscoverClient({
         <span>{candidates.length - index - 1} remaining</span>
         <div className="flex items-center gap-4">
           <span>✕ Pass</span>
-          <span>★ Super</span>
+          <span>★ Spark</span>
           <span>♥ Like</span>
         </div>
       </div>

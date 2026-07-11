@@ -6,18 +6,18 @@ import { BadgeIcon, HeartIcon, ShieldIcon } from "@/components/icons";
 const trustPoints = [
   {
     icon: ShieldIcon,
-    title: "Private by design",
-    body: "Your details stay yours. We verify people, not profiles.",
+    title: "Private essentials",
+    body: "Email and full birth date stay out of discovery, while your public profile stays editable.",
   },
   {
     icon: BadgeIcon,
-    title: "Real, verified people",
-    body: "Photo verification keeps catfish and bots out the door.",
+    title: "Badges have to be earned",
+    body: "Verification status is visible only when a profile has it — never implied by default.",
   },
   {
     icon: HeartIcon,
-    title: "One match at a time",
-    body: "No endless swiping — just thoughtful people, nearby.",
+    title: "Context before impulse",
+    body: "Intentions, interests, location, and profile completeness sit beside the photos."
   },
 ] as const;
 

@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View, TextInput, Switch } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, TextInput, Switch } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, radii, type UserProfileRow, type ProfilePhoto } from "@freeborn/shared";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { Wordmark } from "@/components/wordmark";
+
+function publicPhotoUrl(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  if (!base) return null;
+  return `${base}/storage/v1/object/public/profile-photos/${path.split("/").map(encodeURIComponent).join("/")}`;
+}
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -57,11 +65,23 @@ export default function ProfileScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Photos · {photos.length}/6</Text>
             <View style={styles.photoGrid}>
-              {photos.map(p => (
-                <View key={p.id} style={styles.photoSlot}>
-                  <Text style={styles.photoText}>📷</Text>
-                </View>
-              ))}
+              {photos.map((p) => {
+                const url = publicPhotoUrl(p.storage_path);
+                return (
+                  <View key={p.id} style={styles.photoSlot}>
+                    {url ? (
+                      <Image source={{ uri: url }} style={styles.photoImage} resizeMode="cover" />
+                    ) : (
+                      <Text style={styles.photoText}>Private</Text>
+                    )}
+                    {p.is_primary ? (
+                      <View style={styles.primaryBadge}>
+                        <Text style={styles.primaryBadgeText}>Primary</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                );
+              })}
               {Array.from({ length: Math.max(0, 3 - photos.length) }).map((_, i) => (
                 <View key={i} style={[styles.photoSlot, { opacity: 0.4 }]}>
                   <Text style={styles.photoText}>+</Text>
@@ -124,8 +144,11 @@ const styles = StyleSheet.create({
   saveBtn: { backgroundColor: colors.pearl, borderRadius: 16, paddingVertical: 14, alignItems: "center", marginTop: 8 },
   saveText: { color: colors.ink, fontWeight: "900" },
   photoGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  photoSlot: { width: "30%", aspectRatio: 0.8, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: colors.lineStrong, alignItems: "center", justifyContent: "center" },
-  photoText: { color: colors.mist, fontSize: 18, fontWeight: "700" },
+  photoSlot: { width: "30%", aspectRatio: 0.8, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: colors.lineStrong, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  photoImage: { width: "100%", height: "100%" },
+  photoText: { color: colors.mist, fontSize: 12, fontWeight: "700" },
+  primaryBadge: { position: "absolute", bottom: 6, borderRadius: 999, backgroundColor: colors.accentGold, paddingHorizontal: 7, paddingVertical: 3 },
+  primaryBadgeText: { color: colors.ink, fontSize: 9, fontWeight: "900", textTransform: "uppercase" },
   hint: { color: colors.mist, fontSize: 12 },
   meta: { color: colors.mist, fontSize: 13, marginTop: 2 },
 });

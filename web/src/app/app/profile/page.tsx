@@ -50,7 +50,7 @@ export default async function ProfilePage() {
               <div className="flex justify-between">
                 <span className="text-[var(--color-mist)]">Verified</span>
                 <span className={`font-semibold ${profile.is_verified ? "text-emerald-300" : "text-[var(--color-mist)]"}`}>
-                  {profile.is_verified ? "Yes" : "Pending"}
+                  {profile.is_verified ? "Yes" : "Not verified"}
                 </span>
               </div>
               <div className="flex justify-between">

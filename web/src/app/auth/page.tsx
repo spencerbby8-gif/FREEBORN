@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { AuthScreenMode } from "@freeborn/shared";
+
 import { AuthExperience } from "@/components/auth/auth-experience";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { authStatusMessages, type AuthStatusKey } from "@/lib/auth/messages";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  title: "Sign in or create your profile",
+  description: "Create or access your Freeborn profile for values-aligned, intentional relationships.",
+  robots: { index: false, follow: true },
+};
 
 function parseMode(value?: string): AuthScreenMode {
   if (value === "sign-up") return "sign-up";

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   brand,
@@ -27,6 +28,69 @@ import {
   SparkleIcon,
   StarIcon,
 } from "@/components/icons";
+export const metadata: Metadata = {
+  title: "Medical Freedom Dating for Natural Health & Long-Term Relationships",
+  description: brand.seoDescription,
+  alternates: { canonical: "https://freeborn.app" },
+  openGraph: {
+    title: brand.seoTitle,
+    description: brand.seoDescription,
+    url: "https://freeborn.app",
+    type: "website",
+  },
+};
+
+function JsonLd() {
+  const graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://freeborn.app/#organization",
+        name: brand.name,
+        url: "https://freeborn.app",
+        slogan: brand.positioning,
+        description: brand.seoDescription,
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://freeborn.app/#website",
+        url: "https://freeborn.app",
+        name: brand.name,
+        description: brand.seoDescription,
+        publisher: { "@id": "https://freeborn.app/#organization" },
+        inLanguage: "en-US",
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://freeborn.app/#app",
+        name: brand.name,
+        applicationCategory: "LifestyleApplication",
+        operatingSystem: "Web, iOS, Android",
+        url: "https://freeborn.app",
+        description: brand.seoDescription,
+        publisher: { "@id": "https://freeborn.app/#organization" },
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://freeborn.app/#faq",
+        mainEntity: faqs.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: { "@type": "Answer", text: item.a },
+        })),
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(graph).replace(/</g, "\\u003c") }}
+    />
+  );
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Nav                                                                       */
@@ -88,7 +152,7 @@ function Hero() {
           {/* Left — copy */}
           <div className="max-w-[640px]">
             <Reveal>
-              <SectionLabel label="Dating, rebuilt for people who mean it" dot="ember" />
+              <SectionLabel label="Values-aligned dating for health autonomy and lasting love" dot="ember" />
             </Reveal>
 
             <Reveal delay={1}>
@@ -96,9 +160,9 @@ function Hero() {
                 className="mt-7 text-[var(--font-display-massive)] leading-[0.97] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
                 style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'SOFT' 30, 'wght' 450" }}
               >
-                Stop swiping.
+                Date freely.
                 <br />
-                <span className="text-ember">Start meeting.</span>
+                <span className="text-ember">Love intentionally.</span>
               </h1>
             </Reveal>
 
@@ -130,15 +194,15 @@ function Hero() {
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-[12px] text-[var(--color-mist)]">
                 <span className="flex items-center gap-2">
                   <BadgeIcon size={15} className="text-[var(--color-teal-300)]" />
-                  Photo verified
+                  Values-forward profiles
                 </span>
                 <span className="flex items-center gap-2">
                   <LockIcon size={15} className="text-[var(--color-gold-300)]" />
-                  Private by default
+                  Medical freedom respected
                 </span>
                 <span className="flex items-center gap-2">
                   <HeartIcon size={15} className="text-[var(--color-ember-300)]" />
-                  No endless swiping
+                  Long-term intent
                 </span>
               </div>
             </Reveal>
@@ -193,8 +257,7 @@ function Manifesto() {
                 className="mt-8 text-[clamp(1.6rem,3vw,2.2rem)] leading-[1.2] tracking-[-0.03em] text-[var(--color-pearl)]"
                 style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 400, 'SOFT' 50" }}
               >
-                Dating apps had stopped feeling human. They had turned us into cards in a deck, endlessly flicked, rarely read.
-                We built Freeborn for the moment you decide you want better.
+                Dating apps had stopped asking what people actually build a life around. Freeborn is for the moment you want shared values, health autonomy, natural living, and long-term intent to matter from the start.
               </p>
               <div className="mt-10 flex items-center gap-3">
                 <div
@@ -218,18 +281,17 @@ function Manifesto() {
             className="mt-6 text-[var(--font-display-section)] leading-[1.02] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
             style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450, 'SOFT' 30" }}
           >
-            Swiping was never designed to help you <span className="text-warm">fall in love.</span>
+            Shared values should not be a <span className="text-warm">late discovery.</span>
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
-            It was designed to keep you scrolling. We replaced it with something slower — one person at a time,
-            real profiles, conversations that start with intention, and an interface that disappears when it&apos;s done its job.
+            Most apps optimize for reaction. Freeborn is built for recognition — one person at a time, real profiles, values in context, and conversations that can begin from shared ground instead of assumptions.
           </p>
 
           <ul className="mt-10 space-y-5">
             {[
-              { icon: HeartIcon, title: "One match at a time", body: "No stacks, no infinite scroll. You give each person real attention — and receive it in return." },
-              { icon: SparkleIcon, title: "Profiles with a pulse", body: "Prompts, values, and intentions come before photos. You learn who someone is before you decide how they look." },
-              { icon: ShieldIcon, title: "Built by people who care", body: "We are not a giant conglomerate chasing engagement metrics. We build what we would want for our friends." },
+              { icon: HeartIcon, title: "Long-term intent first", body: "No stacks, no infinite scroll. You give each person real attention — and look for the kind of alignment that can hold a relationship." },
+              { icon: SparkleIcon, title: "Profiles with values", body: "Prompts, wellness rhythms, relationship goals, and lifestyle cues come before empty performance. You learn more than a photo can say." },
+              { icon: ShieldIcon, title: "Autonomy belongs here", body: "Freeborn is designed for people who respect informed choices, natural health, privacy, and the right to build life on their own terms." },
             ].map(({ icon: Icon, title, body }) => (
               <li key={title} className="flex gap-5">
                 <span className="mt-0.5 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl border border-[var(--color-line-pearl)] bg-white/[0.04] text-[var(--color-ember-300)]">
@@ -330,11 +392,10 @@ function Pillars() {
             className="mt-6 text-[var(--font-display-section)] leading-[1.02] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
             style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450, 'SOFT' 30" }}
           >
-            Every detail, in service of <span className="text-warm">real connection.</span>
+            Every detail, in service of <span className="text-warm">values-aligned love.</span>
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
-            We sweated the things most apps don&apos;t bother with — how a profile reads before a photo loads, how it
-            feels to say no, how quickly a good conversation begins.
+            We sweated the things most apps avoid — how values show up without becoming a shouting match, how privacy is protected, and how quickly a grounded conversation can begin.
           </p>
           <Link
             href="/auth?mode=sign-up"
@@ -414,11 +475,10 @@ function Safety() {
               className="mt-6 text-[var(--font-display-section)] leading-[1.02] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
               style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450, 'SOFT' 30" }}
             >
-              You should feel <span className="text-warm">safe</span> before you feel sparks.
+              Trust should protect your <span className="text-warm">privacy and autonomy.</span>
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
-              Trust is not a vibe; it is visible product behavior. Freeborn is careful about what it shows,
-              what it hides, and which badges or claims are allowed to appear on a profile.
+              Trust is not a vibe; it is visible product behavior. Freeborn is careful about what it shows, what it hides, and how members express values without exposing private medical history or account details.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -470,11 +530,10 @@ function Community() {
             className="mt-6 text-[var(--font-display-section)] leading-[1.02] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
             style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450, 'SOFT' 30" }}
           >
-            Memorable profiles. <span className="text-ember">Responsible promises.</span>
+            Clear values. <span className="text-ember">Responsible promises.</span>
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-[var(--color-sand)]">
-            Freeborn should feel like a living room with standards, not a feed assembled from interchangeable parts. Every public claim has to earn its place,
-            every profile preview is labeled honestly, and every member is asked to help protect the room.
+            Freeborn should feel like a living room with standards, not a feed assembled from interchangeable parts. Every public claim has to earn its place, every profile preview is labeled honestly, and every member is asked to protect a room where autonomy and long-term intent are respected.
           </p>
         </Reveal>
 
@@ -625,7 +684,7 @@ function Cta() {
 
           <div className="relative mx-auto max-w-2xl">
             <div className="flex justify-center">
-              <SectionLabel label="Meet with intention" dot="ember" />
+              <SectionLabel label="Meet from shared ground" dot="ember" />
             </div>
             <h2
               className="mx-auto mt-8 text-[var(--font-display-massive)] leading-[0.97] tracking-[var(--tracking-display)] text-[var(--color-pearl)]"
@@ -634,7 +693,7 @@ function Cta() {
               Make the next hello <span className="text-ember">mean something.</span>
             </h2>
             <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-[var(--color-sand)]">
-              Freeborn is built for people who want to be clear, careful, and memorable from the first line of their profile.
+              Freeborn is built for people who want health autonomy, natural living, and long-term intention to be part of the conversation from the first profile.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
@@ -706,7 +765,7 @@ function Footer() {
             <div className="mt-6 rounded-2xl border border-[var(--color-line)] bg-white/[0.03] p-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--color-sand)]">Brand promise</p>
               <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
-                No fake press. No invented success rates. No public exposure of private essentials.
+                No fake press. No invented success rates. No public exposure of private essentials or private medical history.
               </p>
             </div>
           </div>
@@ -743,6 +802,7 @@ function Footer() {
 export default function Home() {
   return (
     <main className="relative min-h-screen">
+      <JsonLd />
       <Hero />
       <Manifesto />
       <HowItWorks />

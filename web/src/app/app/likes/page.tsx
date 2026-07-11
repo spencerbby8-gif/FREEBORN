@@ -64,7 +64,7 @@ export default async function LikesPage() {
           Signals worth considering
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-mist)]">
-          See who has raised a hand, then return to Discover when you are ready to read the full profile.
+          See who has raised a hand, then return to Discover when you are ready to read the full profile — values, lifestyle, wellness rhythm, and long-term intent included.
         </p>
       </div>
 
@@ -73,7 +73,7 @@ export default async function LikesPage() {
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-[var(--color-pearl)]">Liked you</h2>
-              <p className="mt-1 text-xs text-[var(--color-mist)]">People who noticed something specific enough to act.</p>
+              <p className="mt-1 text-xs text-[var(--color-mist)]">People who noticed enough shared context to act.</p>
             </div>
             <span className="rounded-full bg-white/[0.04] px-3 py-1 text-xs font-semibold text-[var(--color-stone)]">
               {incoming?.length ?? 0}
@@ -115,7 +115,7 @@ export default async function LikesPage() {
               <div className="col-span-2 empty-glow rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-8 text-center">
                 <p className="text-sm font-semibold text-[var(--color-pearl)]">No likes yet.</p>
                 <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
-                  Add clear photos, a specific bio, and a few interests. Trustworthy profiles invite better attention.
+                  Add clear photos, a specific bio, and values-forward interests. Trustworthy profiles invite better attention.
                 </p>
                 <Link href="/app/profile" className="mt-4 inline-flex rounded-full border border-white/10 px-4 py-2 text-xs font-bold text-[var(--color-pearl)] hover:bg-white/[0.06]">
                   Strengthen profile
@@ -167,7 +167,7 @@ export default async function LikesPage() {
               <div className="empty-glow rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-8 text-center">
                 <p className="text-sm font-semibold text-[var(--color-pearl)]">No outgoing likes yet.</p>
                 <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
-                  Start in Discover and look for the details you would actually ask about.
+                  Start in Discover and look for the values, rituals, and details you would actually ask about.
                 </p>
                 <Link href="/app" className="mt-4 inline-flex magic-button rounded-full bg-[var(--color-pearl)] px-4 py-2 text-xs font-bold text-[var(--color-ink)] hover:bg-white">
                   Go to Discover

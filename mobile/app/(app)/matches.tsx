@@ -83,7 +83,7 @@ export default function MatchesScreen() {
             {!matches.length && (
               <View style={styles.emptyPill}>
                 <Text style={styles.emptyPillTitle}>No matches yet</Text>
-                <Text style={styles.emptyPillText}>Keep discovering with care.</Text>
+                <Text style={styles.emptyPillText}>Keep discovering with values and care.</Text>
               </View>
             )}
           </ScrollView>
@@ -105,7 +105,7 @@ export default function MatchesScreen() {
               {!messages.length && active && (
                 <View style={styles.emptyConversation}>
                   <Text style={styles.emptyPillTitle}>Start with something specific.</Text>
-                  <Text style={styles.emptyPillText}>A detail from their profile beats a generic hello.</Text>
+                  <Text style={styles.emptyPillText}>A shared value, wellness rhythm, or profile detail beats a generic hello.</Text>
                 </View>
               )}
             </ScrollView>

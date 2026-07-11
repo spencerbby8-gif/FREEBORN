@@ -76,9 +76,9 @@ export async function saveDiscoveryPreferences(_prev: unknown, formData: FormDat
     distance_km: Number(formData.get("distance_km")),
     show_genders: formData.getAll("show_genders").map(String),
     relationship_intents: formData.getAll("relationship_intents").map(String),
-    verified_only: formData.get("verified_only") === "on",
-    photos_required: formData.get("photos_required") !== "off",
-    deal_breaker_strict: formData.get("deal_breaker_strict") !== "off",
+    verified_only: formData.getAll("verified_only").includes("true"),
+    photos_required: formData.getAll("photos_required").includes("true"),
+    deal_breaker_strict: formData.getAll("deal_breaker_strict").includes("true"),
   };
   const parsed = discoveryPreferencesSchema.safeParse(payload);
   if (!parsed.success) {
@@ -115,6 +115,23 @@ export async function saveDiscoveryPreferences(_prev: unknown, formData: FormDat
   return { ok: true };
 }
 
+export async function saveProfileVisibility(_prev: unknown, formData: FormData) {
+  const discoverable = formData.get("discoverable") === "true";
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in required." };
+
+  const { error } = await supabase.from("user_profiles").update({
+    discoverable,
+    updated_at: new Date().toISOString(),
+  }).eq("id", user.id);
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/app/profile");
+  revalidatePath("/app");
+  return { ok: true };
+}
+
 export async function saveProfileEdit(_prev: unknown, formData: FormData) {
   const getArray = (k: string) => formData.getAll(k).map(String);
   const payload = {
@@ -139,12 +156,19 @@ export async function saveProfileEdit(_prev: unknown, formData: FormData) {
       } catch { return []; }
     })(),
     show_gender: getArray("show_gender"),
-    discoverable: formData.get("discoverable") === "true",
+    discoverable: formData.has("discoverable") ? formData.get("discoverable") === "true" : undefined,
   };
 
   const parsed = profileEditSchema.safeParse(payload);
   if (!parsed.success) {
-    return { ok: false, error: "Please review highlighted fields." , fieldErrors: {} };
+    const fieldErrors: Record<string, string> = {};
+    parsed.error.issues.forEach((issue) => {
+      const key = issue.path[0];
+      if (typeof key === "string" && !fieldErrors[key]) {
+        fieldErrors[key] = issue.message;
+      }
+    });
+    return { ok: false, error: "Please review the highlighted fields and try again.", fieldErrors };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -152,7 +176,7 @@ export async function saveProfileEdit(_prev: unknown, formData: FormData) {
   if (!user) return { ok: false, error: "Sign in required." };
 
   const d = parsed.data;
-  const { error } = await supabase.from("user_profiles").update({
+  const updates: Record<string, unknown> = {
     display_name: d.display_name,
     birth_date: d.birth_date,
     gender: d.gender,
@@ -169,9 +193,11 @@ export async function saveProfileEdit(_prev: unknown, formData: FormData) {
     height_cm: d.height_cm ?? null,
     prompt_answers: d.prompt_answers ?? [],
     show_gender: d.show_gender ?? [],
-    discoverable: d.discoverable,
     updated_at: new Date().toISOString(),
-  }).eq("id", user.id);
+  };
+  if (formData.has("discoverable")) updates.discoverable = d.discoverable;
+
+  const { error } = await supabase.from("user_profiles").update(updates).eq("id", user.id);
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/app/profile");

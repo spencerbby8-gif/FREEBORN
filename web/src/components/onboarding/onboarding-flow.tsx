@@ -44,7 +44,7 @@ const stepMeta = [
   {
     key: "identity",
     title: "Let's start with the basics.",
-    description: "Your name and birthday build an authentic foundation. Everything saves as you go.",
+    description: "Your name and birthday build a safe foundation. Everything saves as you go.",
     tip: "Your birthday stays private — we only use it to confirm you're 18 or older.",
   },
   {
@@ -56,20 +56,20 @@ const stepMeta = [
   {
     key: "bio_goals",
     title: "Your voice, your intentions.",
-    description: "A short, honest bio and a few goals go a long way toward the right kind of attention.",
-    tip: "Lead with what you love. Warmth opens more doors than a checklist.",
+    description: "A short, honest bio, your values, and a few goals go a long way toward the right kind of attention.",
+    tip: "Lead with what you value and what you love. Warmth opens more doors than a checklist.",
   },
   {
     key: "interests_lifestyle",
     title: "What lights you up?",
-    description: "These details spark conversation and help discovery feel human.",
+    description: "These details spark conversation and help discovery feel human, especially when wellness and daily rhythm matter to you.",
     tip: "The more specific you are, the better your opening messages will feel.",
   },
   {
     key: "preferences_extras",
     title: "The finer details.",
     description: "Deal breakers keep discovery honest. The rest is optional texture.",
-    tip: "Deal breakers are optional but powerful — they skip the matches that would never work.",
+    tip: "Deal breakers are optional but powerful — they skip the matches that would never work, including pressure around values or health choices.",
   },
 ] as const;
 
@@ -510,7 +510,7 @@ export function OnboardingFlow({
                 <CheckIcon size={36} className="text-white" />
               </div>
               <h1 className="mt-6 font-[family-name:var(--font-display)] text-[clamp(1.9rem,4vw,2.6rem)] leading-[1.0] tracking-[-0.04em] text-[var(--color-pearl)]">
-                Your profile is live.
+                Your values-forward profile is live.
               </h1>
               <p className="mt-3 max-w-md text-[15px] leading-7 text-[var(--color-mist)]">
                 You&apos;re set up with a thoughtful foundation. You can refine anything from your profile later.
@@ -519,7 +519,7 @@ export function OnboardingFlow({
               <div className="mt-7 w-full max-w-md space-y-3 text-left">
                 {[
                   "Add clear, recent photos so people can recognize you with confidence.",
-                  "Specific interests give better conversation starters than generic lists.",
+                  "Specific interests — from natural health to everyday rituals — give better conversation starters than generic lists.",
                   "Keep your bio current — it sets the tone before a first message.",
                 ].map((tip) => (
                   <div key={tip} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3.5">

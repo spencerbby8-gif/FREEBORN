@@ -8,51 +8,51 @@ import type { GenderIdentity, OnboardingStep, RelationshipIntent } from "./types
 
 export const productPillars = [
   {
-    title: "Profiles with a point of view",
-    body: "Freeborn asks for values, rhythm, interests, and a few considered words before anyone becomes another face in a feed. The goal is recognition, not volume.",
+    title: "Values before volume",
+    body: "Freeborn is built for people who want health autonomy, natural living, faith or philosophy, family direction, and long-term intentions to have room in the dating experience — without turning a profile into a debate.",
   },
   {
-    title: "Trust signals people can understand",
-    body: "Age-gated onboarding, visible verification status, private birth dates, member-controlled discovery, and clear profile completeness cues make the experience feel accountable.",
+    title: "Natural health belongs in compatibility",
+    body: "Lifestyle, wellness rhythm, informed choice, and medical freedom can shape daily life. Freeborn gives members a respectful way to share those values early, so connection starts with context.",
   },
   {
-    title: "A slower rhythm by design",
-    body: "Discovery is intentionally finite. See the whole person, make a considered choice, and move toward a conversation instead of disappearing into an endless stack.",
+    title: "Trust without overexposure",
+    body: "Age-gated onboarding, private birth dates, editable discovery settings, visible verification status, and clear profile completeness cues help the room feel accountable while personal essentials stay private.",
   },
 ] as const;
 
 export const previewProfiles = [
   {
-    name: "Amara",
-    age: 28,
-    location: "Brooklyn, NY",
-    job: "Architect",
-    headline: "Building spaces and Sundays that feel like home.",
-    prompt: "The way to win me over is…",
-    answer: "Be curious about small things. Remember the coffee order. Walk the long way home.",
-    traits: ["Long-term", "Creative", "Warm"],
+    name: "Mara",
+    age: 29,
+    location: "Austin, TX",
+    job: "Functional nutritionist",
+    headline: "Garden mornings, honest conversation, and building a life that feels free.",
+    prompt: "A value I will not compromise on…",
+    answer: "Informed choice. I want a relationship where we can ask good questions, respect the body, and make health decisions without pressure.",
+    traits: ["Long-term", "Natural health", "Health autonomy"],
     palette: ["#ef5e5e", "#d9a752"] as [string, string],
   },
   {
-    name: "Julien",
-    age: 31,
-    location: "Paris 11e",
-    job: "Documentary filmmaker",
-    headline: "Looking for someone who still believes in handwritten letters.",
-    prompt: "A perfect Sunday…",
-    answer: "Markets at dawn, a long lunch, a second film, and no plans for after.",
-    traits: ["Intentional", "Curious", "Monogamous"],
+    name: "Jonah",
+    age: 34,
+    location: "Boise, ID",
+    job: "Regenerative farmer",
+    headline: "Looking for a woman who wants roots, resilience, and a real home.",
+    prompt: "My perfect Sunday…",
+    answer: "Sunrise coffee, farmers market, a long walk, meal prep from scratch, and phones away by dinner.",
+    traits: ["Life partner", "Grounded", "Outdoorsy"],
     palette: ["#8a6ef2", "#6dd3b0"] as [string, string],
   },
   {
-    name: "Sora",
-    age: 29,
-    location: "Silver Lake, LA",
-    job: "Founder",
-    headline: "Building things that last. Looking for the same.",
-    prompt: "I geek out on…",
-    answer: "Natural wine, analog cameras, long road trips with no destination.",
-    traits: ["Life partner", "Ambitious", "Grounded"],
+    name: "Elena",
+    age: 31,
+    location: "Franklin, TN",
+    job: "Midwife",
+    headline: "Soft heart, strong standards, and serious about building something lasting.",
+    prompt: "I’m looking for someone who…",
+    answer: "Lives with conviction, cares about natural health, and wants a peaceful home more than a performative life.",
+    traits: ["Intentional", "Family-minded", "Wellness"],
     palette: ["#d9a752", "#ef5e5e"] as [string, string],
   },
 ] as const;
@@ -61,28 +61,28 @@ export const trustStats = [
   { stat: "18+", label: "age-gated membership before discovery opens" },
   { stat: "6", label: "profile photos maximum, keeping presentation intentional" },
   { stat: "3", label: "relationship intentions highlighted on each profile" },
-  { stat: "0", label: "birth dates, emails, and last names shown publicly" },
+  { stat: "0", label: "birth dates, emails, or account providers shown publicly" },
 ] as const;
 
 export const communityPrinciples = [
   {
-    title: "Be recognizable",
-    body: "Use recent photos, honest details, and a bio that sounds like you. A profile should feel like an invitation, not a performance.",
+    title: "Honor health autonomy",
+    body: "Members should be free to make informed choices about their bodies, homes, food, family, and care without coercion or ridicule. Compatibility starts with respect.",
   },
   {
-    title: "Move with care",
-    body: "Pass respectfully, like intentionally, and open with something specific. Freeborn rewards attention over impulse.",
+    title: "Be recognizable and real",
+    body: "Use recent photos, honest details, and a bio that sounds like you. A profile should feel like an invitation into your values, not a performance for strangers.",
   },
   {
-    title: "Protect the room",
-    body: "Harassment, hate, impersonation, spam, and pressure do not belong here. Reports are treated as product-critical work, not admin noise.",
+    title: "Move toward commitment with care",
+    body: "Pass respectfully, like intentionally, and open with something specific. Freeborn rewards attention, patience, and long-term clarity over impulse.",
   },
 ] as const;
 
 export const profileProofPoints = [
   {
-    title: "Composite profile previews",
-    body: "The people shown in marketing are illustrative composites, not fake member claims. In the app, profiles come from real member data.",
+    title: "Values are part of the profile",
+    body: "Natural health, medical freedom, lifestyle rhythm, relationship intentions, and deal breakers can be shared as compatibility signals instead of awkward first-date surprises.",
   },
   {
     title: "No invented success numbers",
@@ -96,16 +96,16 @@ export const profileProofPoints = [
 
 export const safetyFeatures = [
   {
+    title: "Health autonomy respected",
+    body: "Freeborn is for people who believe medical decisions and wellness practices deserve informed consent, personal agency, and respectful conversation.",
+  },
+  {
     title: "Age-gated entry",
     body: "Date of birth is required to confirm 18+ eligibility, then kept private from public profiles.",
   },
   {
-    title: "Verification is visible",
-    body: "Profiles only show a verification badge when the account has earned that status. No badge is implied by default.",
-  },
-  {
     title: "Private by default",
-    body: "Emails, birth dates, last names, and account provider details stay out of discovery cards and public profile surfaces.",
+    body: "Emails, full birth dates, last names, and account provider details stay out of discovery cards and public profile surfaces.",
   },
   {
     title: "Discovery controls",
@@ -116,8 +116,8 @@ export const safetyFeatures = [
 export const howItWorks = [
   {
     step: "01",
-    title: "Build a profile with intent",
-    body: "Share your essentials, relationship direction, interests, lifestyle, and a short bio. It is designed to feel human before it feels searchable.",
+    title: "Build a values-aligned profile",
+    body: "Share your essentials, health rhythm, lifestyle, relationship direction, interests, and a short bio. It is designed to feel human before it feels searchable.",
   },
   {
     step: "02",
@@ -127,23 +127,27 @@ export const howItWorks = [
   {
     step: "03",
     title: "Read the whole person",
-    body: "Profiles put location, intention, words, interests, photos, and verification status in one calm view so every choice has context.",
+    body: "Profiles put location, intention, words, interests, photos, wellness cues, and verification status in one calm view so every choice has context.",
   },
   {
     step: "04",
-    title: "Start from something real",
-    body: "When a like becomes mutual, the conversation begins with the details already shared — not a blank performance of small talk.",
+    title: "Move toward something real",
+    body: "When a like becomes mutual, the conversation begins with values already on the table — not a blank performance of small talk.",
   },
 ] as const;
 
 export const faqs = [
   {
     q: "Who is Freeborn for?",
-    a: "People who want dating to feel more deliberate, respectful, and emotionally honest. If you are looking for infinite swiping or disposable conversations, Freeborn will feel intentionally different.",
+    a: "Freeborn is for values-aligned singles who care about medical freedom, natural health, informed choice, and intentional long-term relationships. It is for people who want compatibility to include how they live, heal, build family, and make decisions.",
+  },
+  {
+    q: "Is Freeborn only for people with the exact same health views?",
+    a: "No. Freeborn is not a purity test. It is a relationship platform for people who value autonomy, respectful conversation, natural living, and long-term clarity. Members can decide which values are essential for them.",
   },
   {
     q: "How is Freeborn different from other dating apps?",
-    a: "Freeborn emphasizes full profiles, clear intentions, finite discovery, privacy-minded onboarding, and visible trust signals. It is built around deciding with context instead of reacting to a stack.",
+    a: "Freeborn emphasizes full profiles, clear intentions, finite discovery, privacy-minded onboarding, and compatibility around values like health autonomy and natural wellness. It is built around deciding with context instead of reacting to a stack.",
   },
   {
     q: "Is Freeborn free?",
@@ -199,6 +203,14 @@ export const relationshipGoalOptions: Array<{
 ];
 
 export const interestOptions = [
+  "Natural health",
+  "Medical freedom",
+  "Holistic wellness",
+  "Herbal remedies",
+  "Homesteading",
+  "Regenerative farming",
+  "Farmers markets",
+  "Traditional food",
   "Travel",
   "Cooking",
   "Hiking",
@@ -229,6 +241,10 @@ export const interestOptions = [
   "Design",
   "Fashion",
   "Wellness",
+  "Natural health",
+  "Holistic living",
+  "Medical freedom",
+  "Health autonomy",
   "Meditation",
   "Journaling",
   "Astrology",
@@ -243,6 +259,13 @@ export const interestOptions = [
 ] as const;
 
 export const lifestyleOptions = [
+  "Health autonomy",
+  "Natural living",
+  "Low-tox home",
+  "Organic food",
+  "Homeschool curious",
+  "Family-minded",
+  "Faith-friendly",
   "Early bird",
   "Night owl",
   "Homebody",
@@ -252,6 +275,10 @@ export const lifestyleOptions = [
   "Spontaneous",
   "Planner",
   "Fitness-focused",
+  "Ingredient-conscious",
+  "Low-tox living",
+  "Homesteading",
+  "Regenerative food",
   "Outdoorsy",
   "City lover",
   "Vegetarian",
@@ -264,6 +291,8 @@ export const lifestyleOptions = [
   "Sober curious",
   "Non-drinker",
   "Non-smoker",
+  "Natural wellness",
+  "Informed health choices",
   "Spiritual",
   "Religious",
   "Secular",
@@ -278,6 +307,10 @@ export const lifestyleOptions = [
 ] as const;
 
 export const dealBreakerOptions = [
+  "Health coercion",
+  "Disrespect for medical freedom",
+  "Mocking natural health",
+  "No long-term intention",
   "Smoking",
   "Dishonesty",
   "Poor communication",
@@ -289,6 +322,8 @@ export const dealBreakerOptions = [
   "Controlling behavior",
   "Financial irresponsibility",
   "Different values",
+  "Medical pressure",
+  "Dismisses natural health",
   "No sense of humor",
   "Passive aggression",
   "Disrespectful",
@@ -308,7 +343,7 @@ export const onboardingStepMeta: Array<{
   {
     step: "identity",
     label: "Identity",
-    description: "The essentials that shape how people meet you.",
+    description: "The private essentials that help Freeborn introduce you safely.",
   },
   {
     step: "about_you",
@@ -318,17 +353,17 @@ export const onboardingStepMeta: Array<{
   {
     step: "bio_goals",
     label: "Bio & goals",
-    description: "Your voice and what you're looking for.",
+    description: "Your voice, values, and relationship direction.",
   },
   {
     step: "interests_lifestyle",
     label: "Interests",
-    description: "What lights you up and how you spend your time.",
+    description: "What lights you up, including wellness and daily rhythm.",
   },
   {
     step: "preferences_extras",
-    label: "Preferences",
-    description: "The finer details and optional extras.",
+    label: "Boundaries",
+    description: "The finer details and non-negotiables that keep discovery honest.",
   },
 ];
 
@@ -352,6 +387,8 @@ export const profilePrompts = [
   "I geek out on…",
   "My most controversial opinion…",
   "A life goal I’m working toward…",
+  "A wellness rhythm that matters to me…",
+  "A value I won’t compromise on…",
   "I’m known for…",
 ] as const;
 

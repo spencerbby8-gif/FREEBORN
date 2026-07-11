@@ -208,7 +208,7 @@ export function AuthExperience({
   const copy = {
     eyebrow:
       mode === "sign-up"
-        ? "Private by default"
+        ? "Values-aligned and private"
         : mode === "reset-password"
           ? "Account recovery"
           : mode === "update-password"
@@ -224,12 +224,12 @@ export function AuthExperience({
             : "Welcome back",
     description:
       mode === "sign-up"
-        ? "Start with email, confirm it's really you, and step into a calmer kind of dating."
+        ? "Start with email, confirm it's really you, and step into a relationship platform built for health autonomy, natural living, and long-term intention."
         : mode === "reset-password"
           ? "We'll send a secure link so you can set a new password — no stress."
           : mode === "update-password"
             ? "Set a strong password to finish restoring access to your account."
-            : "Sign in to pick up where you left off. Your profile is right where you left it.",
+            : "Sign in to pick up where you left off. Your values-forward profile is right where you left it.",
   };
 
   const submitLabel =

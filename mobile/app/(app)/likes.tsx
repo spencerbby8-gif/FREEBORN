@@ -42,7 +42,7 @@ export default function LikesScreen() {
         <ScrollView contentContainerStyle={styles.content}>
           <Wordmark />
           <Text style={styles.title}>Signals worth considering</Text>
-          <Text style={styles.subtitle}>{incoming.length} people noticed your profile. Read with context before you respond.</Text>
+          <Text style={styles.subtitle}>{incoming.length} people noticed your profile. Read with values and context before you respond.</Text>
 
           {/* Incoming */}
           <View style={styles.card}>
@@ -70,7 +70,7 @@ export default function LikesScreen() {
             ) : (
               <View style={styles.emptyBox}>
                 <Text style={styles.emptyTitle}>No likes yet</Text>
-                <Text style={styles.emptyText}>Clear photos and a specific bio invite better attention.</Text>
+                <Text style={styles.emptyText}>Clear photos, values-forward interests, and a specific bio invite better attention.</Text>
               </View>
             )}
           </View>
@@ -99,7 +99,7 @@ export default function LikesScreen() {
             ) : (
               <View style={styles.emptyBox}>
                 <Text style={styles.emptyTitle}>Nothing sent yet</Text>
-                <Text style={styles.emptyText}>Start in Discover and choose profiles you would genuinely ask about.</Text>
+                <Text style={styles.emptyText}>Start in Discover and choose profiles whose values, rituals, or long-term direction you would genuinely ask about.</Text>
               </View>
             )}
           </View>

@@ -60,13 +60,16 @@ export default async function MatchesPage({
 
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         {/* Match list */}
-        <aside className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 max-h-[720px] overflow-auto">
+        <aside className="luminous-card max-h-[720px] overflow-auto rounded-2xl border border-white/8 bg-white/[0.035] p-4">
           {matchRows.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--color-mist)]">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <p className="mt-4 text-sm text-[var(--color-mist)]">No matches yet — keep discovering thoughtful profiles.</p>
+            <div className="empty-glow flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 px-5 py-12 text-center">
+              <div className="pulse-glow flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-violet-500)]/15 text-[var(--color-violet-300)]">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <p className="mt-4 text-sm font-semibold text-[var(--color-pearl)]">No matches yet.</p>
+              <p className="mt-2 max-w-[240px] text-sm leading-6 text-[var(--color-mist)]">Keep reading profiles with care. The right conversation should feel earned, not accidental.</p>
             </div>
           )}
           <div className="space-y-1.5">
@@ -81,7 +84,7 @@ export default async function MatchesPage({
                   key={m.id}
                   href={`/app/matches?m=${m.id}`}
                   className={`flex items-center gap-3 rounded-xl px-3 py-3 transition-all ${
-                    active ? "bg-white/10" : "hover:bg-white/[0.04]"
+                    active ? "bg-[var(--gradient-ember-warm)] text-white shadow-[0_16px_34px_-22px_rgba(239,94,94,0.9)]" : "text-[var(--color-pearl)] hover:bg-white/[0.055] hover:translate-x-1"
                   }`}
                 >
                   <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-rose-400/20 to-sky-400/10">
@@ -107,14 +110,17 @@ export default async function MatchesPage({
         </aside>
 
         {/* Chat */}
-        <section className="flex min-h-[520px] flex-col rounded-2xl border border-white/8 bg-white/[0.03]">
+        <section className="luminous-card flex min-h-[520px] flex-col rounded-2xl border border-white/8 bg-white/[0.035]">
           {!activeMatch ? (
             <div className="flex flex-1 items-center justify-center p-10 text-center text-[var(--color-mist)]">
-              <div>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto text-[var(--color-mist)]">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-                <p className="mt-4 text-sm">Select a match to start a conversation.</p>
+              <div className="empty-glow rounded-3xl border border-dashed border-white/10 px-8 py-10">
+                <div className="pulse-glow mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-gold-500)]/15 text-[var(--color-gold-300)]">
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <p className="mt-4 text-sm font-semibold text-[var(--color-pearl)]">Choose a match when you are ready.</p>
+                <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">Conversations on Freeborn start best when they begin with something you actually noticed.</p>
               </div>
             </div>
           ) : (
@@ -147,11 +153,11 @@ export default async function MatchesPage({
                     <div key={msg.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                       <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-6 ${
                         mine
-                          ? "bg-[var(--color-pearl)] text-[var(--color-ink)]"
-                          : "bg-white/[0.06] text-[var(--color-pearl)] border border-white/8"
+                          ? "bg-[var(--gradient-ember-warm)] text-white shadow-[0_16px_34px_-22px_rgba(239,94,94,0.9)]"
+                          : "border border-white/8 bg-white/[0.06] text-[var(--color-pearl)] shadow-[0_12px_30px_-24px_rgba(0,0,0,0.8)]"
                       }`}>
                         {msg.body}
-                        <div className={`mt-1 text-[10px] ${mine ? "text-[rgba(11,19,32,0.55)]" : "text-[var(--color-stone)]"}`}>
+                        <div className={`mt-1 text-[10px] ${mine ? "text-white/70" : "text-[var(--color-stone)]"}`}>
                           {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </div>
                       </div>
@@ -159,8 +165,8 @@ export default async function MatchesPage({
                   );
                 })}
                 {!(messages ?? []).length && (
-                  <div className="flex items-center justify-center py-12 text-sm text-[var(--color-mist)]">
-                    Say hello — thoughtful first messages get thoughtful replies.
+                  <div className="empty-glow flex items-center justify-center rounded-2xl border border-dashed border-white/10 px-5 py-12 text-center text-sm text-[var(--color-mist)]">
+                    <span>Start with a detail from their profile — thoughtful first messages get thoughtful replies.</span>
                   </div>
                 )}
               </div>
@@ -182,7 +188,7 @@ export default async function MatchesPage({
                     maxLength={2000}
                     required
                   />
-                  <button className="rounded-xl bg-[var(--color-pearl)] px-5 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
+                  <button className="magic-button rounded-xl bg-[var(--color-pearl)] px-5 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
                     Send
                   </button>
                 </div>

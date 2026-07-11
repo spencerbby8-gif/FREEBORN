@@ -5,6 +5,7 @@ import { AuthInput } from "@/components/auth/auth-input";
 import { AuthSurface } from "@/components/auth/auth-surface";
 import { NoticeCard } from "@/components/auth/notice-card";
 import { PasswordStrength } from "@/components/auth/password-strength";
+import { emberShadow } from "@/components/magic-background";
 import { useAuth } from "@/hooks/use-auth";
 import { colors } from "@freeborn/shared";
 
@@ -86,7 +87,7 @@ export default function UpdatePasswordScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: 16, marginTop: 6 },
-  button: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54 },
+  button: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54, ...emberShadow },
   buttonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800", textAlign: "center" },
   disabled: { opacity: 0.65 },
 });

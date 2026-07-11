@@ -251,7 +251,7 @@ export function AuthExperience({
 
   return (
     <div className="w-full max-w-[460px]">
-      <div className="surface ring-pearl relative overflow-hidden rounded-[28px] p-6 shadow-[var(--shadow-glow)] sm:p-8">
+      <div className="surface magic-border relative overflow-hidden rounded-[28px] p-6 shadow-[0_34px_110px_-42px_rgba(138,110,242,0.85)] sm:p-8">
         <div
           key={mode}
           className="animate-fade-in"
@@ -277,7 +277,7 @@ export function AuthExperience({
         {isAuth ? (
           <div className="relative mt-6 grid grid-cols-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
             <span
-              className="absolute inset-y-1 w-[calc(50%-4px)] rounded-xl bg-[var(--color-pearl)] shadow-sm transition-all duration-300 ease-out"
+              className="absolute inset-y-1 w-[calc(50%-4px)] rounded-xl bg-[var(--gradient-ember-warm)] shadow-[0_12px_28px_-16px_rgba(239,94,94,0.9)] transition-all duration-300 ease-out"
               style={{ left: mode === "sign-up" ? "calc(50% + 0px)" : "4px" }}
               aria-hidden
             />
@@ -289,7 +289,7 @@ export function AuthExperience({
                   type="button"
                   onClick={() => changeMode(item.mode)}
                   className={`relative z-10 rounded-xl px-4 py-2.5 text-center text-[13px] font-semibold transition-colors ${
-                    active ? "text-[var(--color-ink)]" : "text-[var(--color-mist)] hover:text-[var(--color-pearl)]"
+                    active ? "text-white" : "text-[var(--color-mist)] hover:text-[var(--color-pearl)]"
                   }`}
                 >
                   {item.label}
@@ -384,7 +384,7 @@ export function AuthExperience({
           <button
             type="submit"
             disabled={pending !== null}
-            className="btn-shine group relative mt-1 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-[var(--color-pearl)] px-5 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_rgba(247,241,232,0.14)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+            className="btn-shine group relative mt-1 inline-flex w-full items-center justify-center gap-2 overflow-hidden magic-button rounded-2xl bg-[var(--color-pearl)] px-5 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_rgba(247,241,232,0.14)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
           >
             {pending === "email" ? <Spinner /> : null}
             {submitLabel}

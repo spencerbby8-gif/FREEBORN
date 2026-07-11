@@ -40,17 +40,17 @@ export default async function ProfilePage() {
         </div>
         <div className="space-y-6" id="discovery">
           <DiscoveryPreferencesForm prefs={prefs ?? null} profile={profile} />
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+          <div className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">Account</p>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--color-mist)]">Email</span>
-                <span className="text-[var(--color-pearl)]">{user.email}</span>
+                <span className="break-all text-right text-[var(--color-pearl)]">{user.email}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--color-mist)]">Verified</span>
                 <span className={`font-semibold ${profile.is_verified ? "text-emerald-300" : "text-[var(--color-mist)]"}`}>
-                  {profile.is_verified ? "Yes" : "Pending"}
+                  {profile.is_verified ? "Yes" : "Not verified"}
                 </span>
               </div>
               <div className="flex justify-between">

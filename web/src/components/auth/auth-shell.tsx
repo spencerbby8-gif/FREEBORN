@@ -6,27 +6,28 @@ import { BadgeIcon, HeartIcon, ShieldIcon } from "@/components/icons";
 const trustPoints = [
   {
     icon: ShieldIcon,
-    title: "Private by design",
-    body: "Your details stay yours. We verify people, not profiles.",
+    title: "Private essentials",
+    body: "Email and full birth date stay out of discovery, while your public profile stays editable.",
   },
   {
     icon: BadgeIcon,
-    title: "Real, verified people",
-    body: "Photo verification keeps catfish and bots out the door.",
+    title: "Badges have to be earned",
+    body: "Verification status is visible only when a profile has it — never implied by default.",
   },
   {
     icon: HeartIcon,
-    title: "One match at a time",
-    body: "No endless swiping — just thoughtful people, nearby.",
+    title: "Context before impulse",
+    body: "Intentions, interests, location, and profile completeness sit beside the photos."
   },
 ] as const;
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 hero-grid opacity-20" />
-      <div className="orb absolute -left-24 -top-24 h-80 w-80 rounded-full bg-[rgba(239,94,94,0.12)] blur-[2px]" />
-      <div className="orb orb-alt absolute -right-24 top-10 h-96 w-96 rounded-full bg-[rgba(138,110,242,0.12)] blur-[2px]" />
+      <div className="aurora-field" />
+      <div className="pointer-events-none absolute inset-0 hero-grid opacity-25" />
+      <div className="orb drift absolute -left-24 -top-24 h-80 w-80 rounded-full bg-[rgba(239,94,94,0.16)] blur-[2px]" />
+      <div className="orb drift-alt absolute -right-24 top-10 h-96 w-96 rounded-full bg-[rgba(138,110,242,0.15)] blur-[2px]" />
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[1280px] flex-col px-6 py-6 sm:px-8 lg:px-10">
         <header className="surface ring-pearl flex items-center justify-between rounded-full px-4 py-3 sm:px-6">
@@ -41,7 +42,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
 
         <section className="grid flex-1 items-center gap-10 py-8 lg:grid-cols-[1fr_0.92fr] lg:py-16">
           <div className="hidden lg:block">
-            <div className="surface ring-ember relative overflow-hidden rounded-[32px] p-9 xl:p-11">
+            <div className="surface magic-border relative overflow-hidden rounded-[32px] p-9 shadow-[0_42px_120px_-44px_rgba(239,94,94,0.75)] xl:p-11">
               <div
                 className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-70 blur-2xl"
                 style={{ background: "radial-gradient(circle, rgba(217,167,82,0.22), transparent 65%)" }}
@@ -63,7 +64,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
                   return (
                     <div
                       key={item.title}
-                      className="flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-white/14 hover:bg-white/[0.05]"
+                      className="hover-lift luminous-card flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.035] p-4 transition hover:border-white/14 hover:bg-white/[0.06]"
                     >
                       <span className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-[var(--color-ember-300)]">
                         <Icon size={18} />

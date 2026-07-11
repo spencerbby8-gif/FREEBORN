@@ -2,21 +2,22 @@ import type { GenderIdentity, OnboardingStep, RelationshipIntent } from "./types
 
 /* ==========================================================================
    MARKETING COPY
-   Copy written to feel considered, warm, and quietly confident — not salesy.
+   The public product should earn trust with specific, truthful language.
+   Avoid unverified outcome metrics, fake press, and claims the app cannot honor.
    ========================================================================== */
 
 export const productPillars = [
   {
-    title: "Profiles that reward depth",
-    body: "No empty bios, no echo chambers of selfies. Freeborn profiles are built around intention, values, and the things that actually make a person worth meeting.",
+    title: "Profiles with a point of view",
+    body: "Freeborn asks for values, rhythm, interests, and a few considered words before anyone becomes another face in a feed. The goal is recognition, not volume.",
   },
   {
-    title: "Trust you can feel",
-    body: "Photo verification, real-human moderation, and privacy defaults that protect you from the very first like. No bots. No scams. No strangers sliding into your DMs.",
+    title: "Trust signals people can understand",
+    body: "Age-gated onboarding, visible verification status, private birth dates, member-controlled discovery, and clear profile completeness cues make the experience feel accountable.",
   },
   {
-    title: "A calmer way to meet",
-    body: "We slowed the app down on purpose. One person at a time. Fewer, better matches. Conversations that actually begin instead of dying in an unread pile.",
+    title: "A slower rhythm by design",
+    body: "Discovery is intentionally finite. See the whole person, make a considered choice, and move toward a conversation instead of disappearing into an endless stack.",
   },
 ] as const;
 
@@ -56,50 +57,59 @@ export const previewProfiles = [
   },
 ] as const;
 
-export const testimonials = [
+export const trustStats = [
+  { stat: "18+", label: "age-gated membership before discovery opens" },
+  { stat: "6", label: "profile photos maximum, keeping presentation intentional" },
+  { stat: "3", label: "relationship intentions highlighted on each profile" },
+  { stat: "0", label: "birth dates, emails, and last names shown publicly" },
+] as const;
+
+export const communityPrinciples = [
   {
-    quote:
-      "I'd basically given up on apps. Freeborn felt different within ten minutes — the people, the pacing, the fact that someone actually wrote a bio.",
-    name: "Amara & Julien",
-    meta: "Matched in Paris · 2025",
+    title: "Be recognizable",
+    body: "Use recent photos, honest details, and a bio that sounds like you. A profile should feel like an invitation, not a performance.",
   },
   {
-    quote:
-      "The first app where I didn't feel like I was shouting into a void. I went on three actual dates in my first month and met my partner on the fourth.",
-    name: "Sora",
-    meta: "Matched in Los Angeles · 2025",
+    title: "Move with care",
+    body: "Pass respectfully, like intentionally, and open with something specific. Freeborn rewards attention over impulse.",
   },
   {
-    quote:
-      "It's the only dating app I've kept on my phone past a week. It respects my time, and the people on it seem to respect each other.",
-    name: "Elena",
-    meta: "Member since 2024 · London",
+    title: "Protect the room",
+    body: "Harassment, hate, impersonation, spam, and pressure do not belong here. Reports are treated as product-critical work, not admin noise.",
   },
 ] as const;
 
-export const trustStats = [
-  { stat: "94%", label: "of members say they'd recommend Freeborn to a friend" },
-  { stat: "87%", label: "report higher-quality connections than other apps" },
-  { stat: "0", label: "unsolicited explicit messages — verified by moderation" },
-  { stat: "1 in 4", label: "matches on Freeborn turn into a second date" },
+export const profileProofPoints = [
+  {
+    title: "Composite profile previews",
+    body: "The people shown in marketing are illustrative composites, not fake member claims. In the app, profiles come from real member data.",
+  },
+  {
+    title: "No invented success numbers",
+    body: "Freeborn does not claim match rates, second-date rates, or press logos it cannot prove inside the current product.",
+  },
+  {
+    title: "Clear control surfaces",
+    body: "Members can edit profile details, photos, preferences, discoverability, and account session state from inside the product.",
+  },
 ] as const;
 
 export const safetyFeatures = [
   {
-    title: "Photo verification",
-    body: "Every profile is cross-checked against a live selfie. Catfish don't make it past the door.",
+    title: "Age-gated entry",
+    body: "Date of birth is required to confirm 18+ eligibility, then kept private from public profiles.",
+  },
+  {
+    title: "Verification is visible",
+    body: "Profiles only show a verification badge when the account has earned that status. No badge is implied by default.",
   },
   {
     title: "Private by default",
-    body: "Your last name, employer, and contacts never appear. Screenshots of profiles are gently blocked.",
+    body: "Emails, birth dates, last names, and account provider details stay out of discovery cards and public profile surfaces.",
   },
   {
-    title: "Human moderation",
-    body: "Real people review reports 24/7. Bad actors are removed — permanently — usually within an hour.",
-  },
-  {
-    title: "Zero tolerance",
-    body: "No harassment, no ghosting bots, no spam. One strike on hate or disrespect and you're out.",
+    title: "Discovery controls",
+    body: "Members can tune age range, distance, shown genders, intentions, verified-only discovery, and whether they are discoverable at all.",
   },
 ] as const;
 
@@ -107,45 +117,45 @@ export const howItWorks = [
   {
     step: "01",
     title: "Build a profile with intent",
-    body: "A few thoughtful prompts. What you value. What you're looking for. It takes eight minutes and pays off in every match.",
+    body: "Share your essentials, relationship direction, interests, lifestyle, and a short bio. It is designed to feel human before it feels searchable.",
   },
   {
     step: "02",
-    title: "Meet one person at a time",
-    body: "We show you one profile, fully — no stacks, no endless swiping. Decide with intention, not reflex.",
+    title: "Set your boundaries",
+    body: "Choose who you want to see, how far discovery should reach, and whether deal breakers should be strict. Clarity is part of chemistry.",
   },
   {
     step: "03",
-    title: "Start a conversation that matters",
-    body: "When you match, you both answer the same opening question. Awkward small-talk is engineered out.",
+    title: "Read the whole person",
+    body: "Profiles put location, intention, words, interests, photos, and verification status in one calm view so every choice has context.",
   },
   {
     step: "04",
-    title: "Take it offline",
-    body: "We suggest thoughtful first-date spots nearby. The app recedes when it's no longer needed.",
+    title: "Start from something real",
+    body: "When a like becomes mutual, the conversation begins with the details already shared — not a blank performance of small talk.",
   },
 ] as const;
 
 export const faqs = [
   {
     q: "Who is Freeborn for?",
-    a: "People who are genuinely open to a real relationship and tired of the culture on other dating apps. If you want to chat mindlessly or rack up matches, this isn't the app for you — and that's intentional.",
+    a: "People who want dating to feel more deliberate, respectful, and emotionally honest. If you are looking for infinite swiping or disposable conversations, Freeborn will feel intentionally different.",
   },
   {
     q: "How is Freeborn different from other dating apps?",
-    a: "One match at a time. Verified photos. No pay-to-like mechanics. Profiles built around intention, not selfies. And an interface that feels calm instead of addictive.",
+    a: "Freeborn emphasizes full profiles, clear intentions, finite discovery, privacy-minded onboarding, and visible trust signals. It is built around deciding with context instead of reacting to a stack.",
   },
   {
     q: "Is Freeborn free?",
-    a: "Yes. The core experience — matching, messaging, meeting — is completely free. We offer an optional membership for people who want extra depth and insight, but you will never need to pay to meet someone.",
+    a: "The current product lets members create a profile, discover people, like, match, and message without advertising a paid plan or invented upgrade promise.",
   },
   {
-    q: "How do you keep people safe?",
-    a: "Photo verification, human moderation, screenshot detection, strict anti-harassment policies, and privacy-first defaults. We publish a quarterly transparency report on what we catch and remove.",
+    q: "What information is public?",
+    a: "Discovery surfaces profile details such as display name, age, city, region, occupation, bio, intentions, interests, lifestyle, photos, and verification status. Email, full birth date, and account provider details are not shown publicly.",
   },
   {
-    q: "Where is Freeborn available?",
-    a: "We're live across major cities in North America and Western Europe, with new cities opening monthly. Join the waitlist to be notified when we arrive in yours.",
+    q: "How do you build trust without overpromising?",
+    a: "By showing what the product actually supports today: age-gated onboarding, editable privacy controls, discoverability settings, verification status, profile completeness cues, and clear member standards.",
   },
 ] as const;
 

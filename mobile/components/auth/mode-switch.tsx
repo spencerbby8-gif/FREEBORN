@@ -1,6 +1,7 @@
 import type { AuthScreenMode } from "@freeborn/shared";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radii } from "@freeborn/shared";
+import { emberShadow } from "@/components/magic-background";
 
 const items: Array<{ mode: AuthScreenMode; label: string }> = [
   { mode: "sign-in", label: "Sign in" },
@@ -45,7 +46,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   activeItem: {
-    backgroundColor: colors.pearl,
+    backgroundColor: colors.ember500,
+    ...emberShadow,
   },
   label: {
     color: colors.mist,
@@ -54,6 +56,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   activeLabel: {
-    color: colors.ink,
+    color: colors.pearl,
   },
 });

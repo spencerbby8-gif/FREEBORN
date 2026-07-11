@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { colors, radii, type UserMatchRow, type UserProfileRow, type MatchMessageRow } from "@freeborn/shared";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
+import { MagicBackground, emberShadow, premiumShadow } from "@/components/magic-background";
 import { Wordmark } from "@/components/wordmark";
 
 export default function MatchesScreen() {
@@ -56,7 +57,8 @@ export default function MatchesScreen() {
   const other = otherId ? profiles[otherId] : null;
 
   return (
-    <LinearGradient colors={[colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
+    <LinearGradient colors={["#03050b", colors.night, colors.midnight, colors.slate]} style={{ flex: 1 }}>
+      <MagicBackground />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
           <View style={styles.header}>
@@ -78,7 +80,12 @@ export default function MatchesScreen() {
                 </Pressable>
               );
             })}
-            {!matches.length && <Text style={styles.empty}>No matches yet.</Text>}
+            {!matches.length && (
+              <View style={styles.emptyPill}>
+                <Text style={styles.emptyPillTitle}>No matches yet</Text>
+                <Text style={styles.emptyPillText}>Keep discovering with care.</Text>
+              </View>
+            )}
           </ScrollView>
 
           {/* Chat */}
@@ -95,7 +102,12 @@ export default function MatchesScreen() {
                   </View>
                 );
               })}
-              {!messages.length && active && <Text style={styles.empty}>Say hello — thoughtful first messages win.</Text>}
+              {!messages.length && active && (
+                <View style={styles.emptyConversation}>
+                  <Text style={styles.emptyPillTitle}>Start with something specific.</Text>
+                  <Text style={styles.emptyPillText}>A detail from their profile beats a generic hello.</Text>
+                </View>
+              )}
             </ScrollView>
             {active && (
               <View style={styles.inputRow}>
@@ -119,10 +131,14 @@ const styles = StyleSheet.create({
   headerTag: { color: colors.mist, fontSize: 12, fontWeight: "700" },
   matchStrip: { gap: 8, paddingVertical: 6 },
   matchPill: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.05)" },
-  matchPillActive: { backgroundColor: colors.pearl },
+  matchPillActive: { backgroundColor: colors.pearl, ...emberShadow },
   matchPillText: { color: colors.pearl, fontWeight: "700", fontSize: 13 },
   empty: { color: colors.mist, paddingVertical: 8, textAlign: "center" },
-  chatBox: { flex: 1, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(9,16,28,0.9)", marginTop: 12, padding: 14 },
+  emptyPill: { borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,0.12)", backgroundColor: "rgba(255,255,255,0.04)", paddingHorizontal: 18, paddingVertical: 14, minWidth: 190 },
+  emptyPillTitle: { color: colors.pearl, fontSize: 14, fontWeight: "800", textAlign: "center" },
+  emptyPillText: { color: colors.mist, fontSize: 12, lineHeight: 18, marginTop: 4, textAlign: "center" },
+  emptyConversation: { borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", borderStyle: "dashed", backgroundColor: "rgba(255,255,255,0.025)", padding: 18, marginTop: 16 },
+  chatBox: { flex: 1, borderRadius: radii.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.16)", backgroundColor: "rgba(9,16,28,0.9)", marginTop: 12, padding: 14, ...premiumShadow },
   chatTitle: { color: colors.pearl, fontSize: 18, fontWeight: "800", marginBottom: 6 },
   bubble: { maxWidth: "80%", borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10 },
   bubbleMine: { backgroundColor: colors.pearl },
@@ -130,6 +146,6 @@ const styles = StyleSheet.create({
   bubbleText: { color: colors.pearl, fontSize: 14, lineHeight: 20 },
   inputRow: { flexDirection: "row", gap: 8, borderTopWidth: 1, borderTopColor: colors.lineStrong, paddingTop: 10, alignItems: "flex-end" },
   input: { flex: 1, color: colors.pearl, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, maxHeight: 100, borderWidth: 1, borderColor: colors.lineStrong, fontSize: 14 },
-  sendBtn: { backgroundColor: colors.pearl, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12 },
+  sendBtn: { backgroundColor: colors.pearl, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, ...emberShadow },
   sendText: { color: colors.ink, fontWeight: "900", fontSize: 13 },
 });

@@ -13,6 +13,14 @@ function initials(name?: string | null) {
     .toUpperCase();
 }
 
+function publicPhotoUrl(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base) return null;
+  return `${base}/storage/v1/object/public/profile-photos/${path.split("/").map(encodeURIComponent).join("/")}`;
+}
+
 export function DiscoverCard({
   candidate,
   photos,
@@ -26,24 +34,23 @@ export function DiscoverCard({
 }) {
   const [photoIndex, setPhotoIndex] = useState(0);
   const displayPhoto = photos[photoIndex];
-  const age = candidate.age ?? "—";
+  const displayPhotoUrl = publicPhotoUrl(displayPhoto?.storage_path);
+  const age = candidate.age;
   const location = [candidate.city, candidate.region].filter(Boolean).join(", ");
 
   return (
-    <article className="relative overflow-hidden rounded-3xl border border-white/10 bg-[rgba(9,16,28,0.85)] shadow-[var(--shadow-glow)] backdrop-blur-sm">
+    <article className="luminous-card magic-border group relative overflow-hidden rounded-3xl border border-white/10 bg-[rgba(9,16,28,0.86)] shadow-[var(--shadow-glow)] backdrop-blur-sm transition duration-500 hover:scale-[1.006] hover:border-white/18">
       {/* Photo area */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-rose-400/8 to-sky-400/8 sm:aspect-[3/4]">
-        {displayPhoto ? (
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-rose-400/10 via-amber-300/8 to-violet-400/10 sm:aspect-[3/4]">
+        {displayPhotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={displayPhoto.storage_path.startsWith("http")
-              ? displayPhoto.storage_path
-              : `https://picsum.photos/seed/${candidate.id}/900/1200`}
-            alt={candidate.display_name ?? "Profile"}
-            className="h-full w-full object-cover"
+            src={displayPhotoUrl}
+            alt={candidate.display_name ? `${candidate.display_name}'s profile photo` : "Profile photo"}
+            className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-400/20 to-sky-400/15">
+          <div className="empty-glow flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-400/20 via-amber-300/10 to-violet-400/15">
             <span className="font-[family-name:var(--font-display)] text-6xl text-white/80">
               {initials(candidate.display_name)}
             </span>
@@ -56,7 +63,7 @@ export function DiscoverCard({
             <button
               key={i}
               onClick={() => setPhotoIndex(i)}
-              className={`h-1 flex-1 rounded-full transition-all ${i === photoIndex ? "bg-white" : "bg-white/30"}`}
+              className={`h-1 flex-1 rounded-full transition-all ${i === photoIndex ? "bg-[var(--gradient-ember-warm)] shadow-[0_0_18px_rgba(246,215,154,0.5)]" : "bg-white/28 hover:bg-white/45"}`}
               aria-label={`Photo ${i + 1}`}
             />
           ))}
@@ -87,7 +94,7 @@ export function DiscoverCard({
             <div>
               <h2 className="font-[family-name:var(--font-display)] text-[clamp(1.8rem,4vw,2.8rem)] leading-[0.95] tracking-[-0.04em] text-white">
                 {candidate.display_name ?? "Freeborn member"}
-                <span className="ml-2 text-xl font-sans font-semibold text-white/80">{age}</span>
+                {age ? <span className="ml-2 text-xl font-sans font-semibold text-white/80">{age}</span> : null}
               </h2>
               <p className="mt-1.5 text-sm text-white/70">
                 {location || "Nearby"}{candidate.occupation ? ` · ${candidate.occupation}` : ""}
@@ -105,7 +112,7 @@ export function DiscoverCard({
       {/* Content */}
       <div className="p-6 sm:p-8">
         <p className="text-base leading-7 text-[var(--color-pearl)]/90">
-          {candidate.bio ?? "Thoughtful, intentional, and looking for something real."}
+          {candidate.bio ?? "This member has not added a bio yet. Use their interests and intentions to decide with care."}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -125,7 +132,7 @@ export function DiscoverCard({
           <button
             disabled={pending}
             onClick={() => onAction("pass")}
-            className="group rounded-2xl border border-white/10 bg-white/[0.03] py-4 text-sm font-bold text-[var(--color-mist)] transition hover:bg-white/[0.06] hover:text-[var(--color-pearl)] disabled:opacity-60"
+            className="hover-lift group rounded-2xl border border-white/10 bg-white/[0.04] py-4 text-sm font-bold text-[var(--color-mist)] transition hover:border-white/18 hover:bg-white/[0.07] hover:text-[var(--color-pearl)] disabled:opacity-60"
           >
             <span className="block transition-transform group-hover:scale-110">✕</span>
             <span className="block text-xs font-normal mt-1 opacity-70">Pass</span>
@@ -133,15 +140,15 @@ export function DiscoverCard({
           <button
             disabled={pending}
             onClick={() => onAction("superlike")}
-            className="group rounded-2xl border border-[var(--color-accent-blue)]/20 bg-[var(--color-accent-blue)]/8 py-4 text-sm font-bold text-[var(--color-accent-blue)] transition hover:bg-[var(--color-accent-blue)]/14 disabled:opacity-60"
+            className="hover-lift group rounded-2xl border border-[var(--color-violet-300)]/25 bg-[var(--color-violet-500)]/10 py-4 text-sm font-bold text-[var(--color-violet-300)] transition hover:border-[var(--color-violet-300)]/40 hover:bg-[var(--color-violet-500)]/16 disabled:opacity-60"
           >
             <span className="block transition-transform group-hover:scale-110">★</span>
-            <span className="block text-xs font-normal mt-1 opacity-70">Super</span>
+            <span className="block text-xs font-normal mt-1 opacity-70">Spark</span>
           </button>
           <button
             disabled={pending}
             onClick={() => onAction("like")}
-            className="group rounded-2xl bg-gradient-to-r from-[var(--color-accent-rose)] to-[var(--color-accent-gold)] py-4 text-sm font-extrabold text-white shadow-lg transition hover:shadow-xl hover:translate-y-[-1px] disabled:opacity-60"
+            className="magic-button group rounded-2xl bg-[var(--gradient-ember-warm)] py-4 text-sm font-extrabold text-white shadow-[var(--shadow-ember)] transition hover:translate-y-[-2px] hover:shadow-[0_22px_52px_-20px_rgba(239,94,94,0.9)] disabled:opacity-60"
           >
             <span className="block transition-transform group-hover:scale-110">♥</span>
             <span className="block text-xs font-normal mt-1 opacity-80">{pending ? "…" : "Like"}</span>

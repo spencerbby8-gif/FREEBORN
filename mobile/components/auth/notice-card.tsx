@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { colors, radii } from "@freeborn/shared";
+import { premiumShadow } from "@/components/magic-background";
 
 type NoticeCardProps = {
   title: string;
@@ -40,6 +41,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     borderWidth: 1,
     padding: 16,
+    ...premiumShadow,
   },
   icon: {
     width: 26,

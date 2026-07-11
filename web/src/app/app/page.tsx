@@ -96,7 +96,7 @@ export default async function DiscoverPage() {
 
         <aside className="space-y-5">
           {/* Profile summary */}
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+          <div className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
             <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/8">
                 {photoUrl ? (
@@ -116,7 +116,7 @@ export default async function DiscoverPage() {
           </div>
 
           {/* Filter summary */}
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+          <div className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">
               Your filters
             </p>
@@ -146,7 +146,7 @@ export default async function DiscoverPage() {
           </div>
 
           {/* Profile strength */}
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+          <div className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">
               Profile strength
             </p>
@@ -176,7 +176,7 @@ export default async function DiscoverPage() {
                 {profile.is_verified ? "Verified" : "Not verified"}
               </li>
             </ul>
-            <a href="/app/profile" className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[var(--color-pearl)] px-4 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
+            <a href="/app/profile" className="mt-5 inline-flex w-full items-center justify-center magic-button rounded-xl bg-[var(--color-pearl)] px-4 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white hover:translate-y-[-1px]">
               Edit profile
             </a>
           </div>

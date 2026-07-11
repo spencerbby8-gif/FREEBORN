@@ -30,10 +30,10 @@ export const authModes = {
 } as const;
 
 export const authTrustPoints = [
-  "End-to-end encrypted sessions",
-  "Google sign in for web and mobile",
   "Email verification and recovery flows",
-  "Privacy-first by design, always",
+  "Google sign in for web and mobile",
+  "Private birth date and account details",
+  "Editable profile and discovery controls",
 ] as const;
 
 export const onboardingIntro = {

@@ -254,7 +254,7 @@ export function OnboardingFlow({
       <OnboardingProgress currentIndex={stepIndex} total={onboardingStepOrder.length} />
 
       <div key={stepIndex} className="step-in">
-        <div className="surface ring-pearl rounded-[28px] p-6 shadow-[var(--shadow-glow)] sm:p-8">
+        <div className="surface magic-border rounded-[28px] p-6 shadow-[0_34px_110px_-42px_rgba(239,94,94,0.72)] sm:p-8">
           {notice ? (
             <div
               role={notice.tone === "error" ? "alert" : "status"}
@@ -493,7 +493,7 @@ export function OnboardingFlow({
                   <button
                     type="submit"
                     disabled={pending}
-                    className="btn-shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-[var(--color-pearl)] px-7 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_rgba(247,241,232,0.14)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+                    className="btn-shine group relative inline-flex items-center justify-center gap-2 overflow-hidden magic-button rounded-2xl bg-[var(--color-pearl)] px-7 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_rgba(247,241,232,0.14)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
                   >
                     {pending ? <Spinner /> : null}
                     {pending ? "Saving…" : "Continue"}
@@ -518,9 +518,9 @@ export function OnboardingFlow({
 
               <div className="mt-7 w-full max-w-md space-y-3 text-left">
                 {[
-                  "Add photos to increase visibility — profiles with photos get far more connections.",
-                  "The more interests you add, the better your matches will be.",
-                  "Keep your bio current — it's the first thing people read.",
+                  "Add clear, recent photos so people can recognize you with confidence.",
+                  "Specific interests give better conversation starters than generic lists.",
+                  "Keep your bio current — it sets the tone before a first message.",
                 ].map((tip) => (
                   <div key={tip} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3.5">
                     <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-gold-500)]/15 text-[var(--color-gold-300)]">

@@ -2,41 +2,49 @@ import type { Metadata, Viewport } from "next";
 import { brand, buildCssVariables } from "@freeborn/shared";
 import "./globals.css";
 
+const siteUrl = "https://freeborn.app";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://freeborn.app"),
+  metadataBase: new URL(siteUrl),
   title: {
-    default: `${brand.name} — ${brand.tagline}`,
+    default: brand.seoTitle,
     template: `%s · ${brand.name}`,
   },
-  description: brand.manifesto,
+  description: brand.seoDescription,
   applicationName: brand.name,
-  keywords: [
-    "dating app",
-    "premium dating",
-    "intentional dating",
-    "meaningful connections",
-    "relationships",
-    "serious dating",
-    "freeborn",
-  ],
+  keywords: [...brand.seoKeywords],
   authors: [{ name: "Freeborn" }],
   creator: "Freeborn",
   publisher: "Freeborn",
+  category: "Relationship Platform",
+  alternates: {
+    canonical: siteUrl,
+  },
   formatDetection: { email: false, address: false, telephone: false },
   openGraph: {
-    title: `${brand.name} — ${brand.tagline}`,
-    description: brand.manifesto,
-    url: "https://freeborn.app",
+    title: brand.seoTitle,
+    description: brand.seoDescription,
+    url: siteUrl,
     siteName: brand.name,
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${brand.name} — ${brand.tagline}`,
-    description: brand.manifesto,
+    title: brand.seoTitle,
+    description: brand.seoDescription,
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },

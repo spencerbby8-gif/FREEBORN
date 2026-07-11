@@ -235,17 +235,17 @@ export default function OnboardingScreen() {
               <Text style={styles.title}>
                 {step === "identity" && "Let's start with the basics."}
                 {step === "about_you" && "Where you are, how you identify."}
-                {step === "bio_goals" && "Your voice, your intentions."}
+                {step === "bio_goals" && "Your voice, your values."}
                 {step === "interests_lifestyle" && "What lights you up?"}
-                {step === "preferences_extras" && "The finer details."}
+                {step === "preferences_extras" && "Your boundaries."}
                 {step === "complete" && "Your profile is live."}
               </Text>
               <Text style={styles.description}>
                 {step === "identity" && onboardingIntro.description}
                 {step === "about_you" && "These details shape who discovers you."}
-                {step === "bio_goals" && "A short bio and a few goals go a long way."}
-                {step === "interests_lifestyle" && "These details spark conversation."}
-                {step === "preferences_extras" && "Deal breakers keep discovery honest."}
+                {step === "bio_goals" && "A short bio, your values, and a few goals go a long way."}
+                {step === "interests_lifestyle" && "These details spark conversation, including wellness and daily rhythm."}
+                {step === "preferences_extras" && "Deal breakers keep discovery honest, including pressure around values or health choices."}
                 {step === "complete" && "You're set up with a thoughtful foundation."}
               </Text>
 
@@ -326,7 +326,7 @@ export default function OnboardingScreen() {
                       label="Short bio"
                       value={draft.bio}
                       error={errors.bio}
-                      placeholder="What do you care about? What does a good Sunday look like?"
+                      placeholder="What do you value? What does a good Sunday or wellness rhythm look like?"
                       onChangeText={(value) => update("bio", value.slice(0, 500))}
                       hint={`${draft.bio.length}/500 · ${onboardingFieldHints.bio}`}
                       multiline
@@ -415,7 +415,7 @@ export default function OnboardingScreen() {
                     </Text>
                     {[
                       "Add clear, recent photos so people can recognize you with confidence.",
-                      "Specific interests give better conversation starters than generic lists.",
+                      "Specific interests — from natural health to everyday rituals — give better conversation starters than generic lists.",
                       "Keep your bio current — it sets the tone before a first message.",
                     ].map((tip) => (
                       <View key={tip} style={styles.completeRow}>

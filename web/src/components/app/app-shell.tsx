@@ -83,7 +83,7 @@ export function AppShell({
                 Your journey
               </p>
               <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
-                Meet thoughtful people who share your values and intentions.
+                Meet values-aligned people who respect health autonomy, natural rhythm, and long-term intention.
               </p>
             </div>
 

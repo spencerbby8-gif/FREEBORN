@@ -226,8 +226,8 @@ export function PhonePreview() {
           <BadgeIcon size={14} />
         </span>
         <div>
-          <p className="text-[11px] font-semibold text-white">Photo verified</p>
-          <p className="text-[9px] text-[var(--color-sand)]/80">Live selfie · 2 min ago</p>
+          <p className="text-[11px] font-semibold text-white">Private essentials</p>
+          <p className="text-[9px] text-[var(--color-sand)]/80">Email and birth date hidden</p>
         </div>
       </div>
     </div>

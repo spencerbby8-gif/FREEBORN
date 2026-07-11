@@ -18,7 +18,7 @@ function publicPhotoUrl(path?: string | null) {
 }
 
 export default function DiscoverScreen() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfileRow | null>(null);
   const [candidates, setCandidates] = useState<DiscoveryCandidate[]>([]);
   const [photos, setPhotos] = useState<Record<string, ProfilePhoto[]>>({});
@@ -80,14 +80,15 @@ export default function DiscoverScreen() {
           {/* Header */}
           <View style={styles.header}>
             <Wordmark />
-            <Pressable onPress={signOut} style={styles.signoutBtn}>
-              <Text style={styles.signoutText}>Sign out</Text>
-            </Pressable>
+            <View style={styles.headerBadge}>
+              <Text style={styles.headerBadgeText}>Values first</Text>
+            </View>
           </View>
 
           <Text style={styles.title}>Discover</Text>
           <Text style={styles.subtitle}>
-            {profile?.display_name ? `Welcome back, ${profile.display_name.split(" ")[0]}.` : "Your curated feed is live."}
+            {profile?.display_name ? `Welcome back, ${profile.display_name.split(" ")[0]}. ` : "Your values-aligned feed is live. "}
+            Read values, wellness rhythm, and long-term intent before deciding.
           </Text>
 
           {loading ? (
@@ -103,7 +104,7 @@ export default function DiscoverScreen() {
               <Text style={styles.emptyTitle}>All caught up</Text>
               <Text style={styles.emptyBody}>
                 {candidates.length === 0
-                  ? "We're finding thoughtful people near you. New profiles join every day."
+                  ? "We're finding values-aligned people near you. New profiles join every day."
                   : "You've seen everyone for now. Check back soon."}
               </Text>
               <Pressable onPress={load} style={styles.primaryBtn}>
@@ -191,8 +192,8 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: 20, paddingBottom: 120, gap: 14 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  signoutBtn: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: "rgba(255,255,255,0.05)" },
-  signoutText: { color: colors.pearl, fontSize: 12, fontWeight: "700" },
+  headerBadge: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: "rgba(255,255,255,0.05)" },
+  headerBadgeText: { color: colors.pearl, fontSize: 12, fontWeight: "800", textTransform: "uppercase", letterSpacing: 1.1 },
   title: { color: colors.pearl, fontSize: 30, fontWeight: "800", letterSpacing: -1.2, marginTop: 6 },
   subtitle: { color: colors.mist, fontSize: 14, lineHeight: 22 },
   card: { borderRadius: radii.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.16)", backgroundColor: "rgba(9,16,28,0.9)", padding: 18, minHeight: 420, ...premiumShadow },

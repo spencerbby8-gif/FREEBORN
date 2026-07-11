@@ -54,7 +54,7 @@ export default async function MatchesPage({
       <div className="mb-5">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-stone)]">Matches</p>
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(1.8rem,3.5vw,2.8rem)] text-[var(--color-pearl)]">
-          Conversations that matter
+          Conversations with shared ground
         </h1>
       </div>
 
@@ -69,7 +69,7 @@ export default async function MatchesPage({
                 </svg>
               </div>
               <p className="mt-4 text-sm font-semibold text-[var(--color-pearl)]">No matches yet.</p>
-              <p className="mt-2 max-w-[240px] text-sm leading-6 text-[var(--color-mist)]">Keep reading profiles with care. The right conversation should feel earned, not accidental.</p>
+              <p className="mt-2 max-w-[240px] text-sm leading-6 text-[var(--color-mist)]">Keep reading profiles with care. The right conversation should feel grounded in values, not accidental.</p>
             </div>
           )}
           <div className="space-y-1.5">
@@ -120,7 +120,7 @@ export default async function MatchesPage({
                   </svg>
                 </div>
                 <p className="mt-4 text-sm font-semibold text-[var(--color-pearl)]">Choose a match when you are ready.</p>
-                <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">Conversations on Freeborn start best when they begin with something you actually noticed.</p>
+                <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">Conversations on Freeborn start best when they begin with something you actually noticed — values, lifestyle, or long-term direction.</p>
               </div>
             </div>
           ) : (
@@ -166,7 +166,7 @@ export default async function MatchesPage({
                 })}
                 {!(messages ?? []).length && (
                   <div className="empty-glow flex items-center justify-center rounded-2xl border border-dashed border-white/10 px-5 py-12 text-center text-sm text-[var(--color-mist)]">
-                    <span>Start with a detail from their profile — thoughtful first messages get thoughtful replies.</span>
+                    <span>Start with a detail from their profile — a shared value, wellness rhythm, or thoughtful first question beats a generic hello.</span>
                   </div>
                 )}
               </div>

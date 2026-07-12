@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
 import { colors } from "@freeborn/shared";
 import { emberShadow } from "@/components/magic-background";
 
@@ -21,6 +22,13 @@ export function SaveActionBar({
 }: SaveActionBarProps) {
   const isDisabled = saving || disabled;
 
+  const handleSave = () => {
+    if (!isDisabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      onSave();
+    }
+  };
+
   return (
     <View style={styles.container}>
       {notice && (
@@ -37,7 +45,7 @@ export function SaveActionBar({
         </View>
       )}
       <Pressable
-        onPress={onSave}
+        onPress={handleSave}
         disabled={isDisabled}
         style={[styles.saveBtn, isDisabled && styles.saveBtnDisabled]}
         accessibilityRole="button"

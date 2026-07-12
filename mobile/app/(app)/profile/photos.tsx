@@ -220,11 +220,12 @@ export default function PhotosScreen() {
     async (photoId: string) => {
       if (!user) return;
       setNotice(null);
-      // Unset all primaries, then set the selected one
+      // Unset all primaries EXCEPT the target first (avoids brief no-primary state)
       const { error: unsetError } = await supabase
         .from("profile_photos")
         .update({ is_primary: false })
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .neq("id", photoId);
       if (unsetError) {
         setNotice({ tone: "error", message: "Could not set cover photo." });
         return;

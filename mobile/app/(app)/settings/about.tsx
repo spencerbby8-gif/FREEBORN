@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { brand, colors } from "@freeborn/shared";
 import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
@@ -15,9 +15,24 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function LegalRow({ icon, label, url }: { icon: string; label: string; url?: string }) {
+function LegalRow({ icon, label, url }: { icon: string; label: string; url: string }) {
+  const openUrl = () => {
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        Alert.alert("Cannot open link", `Please visit ${url} in your browser.`);
+      }
+    });
+  };
+
   return (
-    <Pressable style={styles.legalRow} onPress={() => { /* Linking.openURL(url) when URLs exist */ }}>
+    <Pressable
+      style={styles.legalRow}
+      onPress={openUrl}
+      accessibilityRole="link"
+      accessibilityLabel={`${label} — opens in browser`}
+    >
       <Text style={styles.legalIcon}>{icon}</Text>
       <Text style={styles.legalLabel}>{label}</Text>
       <Text style={styles.legalChevron}>›</Text>
@@ -53,9 +68,9 @@ export default function AboutScreen() {
 
       <SurfaceCard>
         <SectionHeader eyebrow="Legal" title="Terms & policies" body="Freeborn is committed to transparency, privacy, and trust." />
-        <LegalRow icon="📄" label="Terms of Service" />
-        <LegalRow icon="🔒" label="Privacy Policy" />
-        <LegalRow icon="🛡" label="Community Guidelines" />
+        <LegalRow icon="📄" label="Terms of Service" url="https://freeborn.app/terms" />
+        <LegalRow icon="🔒" label="Privacy Policy" url="https://freeborn.app/privacy" />
+        <LegalRow icon="🛡" label="Community Guidelines" url="https://freeborn.app/community-guidelines" />
       </SurfaceCard>
 
       <SurfaceCard>
@@ -88,7 +103,7 @@ const styles = StyleSheet.create({
   infoRow: { borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.05)", paddingVertical: 14, flexDirection: "row", justifyContent: "space-between", gap: 14 },
   infoLabel: { color: colors.mist, fontSize: 12, fontWeight: "800" },
   infoValue: { color: colors.pearl, fontSize: 12, fontWeight: "900", textAlign: "right", flex: 1 },
-  legalRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.05)" },
+  legalRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.05)", minHeight: 52 },
   legalIcon: { fontSize: 18 },
   legalLabel: { color: colors.pearl, fontSize: 14, fontWeight: "700", flex: 1 },
   legalChevron: { color: colors.ash, fontSize: 22, fontWeight: "700" },

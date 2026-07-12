@@ -1,4 +1,5 @@
 import { StyleSheet, Switch, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
 import { colors } from "@freeborn/shared";
 
 type ToggleRowProps = {
@@ -7,9 +8,18 @@ type ToggleRowProps = {
   value: boolean;
   onValueChange: (v: boolean) => void;
   disabled?: boolean;
+  /** Whether haptic feedback should fire on toggle. Default: true */
+  haptic?: boolean;
 };
 
-export function ToggleRow({ title, body, value, onValueChange, disabled }: ToggleRowProps) {
+export function ToggleRow({ title, body, value, onValueChange, disabled, haptic = true }: ToggleRowProps) {
+  const handleChange = (next: boolean) => {
+    if (haptic) {
+      Haptics.impactAsync(next ? Haptics.ImpactFeedbackStyle.Light : Haptics.ImpactFeedbackStyle.Medium);
+    }
+    onValueChange(next);
+  };
+
   return (
     <View
       style={[styles.row, disabled && styles.rowDisabled]}
@@ -24,7 +34,7 @@ export function ToggleRow({ title, body, value, onValueChange, disabled }: Toggl
       </View>
       <Switch
         value={value}
-        onValueChange={onValueChange}
+        onValueChange={handleChange}
         disabled={disabled}
         trackColor={{
           false: "rgba(255,255,255,0.12)",

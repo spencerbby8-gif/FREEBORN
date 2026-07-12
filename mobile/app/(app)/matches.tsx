@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, radii, type UserMatchRow, type UserProfileRow, type MatchMessageRow } from "@freeborn/shared";
 import { ScreenShell } from "@/components/ui/screen-shell";
@@ -7,17 +7,20 @@ import { SurfaceCard } from "@/components/ui/surface-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
+import { useHaptics } from "@/hooks/use-haptics";
 import { supabase } from "@/lib/supabase";
 import { emberShadow } from "@/components/magic-background";
 
 export default function MatchesScreen() {
   const { user } = useAuth();
+  const haptics = useHaptics();
   const [matches, setMatches] = useState<UserMatchRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, UserProfileRow>>({});
   const [active, setActive] = useState<string | null>(null);
   const [messages, setMessages] = useState<MatchMessageRow[]>([]);
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -36,6 +39,12 @@ export default function MatchesScreen() {
     setLoading(false);
   }, [user, active]);
 
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
@@ -52,6 +61,7 @@ export default function MatchesScreen() {
     if (!body.trim() || !active || !user) return;
     const text = body.trim();
     setBody("");
+    haptics.light();
     await supabase.from("match_messages").insert({ match_id: active, sender_id: user.id, body: text });
     const { data } = await supabase.from("match_messages").select("*").eq("match_id", active).order("created_at", { ascending: true });
     setMessages((data as MatchMessageRow[]) ?? []);
@@ -61,9 +71,45 @@ export default function MatchesScreen() {
   const otherId = activeMatch ? (activeMatch.user_a === user?.id ? activeMatch.user_b : activeMatch.user_a) : null;
   const other = otherId ? profiles[otherId] : null;
 
+  const handleBlockOrReport = () => {
+    if (!user || !otherId) return;
+    Alert.alert(
+      "Safety actions",
+      "What would you like to do?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Block",
+          style: "destructive",
+          onPress: async () => {
+            await supabase.from("blocked_users").insert({
+              blocker_id: user.id,
+              blocked_id: otherId,
+              reason: "Blocked from chat",
+            });
+            haptics.medium();
+            setActive(null);
+            await load();
+          },
+        },
+        {
+          text: "Report",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert(
+              "Report a concern",
+              "If you experience harassment, abuse, or a safety issue, please contact our support team directly at support@freeborn.app.",
+              [{ text: "OK" }],
+            );
+          },
+        },
+      ],
+    );
+  };
+
   if (loading) {
     return (
-      <ScreenShell>
+      <ScreenShell refreshing={refreshing} onRefresh={handleRefresh}>
         <View style={styles.headerGap}>
           <Text style={styles.eyebrow}>Matches</Text>
           <Text style={styles.title}>Your connections</Text>
@@ -75,7 +121,7 @@ export default function MatchesScreen() {
 
   if (!matches.length) {
     return (
-      <ScreenShell>
+      <ScreenShell refreshing={refreshing} onRefresh={handleRefresh}>
         <View style={styles.headerGap}>
           <Text style={styles.eyebrow}>Matches</Text>
           <Text style={styles.title}>Your connections</Text>
@@ -127,6 +173,16 @@ export default function MatchesScreen() {
             <Text style={styles.chatName}>{other?.display_name ?? "Select a match"}</Text>
             <Text style={styles.chatMeta}>{other?.city ?? ""}{other?.occupation ? ` · ${other.occupation}` : ""}</Text>
           </View>
+          {otherId && (
+            <Pressable
+              onPress={handleBlockOrReport}
+              style={styles.chatSafetyBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Block or report this person"
+            >
+              <Text style={styles.chatSafetyBtnText}>⚑</Text>
+            </Pressable>
+          )}
         </View>
 
         <View style={styles.chatDivider} />
@@ -282,6 +338,21 @@ const styles = StyleSheet.create({
     color: colors.mist,
     fontSize: 12,
     marginTop: 2,
+  },
+  chatSafetyBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  chatSafetyBtnText: {
+    color: colors.ash,
+    fontSize: 14,
+    fontWeight: "700",
   },
   chatDivider: {
     height: 1,

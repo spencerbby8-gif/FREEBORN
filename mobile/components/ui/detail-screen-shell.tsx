@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { colors } from "@freeborn/shared";
 import { MagicBackground } from "@/components/magic-background";
@@ -58,7 +59,10 @@ export function DetailScreenShell({
         {/* Custom header */}
         <View style={styles.header}>
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.back();
+            }}
             hitSlop={12}
             style={styles.backBtn}
             accessibilityRole="button"

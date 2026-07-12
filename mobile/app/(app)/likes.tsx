@@ -15,6 +15,7 @@ export default function LikesScreen() {
   const [outgoing, setOutgoing] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, UserProfileRow>>({});
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -39,8 +40,14 @@ export default function LikesScreen() {
 
   useEffect(() => { load(); }, [load]);
 
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
   return (
-    <ScreenShell>
+    <ScreenShell refreshing={refreshing} onRefresh={handleRefresh}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Likes</Text>

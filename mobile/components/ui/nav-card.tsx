@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
 import { colors } from "@freeborn/shared";
 
 type NavCardProps = {
@@ -12,9 +13,14 @@ type NavCardProps = {
 };
 
 export function NavCard({ icon, title, subtitle, count, onPress, accent, disabled }: NavCardProps) {
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled}
       style={({ pressed }) => [
         styles.card,

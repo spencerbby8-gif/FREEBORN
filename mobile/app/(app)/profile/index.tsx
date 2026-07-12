@@ -25,6 +25,7 @@ export default function ProfileHub() {
   const [profile, setProfile] = useState<UserProfileRow | null>(null);
   const [photos, setPhotos] = useState<ProfilePhoto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -38,6 +39,12 @@ export default function ProfileHub() {
 
   useEffect(() => { load(); }, [load]);
 
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
   const primaryPhotoUrl = useMemo(() => {
     const primary = photos.find(p => p.is_primary) ?? photos[0];
     return publicPhotoUrl(primary?.storage_path);
@@ -49,7 +56,7 @@ export default function ProfileHub() {
 
   if (loading) {
     return (
-      <ScreenShell>
+      <ScreenShell refreshing={refreshing} onRefresh={handleRefresh}>
         <ProfileSkeleton />
       </ScreenShell>
     );
@@ -57,11 +64,11 @@ export default function ProfileHub() {
 
   if (!profile) {
     return (
-      <ScreenShell>
+      <ScreenShell refreshing={refreshing} onRefresh={handleRefresh}>
         <SurfaceCard>
           <Text style={styles.emptyTitle}>Profile unavailable</Text>
           <Text style={styles.emptyBody}>We could not load your profile.</Text>
-          <Pressable onPress={load} style={styles.retryBtn}>
+          <Pressable onPress={load} style={styles.retryBtn} accessibilityRole="button" accessibilityLabel="Try loading profile again">
             <Text style={styles.retryBtnText}>Try again</Text>
           </Pressable>
         </SurfaceCard>
@@ -73,7 +80,7 @@ export default function ProfileHub() {
   const editLabel = needsImprovement ? "Improve profile" : "Edit profile";
 
   return (
-    <ScreenShell>
+    <ScreenShell refreshing={refreshing} onRefresh={handleRefresh}>
       {/* Hero section */}
       <View style={styles.hero}>
         <View style={styles.heroPhotoContainer}>

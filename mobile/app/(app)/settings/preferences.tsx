@@ -8,10 +8,13 @@ import { SaveActionBar } from "@/components/ui/save-action-bar";
 import { ToggleRow } from "@/components/ui/toggle-row";
 import { SettingsSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
+import { useHaptics } from "@/hooks/use-haptics";
+import { setHapticCached } from "@/hooks/use-haptics";
 import { supabase } from "@/lib/supabase";
 
 export default function PreferencesScreen() {
   const { user } = useAuth();
+  const haptics = useHaptics();
   const [hapticFeedback, setHapticFeedback] = useState(true);
   const [cardAnimations, setCardAnimations] = useState(true);
   const [notificationSounds, setNotificationSounds] = useState(true);
@@ -45,6 +48,8 @@ export default function PreferencesScreen() {
     if (error) {
       setNotice({ tone: "error", message: "Could not save preferences. Please try again." });
     } else {
+      setHapticCached(hapticFeedback);
+      haptics.success();
       setNotice({ tone: "success", message: "App preferences saved." });
     }
     setSaving(false);

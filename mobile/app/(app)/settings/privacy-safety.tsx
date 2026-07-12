@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Linking, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { colors, type BlockedUserRow, type UserProfileRow } from "@freeborn/shared";
 import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
@@ -108,7 +108,11 @@ export default function PrivacySafetyScreen() {
       "If you experience harassment, abuse, or a safety issue, please contact our support team directly. Reports are reviewed promptly.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Contact support", onPress: () => {} },
+        { text: "Contact support", onPress: () => {
+          Linking.openURL("mailto:support@freeborn.app?subject=Safety%20Report%20-%20Freeborn&body=Please%20describe%20your%20concern%20below%3A%0A%0A").catch(() => {
+            Alert.alert("Could not open email", "Please email support@freeborn.app directly with your safety concern.");
+          });
+        }},
       ]
     );
   };

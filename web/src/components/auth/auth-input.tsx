@@ -45,13 +45,13 @@ export function AuthInput({
   const errorId = error ? `${inputId}-error` : undefined;
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <label htmlFor={inputId} className="text-sm font-semibold text-[var(--color-pearl)]">
+    <div className="group space-y-2">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <label htmlFor={inputId} className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">
           {label}
         </label>
         {optional ? (
-          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-mist)]">
             Optional
           </span>
         ) : null}
@@ -61,12 +61,12 @@ export function AuthInput({
         <input
           id={inputId}
           type={isPassword && revealed ? "text" : type}
-          className={`min-h-12 w-full rounded-2xl border bg-white/[0.04] px-4 py-3.5 ${
+          className={`min-h-[52px] w-full rounded-2xl border bg-white/[0.03] px-5 py-3.5 ${
             isPassword ? "pr-14" : ""
-          } text-[15px] text-[var(--color-pearl)] outline-none transition-all placeholder:text-white/30 focus:bg-white/[0.06] ${
+          } text-[15px] font-medium text-[var(--color-pearl)] outline-none transition-all placeholder:text-[var(--color-ash)] focus:bg-white/[0.06] ${
             error
-              ? "border-[var(--color-danger)]/55 shadow-[0_0_0_3px_rgba(255,107,122,0.10)]"
-              : "border-white/10 hover:border-white/20 focus:border-[var(--color-gold-500)] focus:shadow-[0_0_0_3px_rgba(217,167,82,0.12)]"
+              ? "border-[var(--color-danger)] shadow-[0_0_20px_-5px_rgba(255,107,122,0.2)]"
+              : "border-white/10 hover:border-white/20 focus:border-[var(--color-gold-500)] focus:shadow-[0_0_20px_-10px_rgba(217,167,82,0.3)]"
           } ${className}`}
           aria-invalid={Boolean(error)}
           aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
@@ -78,7 +78,7 @@ export function AuthInput({
             onClick={() => setRevealed((value) => !value)}
             aria-label={revealed ? "Hide password" : "Show password"}
             aria-pressed={revealed}
-            className="absolute inset-y-0 right-1.5 my-auto flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-mist)] transition hover:bg-white/[0.06] hover:text-[var(--color-pearl)]"
+            className="absolute inset-y-0 right-2 my-auto flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-mist)] transition-colors hover:bg-white/5 hover:text-[var(--color-pearl)]"
           >
             <EyeIcon open={revealed} />
           </button>
@@ -86,13 +86,13 @@ export function AuthInput({
       </div>
 
       {hint && !error ? (
-        <p id={hintId} className="text-xs leading-5 text-[var(--color-mist)]">
+        <p id={hintId} className="px-1 text-[12px] leading-relaxed text-[var(--color-mist)]">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} className="flex items-center gap-1.5 text-xs font-medium leading-5 text-[var(--color-danger)]" role="alert">
-          <span aria-hidden="true">●</span>
+        <p id={errorId} className="flex items-center gap-2 px-1 text-[12px] font-bold leading-relaxed text-[var(--color-danger)] animate-scale-in" role="alert">
+          <span className="flex h-1.5 w-1.5 rounded-full bg-current" />
           {error}
         </p>
       ) : null}

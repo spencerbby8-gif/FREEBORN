@@ -250,49 +250,52 @@ export function OnboardingFlow({
   const canGoBack = stepIndex > 0;
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto w-full max-w-[700px] space-y-8">
       <OnboardingProgress currentIndex={stepIndex} total={onboardingStepOrder.length} />
 
-      <div key={stepIndex} className="step-in">
-        <div className="surface magic-border rounded-[28px] p-6 shadow-[0_34px_110px_-42px_rgba(239,94,94,0.72)] sm:p-8">
+      <div key={stepIndex} className="animate-fade-in">
+        <div className="surface magic-border rounded-[40px] p-8 shadow-[var(--shadow-card-lg)] sm:p-12">
           {notice ? (
             <div
               role={notice.tone === "error" ? "alert" : "status"}
-              className={`mb-5 flex items-start gap-3 rounded-2xl border px-4 py-3.5 ${
+              className={`mb-8 flex items-start gap-4 rounded-3xl border p-5 ${
                 notice.tone === "success"
-                  ? "border-[rgba(109,211,176,0.35)] bg-[rgba(109,211,176,0.10)]"
-                  : "border-[rgba(255,107,122,0.35)] bg-[rgba(255,107,122,0.10)]"
+                  ? "border-[rgba(109,211,176,0.2)] bg-[rgba(109,211,176,0.05)]"
+                  : "border-[rgba(255,107,122,0.2)] bg-[rgba(255,107,122,0.05)]"
               }`}
             >
               <span
-                className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${
+                className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl ${
                   notice.tone === "success"
-                    ? "bg-[rgba(109,211,176,0.22)] text-[var(--color-success)]"
-                    : "bg-[rgba(255,107,122,0.22)] text-[var(--color-danger)]"
+                    ? "bg-[rgba(109,211,176,0.15)] text-[var(--color-success)]"
+                    : "bg-[rgba(255,107,122,0.15)] text-[var(--color-danger)]"
                 }`}
               >
-                {notice.tone === "success" ? <CheckIcon size={14} /> : <span className="text-sm font-bold">!</span>}
+                {notice.tone === "success" ? <CheckIcon size={18} /> : <span className="text-base font-bold">!</span>}
               </span>
               <div>
-                <p className="text-sm font-semibold text-[var(--color-pearl)]">{notice.title}</p>
-                <p className="mt-0.5 text-[13px] leading-5 text-[var(--color-pearl)]/80">{notice.body}</p>
+                <p className="text-[15px] font-bold text-[var(--color-pearl)]">{notice.title}</p>
+                <p className="mt-1 text-[14px] font-medium leading-relaxed text-[var(--color-mist)]">{notice.body}</p>
               </div>
             </div>
           ) : null}
 
           {!isComplete && meta ? (
             <>
-              <div className="mb-7">
-                <h1 className="font-[family-name:var(--font-display)] text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.0] tracking-[-0.04em] text-[var(--color-pearl)]">
+              <div className="mb-10">
+                <h1 
+                  className="text-[clamp(2rem,6vw,2.75rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+                  style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+                >
                   {meta.title}
                 </h1>
-                <p className="mt-3 max-w-xl text-[15px] leading-7 text-[var(--color-mist)]">
+                <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-[var(--color-mist)]">
                   {meta.description}
                 </p>
               </div>
 
               <form onSubmit={handleContinue} noValidate>
-                <div className="space-y-5">
+                <div className="space-y-8">
                   {stepIndex === 0 ? (
                     <>
                       <OnboardingTextInput
@@ -335,7 +338,7 @@ export function OnboardingFlow({
                         autoComplete="address-level2"
                         onChange={(event) => update("city", event.target.value)}
                       />
-                      <div className="grid gap-5 sm:grid-cols-2">
+                      <div className="grid gap-6 sm:grid-cols-2">
                         <OnboardingTextInput
                           label="Region"
                           name="region"
@@ -372,17 +375,17 @@ export function OnboardingFlow({
                         value={draft.bio}
                         error={errors.bio}
                         hint={onboardingFieldHints.bio}
-                        rows={4}
+                        rows={5}
                         maxLength={500}
                         counter={{ value: draft.bio.length, max: 500 }}
                         onChange={(event) => update("bio", event.target.value.slice(0, 500))}
                       />
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-3">
-                          <label className="block text-sm font-semibold text-[var(--color-pearl)]">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between gap-3 px-1">
+                          <label className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">
                             Relationship goals
                           </label>
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--color-stone)]">
+                          <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--color-ash)]">
                             {draft.relationship_goals.length}/3
                           </span>
                         </div>
@@ -397,8 +400,8 @@ export function OnboardingFlow({
                           max={3}
                         />
                         {errors.relationship_goals ? (
-                          <p className="flex items-center gap-1.5 text-xs font-medium leading-5 text-[var(--color-danger)]" role="alert">
-                            <span aria-hidden="true">●</span>
+                          <p className="flex items-center gap-2 px-1 text-[12px] font-bold leading-relaxed text-[var(--color-danger)] animate-scale-in" role="alert">
+                            <span className="flex h-1.5 w-1.5 rounded-full bg-current" />
                             {errors.relationship_goals}
                           </p>
                         ) : null}
@@ -441,7 +444,7 @@ export function OnboardingFlow({
                         hint={onboardingFieldHints.deal_breakers}
                         onChange={(next) => update("deal_breakers", next)}
                       />
-                      <div className="grid gap-5 sm:grid-cols-2">
+                      <div className="grid gap-6 sm:grid-cols-2">
                         <OnboardingTextInput
                           label="Occupation"
                           name="occupation"
@@ -468,23 +471,23 @@ export function OnboardingFlow({
                 </div>
 
                 {meta.tip ? (
-                  <div className="mt-6 flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3.5">
-                    <span className="mt-0.5 text-[var(--color-gold-300)]">
-                      <CheckIcon size={15} />
+                  <div className="mt-10 flex items-start gap-4 rounded-[24px] border border-white/5 bg-white/[0.02] p-5">
+                    <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold-500)]/15 text-[var(--color-gold-300)]">
+                      <CheckIcon size={14} />
                     </span>
-                    <p className="text-[13px] leading-6 text-[var(--color-mist)]">{meta.tip}</p>
+                    <p className="text-[14px] font-medium leading-relaxed text-[var(--color-mist)]">{meta.tip}</p>
                   </div>
                 ) : null}
 
-                <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-12 flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
                   {canGoBack ? (
                     <button
                       type="button"
                       onClick={handleBack}
                       disabled={pending}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-5 py-4 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/[0.08] disabled:opacity-60"
+                      className="inline-flex h-[56px] items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-8 text-[15px] font-bold text-[var(--color-pearl)] transition-all hover:bg-white/[0.08] hover:border-white/20 active:scale-[0.98] disabled:opacity-50"
                     >
-                      <ArrowIcon size={15} className="rotate-180" />
+                      <ArrowIcon size={18} className="rotate-180" />
                       Back
                     </button>
                   ) : (
@@ -493,11 +496,11 @@ export function OnboardingFlow({
                   <button
                     type="submit"
                     disabled={pending}
-                    className="btn-shine group relative inline-flex items-center justify-center gap-2 overflow-hidden magic-button rounded-2xl bg-[var(--color-pearl)] px-7 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_rgba(247,241,232,0.14)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+                    className="btn-shine group relative inline-flex h-[60px] items-center justify-center gap-3 overflow-hidden magic-button rounded-2xl bg-[var(--color-pearl)] px-10 text-[16px] font-bold text-[var(--color-ink)] shadow-[0_20px_40px_-12px_rgba(251,247,242,0.2)] transition-all hover:-translate-y-px hover:bg-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
                   >
                     {pending ? <Spinner /> : null}
-                    {pending ? "Saving…" : "Continue"}
-                    {!pending ? <ArrowIcon size={15} className="transition-transform group-hover:translate-x-0.5" /> : null}
+                    {pending ? "Saving progress…" : "Continue"}
+                    {!pending ? <ArrowIcon size={18} className="transition-transform group-hover:translate-x-1" /> : null}
                   </button>
                 </div>
               </form>
@@ -505,40 +508,44 @@ export function OnboardingFlow({
           ) : null}
 
           {isComplete ? (
-            <div className="flex flex-col items-center py-4 text-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--gradient-ember)] shadow-[var(--shadow-ember)]">
-                <CheckIcon size={36} className="text-white" />
+            <div className="flex flex-col items-center py-6 text-center">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[var(--gradient-ember)] shadow-[var(--shadow-ember)] animate-scale-in">
+                <CheckIcon size={48} className="text-white" />
               </div>
-              <h1 className="mt-6 font-[family-name:var(--font-display)] text-[clamp(1.9rem,4vw,2.6rem)] leading-[1.0] tracking-[-0.04em] text-[var(--color-pearl)]">
-                Your values-forward profile is live.
+              <h1 
+                className="mt-10 text-[clamp(2.25rem,7vw,3.25rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+                style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+              >
+                Your profile is live.
               </h1>
-              <p className="mt-3 max-w-md text-[15px] leading-7 text-[var(--color-mist)]">
-                You&apos;re set up with a thoughtful foundation. You can refine anything from your profile later.
+              <p className="mt-4 max-w-md text-[18px] leading-relaxed text-[var(--color-mist)]">
+                You&apos;ve built a thoughtful foundation. You can refine any detail from your profile settings later.
               </p>
 
-              <div className="mt-7 w-full max-w-md space-y-3 text-left">
+              <div className="mt-12 w-full max-w-lg space-y-4 text-left">
                 {[
                   "Add clear, recent photos so people can recognize you with confidence.",
-                  "Specific interests — from natural health to everyday rituals — give better conversation starters than generic lists.",
+                  "Specific interests give better conversation starters than generic lists.",
                   "Keep your bio current — it sets the tone before a first message.",
                 ].map((tip) => (
-                  <div key={tip} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3.5">
-                    <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-gold-500)]/15 text-[var(--color-gold-300)]">
-                      <CheckIcon size={13} />
+                  <div key={tip} className="flex items-start gap-4 rounded-3xl border border-white/5 bg-white/[0.02] p-5">
+                    <span className="mt-1 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--color-gold-500)]/10 text-[var(--color-gold-300)]">
+                      <CheckIcon size={16} />
                     </span>
-                    <p className="text-[13px] leading-6 text-[var(--color-pearl)]/90">{tip}</p>
+                    <p className="text-[15px] font-medium leading-relaxed text-[var(--color-pearl)]/90">{tip}</p>
                   </div>
                 ))}
               </div>
 
-              <form onSubmit={handleComplete} className="mt-7 w-full max-w-md">
+              <form onSubmit={handleComplete} className="mt-12 w-full max-w-lg">
                 <button
                   type="submit"
                   disabled={pending}
-                  className="btn-shine group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-[var(--gradient-ember)] px-7 py-4 text-sm font-bold text-white transition-all hover:-translate-y-px hover:shadow-[0_16px_40px_rgba(239,94,94,0.25)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+                  className="btn-shine group relative inline-flex h-[64px] w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-[var(--gradient-ember)] px-8 text-[17px] font-bold text-white shadow-[var(--shadow-ember)] transition-all hover:-translate-y-px hover:shadow-[0_20px_50px_-8px_rgba(239,94,94,0.6)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
                 >
                   {pending ? <Spinner /> : null}
-                  {pending ? "Finalizing…" : "Enter Freeborn"}
+                  {pending ? "Finalizing account…" : "Enter Freeborn"}
+                  {!pending ? <ArrowIcon size={20} className="transition-transform group-hover:translate-x-1" /> : null}
                 </button>
               </form>
             </div>
@@ -546,5 +553,6 @@ export function OnboardingFlow({
         </div>
       </div>
     </div>
+  );
   );
 }

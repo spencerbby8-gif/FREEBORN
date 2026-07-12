@@ -61,13 +61,14 @@ export function DateOfBirthField({
   });
 
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-semibold text-[var(--color-pearl)]">
-        {label}
-      </label>
-      <div className="grid grid-cols-3 gap-2">
+    <div className="space-y-2.5">
+      <div className="px-1">
+        <label className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">
+          {label}
+        </label>
+      </div>
+      <div className="grid grid-cols-[1.2fr_0.8fr_0.9fr] gap-3">
         <SelectMenu
-          label="Month"
           value={month}
           onChange={(next) => {
             setMonth(next);
@@ -75,9 +76,9 @@ export function DateOfBirthField({
           }}
           options={monthOptions}
           placeholder="Month"
+          hideLabel
         />
         <SelectMenu
-          label="Day"
           value={day}
           onChange={(next) => {
             setDay(next);
@@ -85,9 +86,9 @@ export function DateOfBirthField({
           }}
           options={dayOptions}
           placeholder="Day"
+          hideLabel
         />
         <SelectMenu
-          label="Year"
           value={year}
           onChange={(next) => {
             setYear(next);
@@ -95,17 +96,15 @@ export function DateOfBirthField({
           }}
           options={yearOptions}
           placeholder="Year"
+          hideLabel
         />
       </div>
       {hint && !error ? (
-        <p className="text-xs leading-5 text-[var(--color-mist)]">{hint}</p>
+        <p className="px-1 text-[12px] leading-relaxed text-[var(--color-mist)]">{hint}</p>
       ) : null}
       {error ? (
-        <p
-          className="flex items-center gap-1.5 text-xs font-medium leading-5 text-[var(--color-danger)]"
-          role="alert"
-        >
-          <span aria-hidden="true">●</span>
+        <p className="flex items-center gap-2 px-1 text-[12px] font-bold leading-relaxed text-[var(--color-danger)] animate-scale-in" role="alert">
+          <span className="flex h-1.5 w-1.5 rounded-full bg-current" />
           {error}
         </p>
       ) : null}

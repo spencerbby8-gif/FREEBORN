@@ -48,83 +48,91 @@ export function DiscoverCard({
   const lifestyle = candidate.lifestyle_preferences ?? [];
 
   return (
-    <article className="luminous-card magic-border relative overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(9,16,28,0.88)] shadow-[0_34px_95px_-34px_rgba(0,0,0,0.9)] backdrop-blur-xl">
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-[rgba(239,94,94,0.20)] via-[rgba(217,167,82,0.09)] to-[rgba(138,110,242,0.18)] sm:aspect-[4/4.7]">
+    <article className="luminous-card magic-border relative overflow-hidden rounded-[40px] border border-white/10 bg-[rgba(9,16,28,0.92)] shadow-[var(--shadow-card-lg)] backdrop-blur-3xl">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-[rgba(239,94,94,0.15)] via-[rgba(217,167,82,0.08)] to-[rgba(138,110,242,0.12)] sm:aspect-[4/4.8]">
         {displayPhotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={displayPhotoUrl}
             alt={candidate.display_name ? `${candidate.display_name}'s profile photo` : "Profile photo"}
-            className="h-full w-full object-cover transition duration-700 hover:scale-[1.025]"
+            className="h-full w-full object-cover transition duration-1000 hover:scale-105"
           />
         ) : (
-          <div className="empty-glow flex h-full w-full items-center justify-center">
+          <div className="flex h-full w-full items-center justify-center">
             <div className="relative text-center">
-              <span className="font-[family-name:var(--font-display)] text-7xl tracking-[-0.08em] text-white/86">
+              <span 
+                className="text-8xl tracking-tighter text-white/20"
+                style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 500" }}
+              >
                 {initials(candidate.display_name)}
               </span>
-              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
-                Photo pending
+              <p className="mt-4 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-ash)]">
+                Photo Pending
               </p>
             </div>
           </div>
         )}
 
-        <div className="absolute inset-x-0 top-4 z-10 flex gap-1.5 px-4" aria-label="Profile photos">
+        {/* Photo Navigation Indicators */}
+        <div className="absolute inset-x-0 top-6 z-10 flex gap-1.5 px-6" aria-label="Profile photos">
           {Array.from({ length: Math.max(safePhotos.length, 1) }).map((_, index) => (
             <button
               key={index}
               type="button"
               onClick={() => setPhotoIndex(index)}
-              className={`h-1.5 flex-1 rounded-full transition ${
+              className={`h-1 flex-1 rounded-full transition-all duration-500 ${
                 index === photoIndex
-                  ? "bg-[var(--color-pearl)] shadow-[0_0_18px_rgba(251,247,242,0.5)]"
-                  : "bg-white/28 hover:bg-white/45"
+                  ? "bg-white shadow-[0_0_15px_white]"
+                  : "bg-white/20 hover:bg-white/40"
               }`}
               aria-label={`Show photo ${index + 1}`}
             />
           ))}
         </div>
 
+        {/* Floating Navigation Controls */}
         {safePhotos.length > 1 ? (
-          <>
+          <div className="absolute inset-0 z-10 flex items-center justify-between px-4 pointer-events-none">
             <button
               type="button"
               onClick={() => setPhotoIndex((current) => Math.max(0, current - 1))}
               disabled={photoIndex === 0}
-              className="absolute left-4 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white/90 backdrop-blur-md transition hover:bg-black/45 disabled:cursor-not-allowed disabled:opacity-35 sm:flex"
+              className="pointer-events-auto h-12 w-12 flex items-center justify-center rounded-full bg-black/20 text-white/80 backdrop-blur-md transition-all hover:bg-black/40 hover:text-white disabled:opacity-0"
               aria-label="Previous photo"
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15,18 9,12 15,6" /></svg>
             </button>
             <button
               type="button"
               onClick={() => setPhotoIndex((current) => Math.min(safePhotos.length - 1, current + 1))}
               disabled={photoIndex >= safePhotos.length - 1}
-              className="absolute right-4 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white/90 backdrop-blur-md transition hover:bg-black/45 disabled:cursor-not-allowed disabled:opacity-35 sm:flex"
+              className="pointer-events-auto h-12 w-12 flex items-center justify-center rounded-full bg-black/20 text-white/80 backdrop-blur-md transition-all hover:bg-black/40 hover:text-white disabled:opacity-0"
               aria-label="Next photo"
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9,18 15,12 9,6" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9,18 15,12 9,6" /></svg>
             </button>
-          </>
+          </div>
         ) : null}
 
-        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/82 via-black/38 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
-        <div className="absolute inset-x-0 bottom-0 z-10 p-5 sm:p-7">
+        <div className="absolute inset-x-0 bottom-0 z-10 p-6 sm:p-10">
           <div className="flex items-end justify-between gap-4">
             <div className="min-w-0">
-              <h2 className="font-[family-name:var(--font-display)] text-[clamp(2.05rem,5vw,3.2rem)] leading-[0.92] tracking-[-0.055em] text-white">
-                {candidate.display_name ?? "Freeborn member"}
-                {candidate.age ? <span className="ml-2 align-baseline font-sans text-2xl font-semibold tracking-[-0.04em] text-white/78">{candidate.age}</span> : null}
+              <h2 
+                className="text-[clamp(2.25rem,6vw,3.5rem)] leading-[0.9] tracking-tight text-white"
+                style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 500" }}
+              >
+                {candidate.display_name ?? "Freeborn Member"}
+                {candidate.age ? <span className="ml-3 text-2xl font-bold opacity-60">{candidate.age}</span> : null}
               </h2>
-              <p className="mt-2 truncate text-sm font-medium text-white/72">
+              <p className="mt-3 truncate text-[15px] font-bold text-white/70 uppercase tracking-widest">
                 {location || "Nearby"}{candidate.occupation ? ` · ${candidate.occupation}` : ""}
               </p>
             </div>
             {candidate.is_verified ? (
-              <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-[rgba(166,230,220,0.35)] bg-[rgba(79,184,167,0.20)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--color-teal-300)] backdrop-blur-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-teal-300)]" />
+              <div className="flex shrink-0 items-center gap-2 rounded-full border border-[var(--color-teal-500)]/30 bg-[var(--color-teal-500)]/20 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--color-teal-300)] backdrop-blur-xl">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-teal-300)] shadow-[0_0_8px_var(--color-teal-300)]" />
                 Verified
               </div>
             ) : null}
@@ -132,22 +140,25 @@ export function DiscoverCard({
         </div>
       </div>
 
-      <div className="space-y-6 p-5 sm:p-7">
+      <div className="space-y-8 p-6 sm:p-10">
         <section aria-label="Profile summary">
-          <p className="text-[15px] leading-7 text-[var(--color-pearl)]/90 sm:text-base sm:leading-8">
+          <p className="text-[17px] leading-relaxed text-[var(--color-pearl)]/90 font-medium">
             {candidate.bio ?? "This member has not added a bio yet. Use their interests, intentions, and profile context to decide with care."}
           </p>
           {candidate.education ? (
-            <p className="mt-3 text-sm text-[var(--color-mist)]">Studied at {candidate.education}</p>
+            <p className="mt-4 flex items-center gap-2 text-[13px] font-bold text-[var(--color-ash)] uppercase tracking-wider">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              Studied at {candidate.education}
+            </p>
           ) : null}
         </section>
 
         {goals.length ? (
           <section aria-label="Relationship intentions">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-stone)]">Intentions</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-[var(--color-ash)]">Intentions</p>
+            <div className="flex flex-wrap gap-2.5">
               {goals.slice(0, 3).map((goal) => (
-                <span key={goal} className="rounded-full border border-[rgba(246,215,154,0.25)] bg-[rgba(217,167,82,0.10)] px-3 py-1.5 text-xs font-bold text-[var(--color-pearl)]">
+                <span key={goal} className="rounded-full border border-[var(--color-gold-500)]/20 bg-[var(--color-gold-500)]/5 px-4 py-2 text-[12px] font-bold text-[var(--color-gold-300)] shadow-[0_0_15px_rgba(217,167,82,0.1)]">
                   {humanize(goal)}
                 </span>
               ))}
@@ -155,17 +166,17 @@ export function DiscoverCard({
           </section>
         ) : null}
 
-        {interests.length || lifestyle.length ? (
+        {(interests.length || lifestyle.length) ? (
           <section aria-label="Interests and lifestyle">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-stone)]">Conversation starters</p>
+            <p className="mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-[var(--color-ash)]">Conversation starters</p>
             <div className="flex flex-wrap gap-2">
-              {interests.slice(0, 6).map((interest) => (
-                <span key={interest} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-[var(--color-mist)]">
+              {interests.slice(0, 8).map((interest) => (
+                <span key={interest} className="rounded-full border border-white/5 bg-white/[0.03] px-3.5 py-1.5 text-[12px] font-bold text-[var(--color-sand)] transition-colors hover:bg-white/10">
                   {interest}
                 </span>
               ))}
-              {lifestyle.slice(0, 3).map((item) => (
-                <span key={item} className="rounded-full bg-white/[0.03] px-3 py-1.5 text-xs text-[var(--color-mist)]">
+              {lifestyle.slice(0, 4).map((item) => (
+                <span key={item} className="rounded-full bg-white/[0.02] px-3.5 py-1.5 text-[12px] font-medium text-[var(--color-ash)]">
                   {item}
                 </span>
               ))}
@@ -173,33 +184,35 @@ export function DiscoverCard({
           </section>
         ) : null}
 
-        <div className="grid grid-cols-3 gap-2.5 sm:gap-3" aria-label="Choose how to respond">
+        <div className="grid grid-cols-3 gap-4 pt-4" aria-label="Choose how to respond">
           <button
             type="button"
             disabled={pending}
             onClick={() => onAction("pass")}
-            className="group rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-4 text-center font-bold text-[var(--color-mist)] transition hover:border-white/18 hover:bg-white/[0.07] hover:text-[var(--color-pearl)] disabled:cursor-wait disabled:opacity-60 sm:py-5"
+            className="group flex flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.02] py-5 transition-all hover:bg-white/[0.06] hover:border-white/20 active:scale-95 disabled:opacity-50"
           >
-            <span className="block text-xl transition-transform group-hover:scale-110">×</span>
-            <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.12em]">Pass</span>
+            <span className="text-2xl text-[var(--color-ash)] group-hover:text-[var(--color-pearl)] transition-colors">×</span>
+            <span className="mt-2 text-[10px] font-black uppercase tracking-widest text-[var(--color-ash)] group-hover:text-[var(--color-sand)]">Pass</span>
           </button>
+          
           <button
             type="button"
             disabled={pending}
             onClick={() => onAction("superlike")}
-            className="group rounded-2xl border border-[var(--color-violet-300)]/25 bg-[var(--color-violet-500)]/10 px-2 py-4 text-center font-bold text-[var(--color-violet-300)] transition hover:border-[var(--color-violet-300)]/40 hover:bg-[var(--color-violet-500)]/16 disabled:cursor-wait disabled:opacity-60 sm:py-5"
+            className="group flex flex-col items-center justify-center rounded-3xl border border-[var(--color-violet-500)]/30 bg-[var(--color-violet-500)]/5 py-5 transition-all hover:bg-[var(--color-violet-500)]/15 hover:border-[var(--color-violet-500)]/60 active:scale-95 disabled:opacity-50 shadow-[0_0_25px_rgba(138,110,242,0.1)] hover:shadow-[0_0_40px_rgba(138,110,242,0.25)]"
           >
-            <span className="block text-xl transition-transform group-hover:scale-110">★</span>
-            <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.12em]">Spark</span>
+            <span className="text-2xl text-[var(--color-violet-300)] transition-transform group-hover:scale-125">★</span>
+            <span className="mt-2 text-[10px] font-black uppercase tracking-widest text-[var(--color-violet-300)]/90">Spark</span>
           </button>
+
           <button
             type="button"
             disabled={pending}
             onClick={() => onAction("like")}
-            className="magic-button group rounded-2xl bg-[var(--gradient-ember-warm)] px-2 py-4 text-center font-extrabold text-white shadow-[var(--shadow-ember)] transition hover:translate-y-[-2px] disabled:cursor-wait disabled:opacity-60 sm:py-5"
+            className="magic-button group flex flex-col items-center justify-center rounded-3xl bg-[var(--gradient-ember-warm)] py-5 shadow-[0_15px_35px_-5px_rgba(239,94,94,0.4)] transition-all hover:-translate-y-px active:scale-95 disabled:opacity-50"
           >
-            <span className="block text-xl transition-transform group-hover:scale-110">♥</span>
-            <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.12em]">{pending ? "Saving" : "Like"}</span>
+            <span className="text-2xl text-white">♥</span>
+            <span className="mt-2 text-[10px] font-black uppercase tracking-widest text-white/90">{pending ? "Saving" : "Like"}</span>
           </button>
         </div>
       </div>

@@ -8,8 +8,8 @@ import { authStatusMessages, type AuthStatusKey } from "@/lib/auth/messages";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Sign in or create your profile",
-  description: "Create or access your Freeborn profile for values-aligned, intentional relationships.",
+  title: "Join Freeborn · Secure Sign In",
+  description: "Access your values-aligned profile or create a new account on Freeborn.",
   robots: { index: false, follow: true },
 };
 

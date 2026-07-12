@@ -51,10 +51,10 @@ function ToggleRow({ name, label, body, defaultChecked }: { name: string; label:
 
 function SettingGroup({ label, body, children }: { label: string; body: string; children: ReactNode }) {
   return (
-    <section className="rounded-[22px] border border-white/8 bg-white/[0.025] p-4 sm:p-5">
-      <div className="mb-4">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-stone)]">{label}</p>
-        <p className="mt-1 text-sm leading-6 text-[var(--color-mist)]">{body}</p>
+    <section className="rounded-[32px] border border-white/5 bg-white/[0.015] p-6 sm:p-8">
+      <div className="mb-6">
+        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-ash)]">{label}</p>
+        <p className="mt-2 text-[14px] font-medium leading-relaxed text-[var(--color-mist)]">{body}</p>
       </div>
       {children}
     </section>
@@ -62,7 +62,7 @@ function SettingGroup({ label, body, children }: { label: string; body: string; 
 }
 
 const inputClass =
-  "mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 text-sm font-semibold text-[var(--color-pearl)] outline-none transition placeholder:text-white/30 hover:border-white/18 focus:border-[var(--color-gold-500)] focus:bg-white/[0.055] focus:shadow-[0_0_0_3px_rgba(217,167,82,0.12)]";
+  "mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3.5 text-[15px] font-medium text-[var(--color-pearl)] outline-none transition-all placeholder:text-[var(--color-ash)] focus:border-[var(--color-gold-500)] focus:bg-white/[0.06] focus:shadow-[0_0_20px_-10px_rgba(217,167,82,0.3)]";
 
 export function DiscoveryPreferencesForm({
   prefs,
@@ -88,60 +88,61 @@ export function DiscoveryPreferencesForm({
       : ["long_term", "meaningful_connection"];
 
   return (
-    <div id="discovery" className="luminous-card rounded-[28px] border border-white/10 bg-white/[0.035] p-6 sm:p-7">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.20em] text-[var(--color-stone)]">Profile settings</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[var(--color-pearl)]">Discovery settings</h2>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-mist)]">
-            Set who appears in your room. These boundaries shape your next feed without exposing private essentials or turning values into a checklist.
-          </p>
+    <div id="discovery" className="luminous-card rounded-[40px] border border-white/10 bg-white/[0.02] p-8 shadow-[var(--shadow-card-lg)] sm:p-12">
+      <header className="mb-12">
+        <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-sand)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-teal-500)] shadow-[0_0_10px_rgba(79,184,167,0.6)]" />
+          Discovery Preferences
         </div>
-        <span className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] ${profile.discoverable ? "border-[rgba(109,211,176,0.28)] bg-[rgba(109,211,176,0.10)] text-[var(--color-success)]" : "border-white/10 bg-white/[0.04] text-[var(--color-mist)]"}`}>
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-          {profile.discoverable ? "Visible in discovery" : "Hidden from discovery"}
-        </span>
-      </div>
+        <h2 
+          className="mt-6 text-[clamp(2rem,6vw,2.75rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+          style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+        >
+          Set your boundaries.
+        </h2>
+        <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-[var(--color-mist)]">
+          Choose who appears in your curated room. These boundaries keep your feed intentional and aligned with your lifestyle.
+        </p>
+      </header>
 
-      <form action={formAction} className="mt-6 space-y-5">
+      <form action={formAction} className="space-y-8">
         <SettingGroup
-          label="Visibility and trust"
-          body="Verified-only narrows the room. Photos-required keeps the feed recognizable. Your own discoverability is controlled in Edit Profile."
+          label="Visibility & Trust"
+          body="Filter by verification or photo status to ensure a recognizable and reliable community experience."
         >
           <div className="space-y-3">
-            <ToggleRow name="verified_only" label="Verified profiles only" body="Show only members with earned verification status." defaultChecked={prefs?.verified_only ?? false} />
-            <ToggleRow name="photos_required" label="Require profile photos" body="Hide profiles that do not yet have public photos." defaultChecked={prefs?.photos_required ?? true} />
+            <ToggleRow name="verified_only" label="Verified Profiles Only" body="Show only members with earned verification status." defaultChecked={prefs?.verified_only ?? false} />
+            <ToggleRow name="photos_required" label="Require Profile Photos" body="Hide profiles that do not yet have public photos." defaultChecked={prefs?.photos_required ?? true} />
           </div>
         </SettingGroup>
 
-        <SettingGroup label="Age and distance" body="Keep the basics realistic enough to become a real meeting.">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <label className="block">
-              <span className="text-xs font-semibold text-[var(--color-mist)]">Min age</span>
+        <SettingGroup label="Age & Proximity" body="Set the practical range for your potential matches.">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="group space-y-2.5">
+              <label className="px-1 text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">Min Age</label>
               <input type="number" name="age_min" defaultValue={ageMin} min={18} max={80} className={inputClass} />
-            </label>
-            <label className="block">
-              <span className="text-xs font-semibold text-[var(--color-mist)]">Max age</span>
+            </div>
+            <div className="group space-y-2.5">
+              <label className="px-1 text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">Max Age</label>
               <input type="number" name="age_max" defaultValue={ageMax} min={18} max={99} className={inputClass} />
-            </label>
-            <label className="block">
-              <span className="text-xs font-semibold text-[var(--color-mist)]">Distance km</span>
+            </div>
+            <div className="group space-y-2.5">
+              <label className="px-1 text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">Distance (km)</label>
               <input type="number" name="distance_km" defaultValue={distance} min={5} max={500} className={inputClass} />
-            </label>
+            </div>
           </div>
-          <p className="mt-3 text-xs leading-5 text-[var(--color-mist)]">Age must start at 18+. Distance can be 5–500 km.</p>
         </SettingGroup>
 
-        <SettingGroup label="Who appears" body="Choose the gender identities you want included in discovery.">
-          <div className="flex flex-wrap gap-2">
+        <SettingGroup label="Who Appears" body="Select the gender identities you want to see in your discovery feed.">
+          <div className="flex flex-wrap gap-3">
             {genderOptions.slice(0, 7).map((gender) => (
               <CheckPill key={gender.value} name="show_genders" value={gender.value} label={gender.label} defaultChecked={showGenders.includes(gender.value)} />
             ))}
           </div>
         </SettingGroup>
 
-        <SettingGroup label="Intentions" body="Prioritize profiles whose relationship direction overlaps with yours.">
-          <div className="grid gap-2 sm:grid-cols-2">
+        <SettingGroup label="Relationship Intentions" body="Prioritize members whose long-term direction overlaps with yours.">
+          <div className="grid gap-3 sm:grid-cols-2">
             {relationshipGoalOptions.map((intent) => (
               <CheckPill
                 key={intent.value}
@@ -155,25 +156,27 @@ export function DiscoveryPreferencesForm({
           </div>
         </SettingGroup>
 
-        <SettingGroup label="Boundaries" body="Strict deal breakers skip profiles that conflict with the non-negotiables you selected.">
-          <ToggleRow name="deal_breaker_strict" label="Use strict deal breakers" body="Keep deal breakers active while building your feed." defaultChecked={prefs?.deal_breaker_strict ?? true} />
+        <SettingGroup label="Safety Boundaries" body="Strict deal breakers automatically skip profiles that conflict with your selected non-negotiables.">
+          <ToggleRow name="deal_breaker_strict" label="Active Deal Breakers" body="Maintain your selected standards while building your feed." defaultChecked={prefs?.deal_breaker_strict ?? true} />
         </SettingGroup>
 
-        {state && !state.ok ? (
-          <div className="rounded-2xl border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 px-4 py-3 text-sm text-red-100" role="alert">
-            <p className="font-semibold">Check your filters.</p>
-            <p className="mt-1 text-red-100/80">{state.error}</p>
+        {state && !state.ok && (
+          <div className="rounded-3xl border border-red-500/20 bg-red-500/5 p-6 text-[15px] font-bold text-red-200 animate-scale-in">
+            <p>Check your filters.</p>
+            <p className="mt-2 text-[13px] font-medium text-red-200/60">{state.error}</p>
           </div>
-        ) : null}
+        )}
 
-        {state && state.ok ? (
-          <div className="rounded-2xl border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 px-4 py-3 text-sm text-emerald-100" role="status">
-            <p className="font-semibold">Discovery settings saved.</p>
-            <p className="mt-1 text-emerald-100/80">Your next feed will reflect these boundaries. <Link href="/app" className="font-bold underline decoration-emerald-100/30 underline-offset-2">Return to Discover</Link>.</p>
+        {state && state.ok && (
+          <div className="rounded-3xl border border-[var(--color-teal-500)]/20 bg-[var(--color-teal-500)]/5 p-6 text-[15px] font-bold text-[var(--color-teal-300)] animate-scale-in">
+            <p>Discovery settings saved.</p>
+            <p className="mt-2 text-[13px] font-medium text-[var(--color-teal-300)]/60">Your next feed will reflect these boundaries.</p>
           </div>
-        ) : null}
+        )}
 
-        <Submit />
+        <div className="pt-6">
+          <Submit />
+        </div>
       </form>
     </div>
   );

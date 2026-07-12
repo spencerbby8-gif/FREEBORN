@@ -250,35 +250,38 @@ export function AuthExperience({
             : "Update password";
 
   return (
-    <div className="w-full max-w-[460px]">
-      <div className="surface magic-border relative overflow-hidden rounded-[28px] p-6 shadow-[0_34px_110px_-42px_rgba(138,110,242,0.85)] sm:p-8">
+    <div className="w-full max-w-[480px]">
+      <div className="surface magic-border relative overflow-hidden rounded-[40px] p-8 shadow-[var(--shadow-card-lg)] sm:p-10">
         <div
           key={mode}
           className="animate-fade-in"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-stone)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-gold-500)]" />
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--color-sand)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-gold-500)] shadow-[0_0_10px_rgba(217,167,82,0.5)]" />
             {copy.eyebrow}
           </div>
-          <h1 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(1.9rem,5vw,2.6rem)] leading-[0.98] tracking-[-0.04em] text-[var(--color-pearl)]">
+          <h1 
+            className="mt-6 text-[clamp(2.25rem,6vw,3rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+            style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+          >
             {copy.title}
           </h1>
-          <p className="mt-3 max-w-[42ch] text-[15px] leading-7 text-[var(--color-mist)]">
+          <p className="mt-4 max-w-[40ch] text-[16px] leading-relaxed text-[var(--color-mist)]">
             {copy.description}
           </p>
         </div>
 
         {localNotice ? (
-          <div className="mt-5">
+          <div className="mt-6">
             <AuthNotice {...localNotice} />
           </div>
         ) : null}
 
         {isAuth ? (
-          <div className="relative mt-6 grid grid-cols-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+          <div className="relative mt-8 grid grid-cols-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
             <span
-              className="absolute inset-y-1 w-[calc(50%-4px)] rounded-xl bg-[var(--gradient-ember-warm)] shadow-[0_12px_28px_-16px_rgba(239,94,94,0.9)] transition-all duration-300 ease-out"
-              style={{ left: mode === "sign-up" ? "calc(50% + 0px)" : "4px" }}
+              className="absolute inset-y-1.5 w-[calc(50%-6px)] rounded-xl bg-[var(--gradient-ember-warm)] shadow-[0_8px_20px_-8px_rgba(239,94,94,0.8)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+              style={{ left: mode === "sign-up" ? "calc(50% + 1.5px)" : "4.5px" }}
               aria-hidden
             />
             {switchItems.map((item) => {
@@ -288,7 +291,7 @@ export function AuthExperience({
                   key={item.mode}
                   type="button"
                   onClick={() => changeMode(item.mode)}
-                  className={`relative z-10 rounded-xl px-4 py-2.5 text-center text-[13px] font-semibold transition-colors ${
+                  className={`relative z-10 rounded-xl px-4 py-3 text-center text-[14px] font-bold transition-colors duration-300 ${
                     active ? "text-white" : "text-[var(--color-mist)] hover:text-[var(--color-pearl)]"
                   }`}
                 >
@@ -304,22 +307,22 @@ export function AuthExperience({
             type="button"
             onClick={handleGoogle}
             disabled={pending !== null}
-            className="group mt-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-white/12 bg-white/[0.05] px-5 py-3.5 text-sm font-semibold text-[var(--color-pearl)] transition hover:bg-white/[0.09] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            className="group mt-6 flex w-full h-[56px] items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-5 text-[15px] font-bold text-[var(--color-pearl)] transition-all hover:bg-white/[0.08] hover:border-white/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <GoogleGlyph size={18} />
+            <GoogleGlyph size={20} />
             {pending === "google" ? "Connecting…" : "Continue with Google"}
           </button>
         ) : null}
 
         {isAuth ? (
-          <div className="my-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--color-mist)]">
-            <span className="h-px flex-1 bg-white/10" />
+          <div className="my-8 flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-ash)]">
+            <span className="h-px flex-1 bg-white/5" />
             or use email
-            <span className="h-px flex-1 bg-white/10" />
+            <span className="h-px flex-1 bg-white/5" />
           </div>
         ) : null}
 
-        <form className="space-y-4" onSubmit={handleEmailSubmit} noValidate>
+        <form className="space-y-6" onSubmit={handleEmailSubmit} noValidate>
           {mode !== "update-password" ? (
             <AuthInput
               id="email"
@@ -336,25 +339,33 @@ export function AuthExperience({
           ) : null}
 
           {mode !== "reset-password" ? (
-            <AuthInput
-              id="password"
-              label={mode === "update-password" ? "New password" : "Password"}
-              type="password"
-              autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-              placeholder={mode === "sign-in" ? "Enter your password" : "Choose a strong password"}
-              value={values.password}
-              error={errors.password}
-              hint={
-                mode === "sign-in"
-                  ? undefined
-                  : "Use at least 8 characters with an uppercase, lowercase, and a number."
-              }
-              onChange={(event) => updateField("password", event.target.value)}
-            />
+            <div className="space-y-2">
+              <AuthInput
+                id="password"
+                label={mode === "update-password" ? "New password" : "Password"}
+                type="password"
+                autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
+                placeholder={mode === "sign-in" ? "Enter your password" : "Choose a strong password"}
+                value={values.password}
+                error={errors.password}
+                onChange={(event) => updateField("password", event.target.value)}
+              />
+              {mode === "sign-in" ? (
+                <div className="flex justify-end px-1">
+                  <button
+                    type="button"
+                    onClick={() => changeMode("reset-password")}
+                    className="text-[13px] font-bold text-[var(--color-sand)] transition-colors hover:text-[var(--color-pearl)]"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              ) : null}
+            </div>
           ) : null}
 
           {mode === "sign-up" || mode === "update-password" ? (
-            <div className="space-y-3">
+            <div className="space-y-6">
               {mode === "sign-up" ? <PasswordStrength password={values.password} /> : null}
               <AuthInput
                 id="confirmPassword"
@@ -369,36 +380,24 @@ export function AuthExperience({
             </div>
           ) : null}
 
-          {mode === "sign-in" ? (
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => changeMode("reset-password")}
-                className="text-sm font-semibold text-[var(--color-stone)] transition hover:text-[var(--color-pearl)]"
-              >
-                Forgot password?
-              </button>
-            </div>
-          ) : null}
-
           <button
             type="submit"
             disabled={pending !== null}
-            className="btn-shine group relative mt-1 inline-flex w-full items-center justify-center gap-2 overflow-hidden magic-button rounded-2xl bg-[var(--color-pearl)] px-5 py-4 text-sm font-bold text-[var(--color-ink)] transition-all hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_rgba(247,241,232,0.14)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+            className="btn-shine group relative mt-2 flex h-[60px] w-full items-center justify-center gap-3 overflow-hidden magic-button rounded-2xl bg-[var(--color-pearl)] px-5 text-[16px] font-bold text-[var(--color-ink)] shadow-[0_20px_40px_-12px_rgba(251,247,242,0.2)] transition-all hover:-translate-y-px hover:bg-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
           >
             {pending === "email" ? <Spinner /> : null}
             {submitLabel}
           </button>
         </form>
 
-        <div className="mt-5 text-center text-[13px] text-[var(--color-mist)]">
+        <div className="mt-8 text-center text-[14px] font-medium text-[var(--color-mist)]">
           {mode === "sign-in" ? (
             <p>
               New to Freeborn?{" "}
               <button
                 type="button"
                 onClick={() => changeMode("sign-up")}
-                className="font-semibold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-2 transition hover:decoration-white/50"
+                className="font-bold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-4 transition-all hover:decoration-white/60"
               >
                 Create your account
               </button>
@@ -410,7 +409,7 @@ export function AuthExperience({
               <button
                 type="button"
                 onClick={() => changeMode("sign-in")}
-                className="font-semibold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-2 transition hover:decoration-white/50"
+                className="font-bold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-4 transition-all hover:decoration-white/60"
               >
                 Sign in
               </button>
@@ -422,7 +421,7 @@ export function AuthExperience({
               <button
                 type="button"
                 onClick={() => changeMode("sign-in")}
-                className="font-semibold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-2 transition hover:decoration-white/50"
+                className="font-bold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-4 transition-all hover:decoration-white/60"
               >
                 Back to sign in
               </button>
@@ -432,7 +431,7 @@ export function AuthExperience({
             <p>
               <Link
                 href="/auth?mode=sign-in"
-                className="font-semibold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-2 transition hover:decoration-white/50"
+                className="font-bold text-[var(--color-pearl)] underline decoration-white/20 underline-offset-4 transition-all hover:decoration-white/60"
               >
                 Back to sign in
               </Link>
@@ -441,5 +440,6 @@ export function AuthExperience({
         </div>
       </div>
     </div>
+  );
   );
 }

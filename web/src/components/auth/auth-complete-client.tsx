@@ -14,9 +14,9 @@ function parseHashParams() {
 
 function Ring() {
   return (
-    <svg width={34} height={34} viewBox="0 0 24 24" fill="none" className="spin" aria-hidden>
-      <circle cx="12" cy="12" r="9" stroke="var(--color-gold-500)" strokeOpacity="0.25" strokeWidth="2.5" />
-      <path d="M21 12a9 9 0 0 0-9-9" stroke="var(--color-gold-500)" strokeWidth="2.5" strokeLinecap="round" />
+    <svg width={40} height={40} viewBox="0 0 24 24" fill="none" className="spin" aria-hidden>
+      <circle cx="12" cy="12" r="9" stroke="var(--color-gold-500)" strokeOpacity="0.2" strokeWidth="2" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="var(--color-gold-500)" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -78,11 +78,11 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
   }, [intent, router, supabase]);
 
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
+    <div className="flex flex-col items-center py-4 text-center">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] shadow-inner">
         {error ? (
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(255,107,122,0.18)] text-[var(--color-danger)]">
-            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--color-danger)]/15 text-[var(--color-danger)]">
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round">
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
           </span>
@@ -90,14 +90,14 @@ export function AuthCompleteClient({ intent }: { intent: "verify" | "recovery" }
           <Ring />
         )}
       </div>
-      <p className="mt-5 text-lg font-semibold text-[var(--color-pearl)]">{message}</p>
-      <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
+      <h2 className="mt-8 text-2xl font-bold text-[var(--color-pearl)]">{message}</h2>
+      <p className="mt-3 max-w-sm text-[15px] font-medium leading-relaxed text-[var(--color-mist)]">
         {error ?? "Just a moment while we securely finish setting up your session."}
       </p>
       {error ? (
         <Link
           href="/auth?mode=sign-in&status=link-invalid"
-          className="mt-6 inline-flex rounded-full bg-[var(--color-pearl)] px-6 py-3 text-sm font-bold text-[var(--color-ink)] transition hover:bg-white"
+          className="mt-10 inline-flex h-[56px] items-center justify-center rounded-full bg-[var(--color-pearl)] px-10 text-[15px] font-bold text-[var(--color-ink)] transition-all hover:bg-white active:scale-[0.98]"
         >
           Return to sign in
         </Link>

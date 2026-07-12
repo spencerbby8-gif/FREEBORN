@@ -12,25 +12,25 @@ export function AuthNotice({ title, body, tone }: AuthNoticeProps) {
     <div
       role={tone === "error" ? "alert" : "status"}
       aria-live="polite"
-      className={`relative overflow-hidden rounded-2xl border px-4 py-3.5 ${
+      className={`relative overflow-hidden rounded-[24px] border p-5 ${
         success
-          ? "border-[rgba(109,211,176,0.35)] bg-[rgba(109,211,176,0.10)]"
-          : "border-[rgba(255,107,122,0.35)] bg-[rgba(255,107,122,0.10)]"
+          ? "border-[rgba(109,211,176,0.2)] bg-[rgba(109,211,176,0.05)]"
+          : "border-[rgba(255,107,122,0.2)] bg-[rgba(255,107,122,0.05)]"
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <span
-          className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${
+          className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl ${
             success
-              ? "bg-[rgba(109,211,176,0.22)] text-[var(--color-success)]"
-              : "bg-[rgba(255,107,122,0.22)] text-[var(--color-danger)]"
+              ? "bg-[rgba(109,211,176,0.15)] text-[var(--color-success)]"
+              : "bg-[rgba(255,107,122,0.15)] text-[var(--color-danger)]"
           }`}
         >
-          {success ? <CheckIcon size={14} /> : <CloseIcon size={14} />}
+          {success ? <CheckIcon size={18} /> : <CloseIcon size={18} />}
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-[var(--color-pearl)]">{title}</p>
-          <p className="mt-0.5 text-[13px] leading-5 text-[var(--color-pearl)]/80">{body}</p>
+          <p className="text-[15px] font-bold text-[var(--color-pearl)]">{title}</p>
+          <p className="mt-1 text-[14px] font-medium leading-relaxed text-[var(--color-mist)]">{body}</p>
         </div>
       </div>
     </div>

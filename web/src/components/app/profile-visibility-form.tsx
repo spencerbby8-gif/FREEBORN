@@ -22,54 +22,56 @@ export function ProfileVisibilityForm({ profile }: { profile: UserProfileRow }) 
   const [state, formAction] = useActionState(saveProfileVisibility, null);
 
   return (
-    <section id="privacy" className="luminous-card scroll-mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-6">
+    <section id="privacy" className="luminous-card scroll-mt-8 rounded-[32px] border border-white/5 bg-white/[0.02] p-8 shadow-[var(--shadow-raised)]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.20em] text-[var(--color-stone)]">Privacy controls</p>
-          <h2 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-[var(--color-pearl)]">Choose whether people can find you.</h2>
-          <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
-            When visibility is off, your profile stops appearing in discovery while your account and matches stay intact.
-          </p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-ash)]">Privacy Control</p>
+          <h2 className="mt-2 text-xl font-bold tracking-tight text-[var(--color-pearl)]">Profile Visibility</h2>
         </div>
-        <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] ${discoverable ? "border-[rgba(109,211,176,0.28)] bg-[rgba(109,211,176,0.10)] text-[var(--color-success)]" : "border-white/10 bg-white/[0.04] text-[var(--color-mist)]"}`}>
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${discoverable ? "border-[var(--color-teal-500)]/30 bg-[var(--color-teal-500)]/10 text-[var(--color-teal-300)]" : "border-white/10 bg-white/5 text-[var(--color-ash)]"}`}>
+          <span className={`h-1 w-1 rounded-full ${discoverable ? "bg-current shadow-[0_0_8px_currentColor]" : "bg-current"}`} />
           {discoverable ? "Visible" : "Hidden"}
         </span>
       </div>
 
-      <form action={formAction} className="mt-5 space-y-4">
+      <p className="mt-4 text-[14px] font-medium leading-relaxed text-[var(--color-mist)]">
+        When visibility is off, you stop appearing in discovery. Your matches and messages stay intact.
+      </p>
+
+      <form action={formAction} className="mt-8 space-y-6">
         <input type="hidden" name="discoverable" value={String(discoverable)} />
         <button
           type="button"
           role="switch"
           aria-checked={discoverable}
           onClick={() => setDiscoverable((value) => !value)}
-          className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-4 text-left transition hover:border-white/18 hover:bg-white/[0.055]"
+          className="group flex w-full items-center justify-between gap-4 rounded-[24px] border border-white/5 bg-white/[0.02] p-5 text-left transition-all hover:bg-white/[0.04] active:scale-[0.98]"
         >
-          <span>
-            <span className="block text-sm font-bold text-[var(--color-pearl)]">Visible in discovery</span>
-            <span className="mt-1 block text-xs leading-5 text-[var(--color-mist)]">People who match your filters can see your public profile.</span>
-          </span>
-          <span className={`relative h-7 w-12 shrink-0 rounded-full transition ${discoverable ? "bg-[var(--color-gold-500)]" : "bg-white/14"}`}>
-            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${discoverable ? "left-6" : "left-1"}`} />
-          </span>
+          <div className="min-w-0">
+            <span className="block text-[15px] font-bold text-[var(--color-pearl)]">Discoverable Mode</span>
+            <span className="mt-1 block text-[13px] font-medium leading-snug text-[var(--color-mist)]">Show my profile to intentional people.</span>
+          </div>
+          <div className={`relative h-7 w-12 shrink-0 rounded-full transition-all duration-300 ${discoverable ? "bg-[var(--color-gold-500)] shadow-[0_0_15px_rgba(217,167,82,0.4)]" : "bg-white/10"}`}>
+            <div className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-lg transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${discoverable ? "left-6" : "left-1"}`} />
+          </div>
         </button>
 
-        {state && !state.ok ? (
-          <div className="rounded-2xl border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 px-4 py-3 text-sm text-red-100" role="alert">
-            <p className="font-semibold">Visibility did not save.</p>
-            <p className="mt-1 text-red-100/80">{state.error}</p>
+        {state && !state.ok && (
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-[14px] font-bold text-red-200 animate-scale-in">
+            {state.error ?? "Failed to update visibility."}
           </div>
-        ) : null}
+        )}
 
-        {state && state.ok ? (
-          <div className="rounded-2xl border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 px-4 py-3 text-sm text-emerald-100" role="status">
-            {discoverable ? "Your profile is visible in discovery." : "Your profile is hidden from discovery."}
+        {state && state.ok && (
+          <div className="rounded-2xl border border-[var(--color-teal-500)]/20 bg-[var(--color-teal-500)]/5 p-4 text-[14px] font-bold text-[var(--color-teal-300)] animate-scale-in">
+            Visibility updated successfully.
           </div>
-        ) : null}
+        )}
 
         <SubmitButton />
       </form>
     </section>
+  );
+}
   );
 }

@@ -73,5 +73,3 @@ export function ProfileVisibilityForm({ profile }: { profile: UserProfileRow }) 
     </section>
   );
 }
-  );
-}

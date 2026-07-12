@@ -441,5 +441,4 @@ export function AuthExperience({
       </div>
     </div>
   );
-  );
 }

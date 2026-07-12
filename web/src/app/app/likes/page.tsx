@@ -204,6 +204,3 @@ export default async function LikesPage() {
     </AppShell>
   );
 }
-    </AppShell>
-  );
-}

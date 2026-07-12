@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { brand } from "@freeborn/shared";
 import { Wordmark } from "@/components/wordmark";
-import { BadgeIcon, HeartIcon, ShieldIcon } from "@/components/icons";
+import { ArrowIcon, BadgeIcon, HeartIcon, ShieldIcon } from "@/components/icons";
 
 const trustPoints = [
   {

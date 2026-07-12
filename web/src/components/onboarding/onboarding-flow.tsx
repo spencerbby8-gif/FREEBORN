@@ -554,5 +554,4 @@ export function OnboardingFlow({
       </div>
     </div>
   );
-  );
 }

@@ -179,5 +179,3 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
     </div>
   );
 }
-  );
-}

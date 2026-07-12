@@ -121,5 +121,3 @@ export function PublicProfilePreview({ profile, photos }: { profile: UserProfile
     </section>
   );
 }
-  );
-}

@@ -24,37 +24,41 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
   if (!password) return null;
 
   const passed = rules.filter((rule) => rule.test(password)).length;
-  const level = passed >= 4 ? 3 : passed - 1 < 0 ? 0 : passed - 1;
-  const current = levels[level];
+  const levelIndex = passed >= 4 ? 3 : passed - 1 < 0 ? 0 : passed - 1;
+  const current = levels[levelIndex];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3 px-1 animate-scale-in">
       <div className="flex gap-1.5">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-1 flex-1 rounded-full transition-all duration-300"
+            className="h-1 flex-1 rounded-full transition-all duration-500 ease-out"
             style={{
-              backgroundColor: i < current.segments ? current.color : "rgba(255,255,255,0.10)",
+              backgroundColor: i < current.segments ? current.color : "rgba(255,255,255,0.06)",
+              boxShadow: i < current.segments ? `0 0 8px ${current.color}40` : "none",
             }}
           />
         ))}
       </div>
-      <div className="flex items-center justify-between text-[11px] leading-4">
-        <span className="font-semibold" style={{ color: current.color }}>
+      <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
+        <span style={{ color: current.color }}>
           {current.label}
         </span>
-        <span className="flex gap-1" aria-hidden="true">
-          {rules.map((rule) => (
-            <span
-              key={rule.label}
-              title={rule.label}
-              className={rule.test(password) ? "text-[var(--color-success)]" : "text-white/20"}
-            >
-              {rule.test(password) ? "●" : "○"}
-            </span>
-          ))}
-        </span>
+        <div className="flex gap-2.5">
+          {rules.map((rule) => {
+            const ok = rule.test(password);
+            return (
+              <span
+                key={rule.label}
+                title={rule.label}
+                className={`transition-colors duration-300 ${ok ? "text-[var(--color-success)]" : "text-[var(--color-ash)]"}`}
+              >
+                {ok ? "●" : "○"}
+              </span>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

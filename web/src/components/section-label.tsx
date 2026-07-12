@@ -15,14 +15,14 @@ const dotColor: Record<NonNullable<SectionLabelProps["dot"]>, string> = {
 export function SectionLabel({ label, dot = "ember", size = "md" }: SectionLabelProps) {
   return (
     <div
-      className={`inline-flex items-center gap-2.5 rounded-full border border-[var(--color-line)] bg-[var(--color-glass-light)] px-4 backdrop-blur-md ${
+      className={`inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 backdrop-blur-xl ${
         size === "sm" ? "py-1.5 text-[10px]" : "py-2 text-[11px]"
-      } font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-[var(--color-sand)]`}
+      } font-bold uppercase tracking-[0.25em] text-[var(--color-sand)] shadow-inner`}
     >
       {dot !== "none" && (
-        <span className={`relative flex h-2 w-2`}>
+        <span className="relative flex h-1.5 w-1.5">
           <span className={`absolute inset-0 rounded-full ${dotColor[dot]}`} />
-          <span className="absolute inset-0 rounded-full bg-current opacity-40 animate-ping" />
+          <span className={`absolute inset-0 rounded-full ${dotColor[dot]} opacity-40 animate-ping`} />
         </span>
       )}
       {label}

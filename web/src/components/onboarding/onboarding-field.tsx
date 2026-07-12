@@ -18,23 +18,23 @@ type FieldShellProps = {
 
 function FieldShell({ label, error, hint, optional, counter, htmlFor, children }: FieldShellProps) {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <label htmlFor={htmlFor} className="text-sm font-semibold text-[var(--color-pearl)]">
+    <div className="group space-y-2.5">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <label htmlFor={htmlFor} className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">
           {label}
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {counter ? (
             <span
-              className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                counter.value > counter.max ? "text-[var(--color-danger)]" : "text-[var(--color-stone)]"
+              className={`text-[11px] font-bold uppercase tracking-widest ${
+                counter.value > counter.max ? "text-[var(--color-danger)]" : "text-[var(--color-ash)]"
               }`}
             >
               {counter.value}/{counter.max}
             </span>
           ) : null}
           {optional ? (
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-stone)]">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-mist)]">
               Optional
             </span>
           ) : null}
@@ -42,11 +42,11 @@ function FieldShell({ label, error, hint, optional, counter, htmlFor, children }
       </div>
       {children}
       {hint && !error ? (
-        <p className="text-xs leading-5 text-[var(--color-mist)]">{hint}</p>
+        <p className="px-1 text-[12px] leading-relaxed text-[var(--color-mist)]">{hint}</p>
       ) : null}
       {error ? (
-        <p className="flex items-center gap-1.5 text-xs font-medium leading-5 text-[var(--color-danger)]" role="alert">
-          <span aria-hidden="true">●</span>
+        <p className="flex items-center gap-2 px-1 text-[12px] font-bold leading-relaxed text-[var(--color-danger)] animate-scale-in" role="alert">
+          <span className="flex h-1.5 w-1.5 rounded-full bg-current" />
           {error}
         </p>
       ) : null}
@@ -55,11 +55,11 @@ function FieldShell({ label, error, hint, optional, counter, htmlFor, children }
 }
 
 const baseField =
-  "w-full rounded-2xl border bg-white/[0.04] px-4 py-3.5 text-[15px] text-[var(--color-pearl)] outline-none transition placeholder:text-white/30 focus:bg-white/[0.06]";
+  "min-h-[52px] w-full rounded-2xl border bg-white/[0.03] px-5 py-3.5 text-[15px] font-medium text-[var(--color-pearl)] outline-none transition-all placeholder:text-[var(--color-ash)] focus:bg-white/[0.06]";
 const baseState = (error?: string) =>
   error
-    ? "border-[var(--color-danger)]/55 shadow-[0_0_0_3px_rgba(255,107,122,0.10)]"
-    : "border-white/10 hover:border-white/20 focus:border-[var(--color-gold-500)] focus:shadow-[0_0_0_3px_rgba(217,167,82,0.12)]";
+    ? "border-[var(--color-danger)] shadow-[0_0_20px_-5px_rgba(255,107,122,0.2)]"
+    : "border-white/10 hover:border-white/20 focus:border-[var(--color-gold-500)] focus:shadow-[0_0_20px_-10px_rgba(217,167,82,0.3)]";
 
 type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;

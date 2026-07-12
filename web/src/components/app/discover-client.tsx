@@ -58,22 +58,27 @@ export function DiscoverClient({
 
   if (!current) {
     return (
-      <div className="empty-glow luminous-card flex min-h-[520px] flex-col items-center justify-center rounded-[32px] border border-white/10 bg-white/[0.035] p-8 text-center sm:p-12">
-        <div className="pulse-glow flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[rgba(239,94,94,0.28)] via-[rgba(246,215,154,0.20)] to-[rgba(138,110,242,0.18)] text-[var(--color-gold-300)] shadow-[0_0_46px_-20px_rgba(246,215,154,0.95)]">
+      <div className="empty-glow luminous-card flex min-h-[560px] flex-col items-center justify-center rounded-[40px] border border-white/10 bg-white/[0.02] p-10 text-center shadow-[var(--shadow-card-lg)]">
+        <div className="pulse-glow flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-ember-500)]/20 via-[var(--color-gold-500)]/20 to-[var(--color-violet-500)]/20 text-[var(--color-gold-300)] shadow-[0_0_50px_-10px_rgba(217,167,82,0.4)]">
           <SparkIcon />
         </div>
-        <p className="mt-7 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--color-stone)]">
-          Finite discovery
-        </p>
-        <h2 className="mt-3 font-[family-name:var(--font-display)] text-[clamp(1.9rem,4vw,2.7rem)] leading-[1] tracking-[-0.045em] text-[var(--color-pearl)]">
-          {emptyState ? "We're finding thoughtful people near you" : "You've seen everyone for now"}
-        </h2>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[var(--color-mist)]">
-          {emptyState
-            ? "Your boundaries are still active while the community grows. Tune preferences or check back soon as more values-aligned profiles join."
-            : "New profiles arrive regularly. Your preferences and privacy settings keep working quietly in the background."}
-        </p>
-        <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
+        <div className="mt-10">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-sand)]">
+            Finite Discovery
+          </div>
+          <h2 
+            className="text-[clamp(2rem,5vw,2.75rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+            style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+          >
+            {emptyState ? "Finding more thoughtful people." : "You've seen everyone for now."}
+          </h2>
+          <p className="mx-auto mt-6 max-w-md text-[16px] leading-relaxed text-[var(--color-mist)]">
+            {emptyState
+              ? "Your active boundaries are set. We're searching for more values-aligned profiles that fit your preferences. Check back soon."
+              : "New profiles arrive regularly. We'll notify you when someone new who matches your standards joins the room."}
+          </p>
+        </div>
+        <div className="mt-12 flex w-full max-w-md flex-col gap-4 sm:flex-row sm:justify-center">
           <button
             type="button"
             onClick={() => {
@@ -81,17 +86,14 @@ export function DiscoverClient({
               setCandidates(initialCandidates);
               setActionError(null);
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-5 py-3 text-sm font-bold text-[var(--color-pearl)] transition hover:border-white/20 hover:bg-white/10"
+            className="inline-flex h-[56px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-8 text-[15px] font-bold text-[var(--color-pearl)] transition-all hover:bg-white/[0.08] active:scale-95"
           >
-            Refresh discovery
+            Refresh Discovery
           </button>
-          <Link href="/app/profile#discovery" className="magic-button inline-flex items-center justify-center rounded-full bg-[var(--gradient-ember-warm)] px-5 py-3 text-sm font-extrabold text-white transition hover:translate-y-[-1px]">
-            Tune preferences
+          <Link href="/app/profile#discovery" className="magic-button inline-flex h-[56px] items-center justify-center rounded-2xl bg-[var(--gradient-ember-warm)] px-8 text-[15px] font-black text-white shadow-[var(--shadow-ember)] transition-all hover:-translate-y-px active:scale-95">
+            Tune Preferences
           </Link>
         </div>
-        <p className="mt-6 text-xs leading-5 text-[var(--color-mist)]">
-          Private details like email and birth date are never shown in discovery.
-        </p>
       </div>
     );
   }

@@ -43,11 +43,15 @@ function FieldError({ message }: { message?: string }) {
 
 function FormSection({ label, title, body, children }: { label: string; title: string; body: string; children: ReactNode }) {
   return (
-    <section className="rounded-[24px] border border-white/8 bg-white/[0.025] p-4 sm:p-5">
-      <div className="mb-5">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-stone)]">{label}</p>
-        <h3 className="mt-2 text-lg font-semibold tracking-[-0.02em] text-[var(--color-pearl)]">{title}</h3>
-        <p className="mt-1 text-sm leading-6 text-[var(--color-mist)]">{body}</p>
+    <section className="rounded-[32px] border border-white/5 bg-white/[0.015] p-6 sm:p-8">
+      <div className="mb-8">
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--color-gold-500)]/10 text-[11px] font-black text-[var(--color-gold-300)] ring-1 ring-[var(--color-gold-500)]/20">
+            {label}
+          </span>
+          <h3 className="text-xl font-bold tracking-tight text-[var(--color-pearl)]">{title}</h3>
+        </div>
+        <p className="mt-3 text-[15px] font-medium leading-relaxed text-[var(--color-mist)]">{body}</p>
       </div>
       {children}
     </section>
@@ -65,18 +69,24 @@ function TextField({ label, name, defaultValue, error, placeholder, maxLength, i
   className?: string;
 }) {
   return (
-    <label className="block">
-      <span className="text-xs font-semibold text-[var(--color-mist)]">{label}</span>
+    <div className="group space-y-2.5">
+      <label className="px-1 text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">
+        {label}
+      </label>
       <input
         name={name}
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
         maxLength={maxLength}
         inputMode={inputMode}
-        className={`${fieldClass} ${className}`}
+        className={`min-h-[52px] w-full rounded-2xl border bg-white/[0.03] px-5 py-3.5 text-[15px] font-medium text-[var(--color-pearl)] outline-none transition-all placeholder:text-[var(--color-ash)] focus:bg-white/[0.06] ${
+          error
+            ? "border-[var(--color-danger)] shadow-[0_0_20px_-5px_rgba(255,107,122,0.2)]"
+            : "border-white/10 hover:border-white/20 focus:border-[var(--color-gold-500)] focus:shadow-[0_0_20px_-10px_rgba(217,167,82,0.3)]"
+        } ${className}`}
       />
       <FieldError message={error} />
-    </label>
+    </div>
   );
 }
 
@@ -109,26 +119,32 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
   };
 
   return (
-    <div className="luminous-card rounded-[28px] border border-white/10 bg-white/[0.035] p-6 sm:p-7">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.20em] text-[var(--color-stone)]">Edit profile</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[var(--color-pearl)]">Your story, well-told and easy to trust.</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-mist)]">
-            Share enough to be remembered: values, relationship direction, and the daily rhythm that matters to you. Email, full birth date, account provider details, and private medical history stay out of your public profile.
-          </p>
+    <div className="luminous-card rounded-[40px] border border-white/10 bg-white/[0.02] p-8 shadow-[var(--shadow-card-lg)] sm:p-12">
+      <header className="mb-12">
+        <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-sand)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color- gold-500)] shadow-[0_0_10px_rgba(217,167,82,0.6)]" />
+          Profile Editor
         </div>
-      </div>
+        <h2 
+          className="mt-6 text-[clamp(2rem,6vw,2.75rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+          style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+        >
+          Your story, well-told.
+        </h2>
+        <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-[var(--color-mist)]">
+          Share enough to be remembered. Values, daily rhythm, and clear intentions give others a doorway into conversation.
+        </p>
+      </header>
 
-      <form action={formAction} className="mt-6 space-y-5">
+      <form action={formAction} className="space-y-10">
         <HiddenStableFields profile={profile} />
 
-        <FormSection label="01" title="Public identity" body="These details shape the first impression people see in discovery.">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TextField label="Display name" name="display_name" defaultValue={profile.display_name} error={fieldErrors.display_name} placeholder="How should Freeborn introduce you?" />
+        <FormSection label="01" title="Public Identity" body="These details shape the first impression people see in discovery.">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <TextField label="Display Name" name="display_name" defaultValue={profile.display_name} error={fieldErrors.display_name} placeholder="How should we introduce you?" />
             <div>
               <SelectMenu
-                label="Gender"
+                label="Gender Identity"
                 value={gender}
                 onChange={setGender}
                 options={genderOptions.map((option) => ({ value: option.value, label: option.label }))}
@@ -141,32 +157,31 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
           </div>
         </FormSection>
 
-        <FormSection label="02" title="Private age gate" body="Your birth date confirms 18+ eligibility. Only your age appears publicly.">
+        <FormSection label="02" title="Birth Date" body="Used for age verification only. Your full birthday remains private.">
           <DateOfBirthField
-            label="Birth date"
+            label="When were you born?"
             value={birthDate}
             onChange={setBirthDate}
             error={fieldErrors.birth_date}
-            hint="We use this to confirm you're 18 or older. It's never shown publicly."
           />
           <input type="hidden" name="birth_date" value={birthDate} />
         </FormSection>
 
-        <FormSection label="03" title="Location and context" body="Keep it practical enough for discovery to feel real.">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TextField label="City" name="city" defaultValue={profile.city} error={fieldErrors.city} placeholder="City" />
-            <TextField label="Region" name="region" defaultValue={profile.region} error={fieldErrors.region} placeholder="State, province, or region" />
-            <TextField label="Country code" name="country_code" defaultValue={profile.country_code} error={fieldErrors.country_code} maxLength={2} className="uppercase" placeholder="US" />
+        <FormSection label="03" title="Location & Context" body="Keep it practical enough for discovery to feel real.">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <TextField label="City" name="city" defaultValue={profile.city} error={fieldErrors.city} placeholder="City name" />
+            <TextField label="Region" name="region" defaultValue={profile.region} error={fieldErrors.region} placeholder="State or Province" />
+            <TextField label="Country Code" name="country_code" defaultValue={profile.country_code} error={fieldErrors.country_code} maxLength={2} className="uppercase" placeholder="US" />
             <TextField label="Occupation" name="occupation" defaultValue={profile.occupation} error={fieldErrors.occupation} placeholder="What do you do?" />
             <TextField label="Education" name="education" defaultValue={profile.education} error={fieldErrors.education} placeholder="Where did you study?" />
           </div>
         </FormSection>
 
-        <FormSection label="04" title="Bio and intentions" body="A specific voice gives people something real to respond to.">
-          <label className="block">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs font-semibold text-[var(--color-mist)]">Bio</span>
-              <span className="text-xs text-[var(--color-mist)]">{bio.length} / 500</span>
+        <FormSection label="04" title="Bio & Intentions" body="A specific voice gives people something real to respond to.">
+          <div className="group space-y-2.5">
+            <div className="flex items-center justify-between gap-3 px-1">
+              <label className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">Bio</label>
+              <span className="text-[11px] font-bold text-[var(--color-ash)] uppercase tracking-widest">{bio.length} / 500</span>
             </div>
             <textarea
               name="bio"
@@ -175,17 +190,17 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
               maxLength={500}
               rows={5}
               placeholder="What do you care about? What does a good Sunday look like?"
-              className={`${fieldClass} resize-none leading-7`}
+              className="min-h-[140px] w-full rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-[15px] font-medium leading-relaxed text-[var(--color-pearl)] outline-none transition-all placeholder:text-[var(--color-ash)] focus:border-[var(--color-gold-500)] focus:bg-white/[0.06] focus:shadow-[0_0_20px_-10px_rgba(217,167,82,0.3)] resize-none"
             />
             <FieldError message={fieldErrors.bio} />
-          </label>
+          </div>
 
-          <div className="mt-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-xs font-semibold text-[var(--color-mist)]">Relationship goals</p>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-stone)]">{goals.length}/3</p>
+          <div className="mt-10">
+            <div className="mb-4 flex items-center justify-between gap-3 px-1">
+              <p className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">Relationship Goals</p>
+              <p className="text-[11px] font-bold text-[var(--color-ash)] uppercase tracking-widest">{goals.length}/3</p>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               {relationshipGoalOptions.map((option) => {
                 const active = goals.includes(option.value);
                 return (
@@ -193,10 +208,10 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
                     key={option.value}
                     type="button"
                     onClick={() => toggle(setGoals, option.value, 3)}
-                    className={`rounded-2xl border p-4 text-left transition ${active ? "border-[rgba(246,215,154,0.40)] bg-[rgba(217,167,82,0.12)]" : "border-white/10 bg-white/[0.025] hover:border-white/18 hover:bg-white/[0.045]"}`}
+                    className={`flex flex-col rounded-3xl border p-5 text-left transition-all active:scale-[0.98] ${active ? "border-[var(--color-gold-500)] bg-[var(--color-gold-500)]/10 shadow-[0_0_20px_-5px_rgba(217,167,82,0.2)]" : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"}`}
                   >
-                    <span className="block text-sm font-bold text-[var(--color-pearl)]">{option.label}</span>
-                    <span className="mt-1 block text-xs leading-5 text-[var(--color-mist)]">{option.caption}</span>
+                    <span className={`text-[15px] font-bold ${active ? "text-[var(--color-pearl)]" : "text-[var(--color-sand)]"}`}>{option.label}</span>
+                    <span className="mt-1.5 text-[13px] font-medium leading-relaxed text-[var(--color-mist)]">{option.caption}</span>
                   </button>
                 );
               })}
@@ -206,8 +221,8 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
           </div>
         </FormSection>
 
-        <FormSection label="05" title="Interests and lifestyle" body="Specific tags become better opening lines than generic small talk.">
-          <div className="grid gap-5">
+        <FormSection label="05" title="Shared Values" body="Specific tags help surface people who fit your rhythm and standards.">
+          <div className="space-y-8">
             <ChipGroup label={`Interests (${interests.length}/12)`} options={[...interestOptions]} value={interests} onToggle={(value) => toggle(setInterests, value, 12)} error={fieldErrors.interests} />
             {interests.map((interest) => <input key={interest} type="hidden" name="interests" value={interest} />)}
 
@@ -216,69 +231,77 @@ export function ProfileEditor({ profile }: { profile: UserProfileRow }) {
           </div>
         </FormSection>
 
-        <FormSection label="06" title="Boundaries and prompts" body="Deal breakers protect your time. Prompts give people a doorway into conversation.">
-          <ChipGroup label={`Deal breakers (${dealBreakers.length}/12)`} options={[...dealBreakerOptions]} value={dealBreakers} onToggle={(value) => toggle(setDealBreakers, value, 12)} error={fieldErrors.deal_breakers} soft />
-          {dealBreakers.map((item) => <input key={item} type="hidden" name="deal_breakers" value={item} />)}
+        <FormSection label="06" title="Boundaries & Prompts" body="Deal breakers protect your time. Prompts provide deep conversation starters.">
+          <div className="space-y-10">
+            <ChipGroup label={`Non-Negotiables (${dealBreakers.length}/12)`} options={[...dealBreakerOptions]} value={dealBreakers} onToggle={(value) => toggle(setDealBreakers, value, 12)} error={fieldErrors.deal_breakers} soft />
+            {dealBreakers.map((item) => <input key={item} type="hidden" name="deal_breakers" value={item} />)}
 
-          <div className="mt-5 space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-xs font-semibold text-[var(--color-mist)]">Prompts</p>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-stone)]">Up to 3</p>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between gap-3 px-1">
+                <p className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">Profile Prompts</p>
+                <p className="text-[11px] font-bold text-[var(--color-ash)] uppercase tracking-widest">3 Required</p>
+              </div>
+              <div className="grid gap-6">
+                {[0, 1, 2].map((index) => {
+                  const promptAnswer = prompts[index] ?? { prompt: "", answer: "" };
+                  return (
+                    <div key={index} className="rounded-[32px] border border-white/5 bg-white/[0.02] p-6 shadow-inner">
+                      <SelectMenu
+                        label={`Question ${index + 1}`}
+                        value={promptAnswer.prompt}
+                        onChange={(value) => {
+                          setPrompts((current) => {
+                            const next = [...current];
+                            next[index] = { ...(next[index] ?? { answer: "" }), prompt: value, answer: next[index]?.answer ?? "" };
+                            return next;
+                          });
+                        }}
+                        options={profilePrompts.map((prompt) => ({ value: prompt, label: prompt }))}
+                        placeholder="Choose a starting point…"
+                      />
+                      <div className="mt-4">
+                        <textarea
+                          value={promptAnswer.answer}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setPrompts((current) => {
+                              const next = [...current];
+                              next[index] = { ...(next[index] ?? { prompt: "" }), answer: value.slice(0, 280) };
+                              return next;
+                            });
+                          }}
+                          placeholder="Your thoughtful response…"
+                          className="min-h-[100px] w-full rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-[15px] font-medium leading-relaxed text-[var(--color-pearl)] outline-none transition-all placeholder:text-[var(--color-ash)] focus:border-[var(--color-gold-500)] focus:bg-white/[0.06] resize-none"
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            {[0, 1, 2].map((index) => {
-              const promptAnswer = prompts[index] ?? { prompt: "", answer: "" };
-              return (
-                <div key={index} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-                  <SelectMenu
-                    label={`Prompt ${index + 1}`}
-                    value={promptAnswer.prompt}
-                    onChange={(value) => {
-                      setPrompts((current) => {
-                        const next = [...current];
-                        next[index] = { ...(next[index] ?? { answer: "" }), prompt: value, answer: next[index]?.answer ?? "" };
-                        return next;
-                      });
-                    }}
-                    options={profilePrompts.map((prompt) => ({ value: prompt, label: prompt }))}
-                    placeholder="Choose a prompt…"
-                  />
-                  <textarea
-                    value={promptAnswer.answer}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      setPrompts((current) => {
-                        const next = [...current];
-                        next[index] = { ...(next[index] ?? { prompt: "" }), answer: value.slice(0, 280) };
-                        return next;
-                      });
-                    }}
-                    placeholder="Answer in your own voice…"
-                    className={`${fieldClass} min-h-[92px] resize-none leading-6`}
-                    rows={3}
-                  />
-                </div>
-              );
-            })}
           </div>
           <input type="hidden" name="prompt_answers" value={JSON.stringify(prompts.filter((prompt) => prompt.prompt && prompt.answer.length >= 8))} />
           <FieldError message={fieldErrors.prompt_answers} />
         </FormSection>
 
         {state && !state.ok ? (
-          <div className="rounded-2xl border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 px-4 py-3 text-sm text-red-100" role="alert">
-            <p className="font-semibold">We couldn&apos;t save your profile.</p>
-            <p className="mt-1 text-red-100/80">{state.error ?? "Please review the highlighted fields and try again."}</p>
+          <div className="rounded-3xl border border-[var(--color-danger)]/20 bg-[var(--color-danger)]/5 p-6 text-[15px] font-bold text-red-200 animate-scale-in" role="alert">
+            <p>We couldn&apos;t save your profile.</p>
+            <p className="mt-2 text-[13px] font-medium text-red-200/60">{state.error ?? "Please review the highlighted fields and try again."}</p>
           </div>
         ) : null}
 
         {state && state.ok ? (
-          <div className="rounded-2xl border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 px-4 py-3 text-sm text-emerald-100" role="status">
-            <p className="font-semibold">Profile saved.</p>
-            <p className="mt-1 text-emerald-100/80">Your public profile preview and discovery card will use these details.</p>
+          <div className="rounded-3xl border border-[var(--color-teal-500)]/20 bg-[var(--color-teal-500)]/5 p-6 text-[15px] font-bold text-[var(--color-teal-300)] animate-scale-in" role="status">
+            <p>Profile updated successfully.</p>
+            <p className="mt-2 text-[13px] font-medium text-[var(--color-teal-300)]/60">Your changes are now live in the community room.</p>
           </div>
         ) : null}
 
-        <SubmitButton />
+        <div className="pt-6">
+          <SubmitButton />
+        </div>
       </form>
     </div>
   );
@@ -293,13 +316,13 @@ function ChipGroup({ label, options, value, onToggle, error, soft }: {
   soft?: boolean;
 }) {
   return (
-    <div>
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <p className="text-xs font-semibold text-[var(--color-mist)]">{label}</p>
-        <p className="text-[11px] text-[var(--color-stone)]">Tap to select</p>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <p className="text-[13px] font-bold uppercase tracking-wider text-[var(--color-sand)]">{label}</p>
+        <p className="text-[11px] font-bold text-[var(--color-ash)] uppercase tracking-widest">Tap to select</p>
       </div>
-      <div className="max-h-48 overflow-auto rounded-2xl border border-white/8 bg-white/[0.02] p-3">
-        <div className="flex flex-wrap gap-2">
+      <div className="max-h-56 overflow-auto rounded-[32px] border border-white/5 bg-white/[0.015] p-5 shadow-inner">
+        <div className="flex flex-wrap gap-2.5">
           {options.map((option) => {
             const active = value.includes(option);
             return (
@@ -307,12 +330,12 @@ function ChipGroup({ label, options, value, onToggle, error, soft }: {
                 key={option}
                 type="button"
                 onClick={() => onToggle(option)}
-                className={`min-h-9 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                className={`h-[42px] rounded-full border px-5 text-[13px] font-bold transition-all active:scale-95 ${
                   active
                     ? soft
-                      ? "border-rose-300/30 bg-rose-300/10 text-rose-100"
-                      : "border-[rgba(246,215,154,0.40)] bg-[rgba(217,167,82,0.12)] text-[var(--color-pearl)]"
-                    : "border-white/10 bg-white/[0.025] text-[var(--color-mist)] hover:border-white/18 hover:bg-white/[0.05]"
+                      ? "border-red-500/30 bg-red-500/10 text-red-200 shadow-[0_0_15px_rgba(239,94,94,0.15)]"
+                      : "border-[var(--color-gold-500)] bg-[var(--color-gold-500)]/15 text-[var(--color-pearl)] shadow-[0_0_15px_rgba(217,167,82,0.2)]"
+                    : "border-white/10 bg-white/[0.03] text-[var(--color-sand)] hover:border-white/20 hover:bg-white/[0.06] hover:text-[var(--color-pearl)]"
                 }`}
               >
                 {option}

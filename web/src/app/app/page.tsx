@@ -29,14 +29,14 @@ function profileStrength(profile: UserProfileRow) {
 function StatusPill({ tone, children }: { tone: "success" | "muted" | "gold"; children: ReactNode }) {
   const className =
     tone === "success"
-      ? "border-[rgba(109,211,176,0.28)] bg-[rgba(109,211,176,0.10)] text-[var(--color-success)]"
+      ? "border-[var(--color-teal-500)]/20 bg-[var(--color-teal-500)]/5 text-[var(--color-teal-300)] shadow-[0_0_12px_rgba(79,184,167,0.15)]"
       : tone === "gold"
-        ? "border-[rgba(246,215,154,0.30)] bg-[rgba(217,167,82,0.10)] text-[var(--color-gold-300)]"
-        : "border-white/10 bg-white/[0.04] text-[var(--color-mist)]";
+        ? "border-[var(--color-gold-500)]/20 bg-[var(--color-gold-500)]/5 text-[var(--color-gold-300)] shadow-[0_0_12px_rgba(217,167,82,0.15)]"
+        : "border-white/10 bg-white/[0.03] text-[var(--color-ash)]";
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] ${className}`}>
-      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+    <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] ${className}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${tone === "success" ? "bg-[var(--color-teal-500)] shadow-[0_0_8px_var(--color-teal-500)]" : tone === "gold" ? "bg-[var(--color-gold-500)] shadow-[0_0_8px_var(--color-gold-500)]" : "bg-[var(--color-ash)]"}`} />
       {children}
     </span>
   );
@@ -119,30 +119,35 @@ export default async function DiscoverPage() {
 
   return (
     <AppShell displayName={profile.display_name} photoUrl={photoUrl}>
-      <div className="mx-auto w-full max-w-[1220px]">
-        <header className="mb-7 flex flex-col gap-5 lg:mb-9 lg:flex-row lg:items-end lg:justify-between">
+      <div className="mx-auto w-full max-w-[1200px]">
+        <header className="mb-10 flex flex-col gap-6 lg:mb-12 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--color-stone)]">Discover</p>
-            <h1 className="mt-3 font-[family-name:var(--font-display)] text-[clamp(2.3rem,5vw,4.1rem)] leading-[0.92] tracking-[-0.06em] text-[var(--color-pearl)]">
-              Meet one values-aligned person at a time.
+            <div className="mb-4 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-sand)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-ember-500)] shadow-[0_0_10px_rgba(239,94,94,0.6)]" />
+              Your Curated Room
+            </div>
+            <h1 
+              className="text-[clamp(2.5rem,6vw,4rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+              style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+            >
+              {firstName ? `Welcome, ${firstName}.` : "Date with Autonomy."}
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-mist)] sm:text-base">
-              {firstName ? `Welcome back, ${firstName}. ` : "Your curated feed is ready. "}
-              Read the whole profile — values, wellness rhythm, intentions, and context — then make one thoughtful choice.
+            <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-[var(--color-mist)]">
+              Read values first. Choose with care. Every profile here respects health autonomy and long-term intention.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <StatusPill tone={profile.discoverable ? "success" : "muted"}>
-              {profile.discoverable ? "Visible" : "Hidden"}
+              {profile.discoverable ? "Discoverable" : "Hidden"}
             </StatusPill>
             <StatusPill tone={profile.is_verified ? "success" : "gold"}>
-              {profile.is_verified ? "Verified" : "Verification pending"}
+              {profile.is_verified ? "Verified" : "Pending"}
             </StatusPill>
           </div>
         </header>
 
-        <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
-          <main>
+        <div className="grid gap-10 xl:grid-cols-[1fr_380px] xl:items-start">
+          <main className="animate-fade-in">
             <DiscoverClient
               initialCandidates={candidates}
               photosByUser={Object.fromEntries(photosByUser)}
@@ -150,75 +155,96 @@ export default async function DiscoverPage() {
             />
           </main>
 
-          <aside className="space-y-5 xl:sticky xl:top-8">
-            <section className="luminous-card rounded-[28px] border border-white/10 bg-white/[0.035] p-6">
-              <p className="text-[11px] font-bold uppercase tracking-[0.20em] text-[var(--color-stone)]">Discovery brief</p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-[var(--color-pearl)]">Your room is set with boundaries.</h2>
-              <p className="mt-3 text-sm leading-6 text-[var(--color-mist)]">
-                Freeborn keeps discovery finite and values-forward. Private essentials like email, full birth date, and private medical history are never shown to other members.
-              </p>
-
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <p className="text-xs text-[var(--color-mist)]">Matches</p>
-                  <p className="mt-1 font-[family-name:var(--font-display)] text-3xl leading-none text-[var(--color-pearl)]">{matchesCount ?? 0}</p>
+          <aside className="space-y-6 xl:sticky xl:top-8 animate-fade-in delay-2">
+            <section className="luminous-card rounded-[32px] border border-white/5 bg-white/[0.02] p-8 shadow-[var(--shadow-raised)]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-ash)]">Community Pulse</p>
+              
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="group rounded-[24px] border border-white/5 bg-white/[0.03] p-5 transition-all hover:bg-white/[0.05]">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--color-ash)] group-hover:text-[var(--color-ember-300)] transition-colors">Matches</p>
+                  <p className="mt-2 font-[family-name:var(--font-display)] text-4xl font-black text-[var(--color-pearl)]">{matchesCount ?? 0}</p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <p className="text-xs text-[var(--color-mist)]">Likes</p>
-                  <p className="mt-1 font-[family-name:var(--font-display)] text-3xl leading-none text-[var(--color-pearl)]">{likesCount ?? 0}</p>
+                <div className="group rounded-[24px] border border-white/5 bg-white/[0.03] p-5 transition-all hover:bg-white/[0.05]">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--color-ash)] group-hover:text-[var(--color-gold-300)] transition-colors">Likes</p>
+                  <p className="mt-2 font-[family-name:var(--font-display)] text-4xl font-black text-[var(--color-pearl)]">{likesCount ?? 0}</p>
+                </div>
+              </div>
+
+              <div className="mt-8 space-y-4">
+                <div className="flex items-start gap-4 rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-teal-500)] shadow-[0_0_8px_rgba(79,184,167,0.6)]" />
+                  <p className="text-[13px] font-medium leading-relaxed text-[var(--color-mist)]">
+                    Emails and private health history are always hidden.
+                  </p>
                 </div>
               </div>
             </section>
 
-            <section className="luminous-card rounded-[28px] border border-white/10 bg-white/[0.035] p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.20em] text-[var(--color-stone)]">Profile strength</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">A fuller profile gives people better reasons to start something specific.</p>
+            <section className="luminous-card rounded-[32px] border border-white/5 bg-white/[0.02] p-8 shadow-[var(--shadow-raised)]">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-ash)]">Profile Health</p>
+                <span className="text-[20px] font-bold text-[var(--color-pearl)]">{strength}%</span>
+              </div>
+              
+              <div className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                <div 
+                  className="h-full rounded-full bg-gradient-to-r from-[var(--color-ember-500)] via-[var(--color-gold-500)] to-[var(--color-violet-500)] transition-all duration-1000" 
+                  style={{ width: `${strength}%` }} 
+                />
+              </div>
+
+              <div className="mt-8 space-y-4">
+                <div className="flex items-center justify-between text-[13px] font-bold">
+                  <span className="text-[var(--color-sand)]">Visual Context</span>
+                  <span className="text-[var(--color-pearl)]">{profile.photo_count}/6 photos</span>
                 </div>
-                <span className="font-[family-name:var(--font-display)] text-4xl leading-none text-[var(--color-pearl)]">{strength}%</span>
+                <div className="flex items-center justify-between text-[13px] font-bold">
+                  <span className="text-[var(--color-sand)]">Shared Values</span>
+                  <span className="text-[var(--color-pearl)]">{profile.interests?.length ?? 0} tags</span>
+                </div>
+                <div className="flex items-center justify-between text-[13px] font-bold">
+                  <span className="text-[var(--color-sand)]">Personal Bio</span>
+                  <span className={profile.bio ? "text-[var(--color-teal-300)]" : "text-[var(--color-ash)]"}>
+                    {profile.bio ? "Detailed" : "Missing"}
+                  </span>
+                </div>
               </div>
-              <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-white/8">
-                <div className="h-full rounded-full bg-gradient-to-r from-[var(--color-ember-500)] via-[var(--color-gold-500)] to-[var(--color-violet-500)]" style={{ width: `${strength}%` }} />
-              </div>
-              <ul className="mt-5 space-y-3 text-sm text-[var(--color-mist)]">
-                <li className="flex items-center justify-between gap-3"><span>Photos</span><span className="font-semibold text-[var(--color-pearl)]">{profile.photo_count}/6</span></li>
-                <li className="flex items-center justify-between gap-3"><span>Interests</span><span className="font-semibold text-[var(--color-pearl)]">{profile.interests?.length ?? 0}</span></li>
-                <li className="flex items-center justify-between gap-3"><span>Bio</span><span className={profile.bio ? "font-semibold text-[var(--color-success)]" : "font-semibold text-[var(--color-mist)]"}>{profile.bio ? "Added" : "Missing"}</span></li>
-              </ul>
-              <Link href="/app/profile" className="magic-button mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[var(--color-pearl)] px-5 py-3 text-sm font-extrabold text-[var(--color-ink)] hover:bg-white">
-                Edit profile
+
+              <Link href="/app/profile" className="magic-button mt-10 flex h-[52px] w-full items-center justify-center rounded-2xl bg-[var(--color-pearl)] text-[14px] font-black uppercase tracking-widest text-[var(--color-ink)] transition-all hover:bg-white active:scale-95">
+                Refine Profile
               </Link>
             </section>
 
-            <section className="luminous-card rounded-[28px] border border-white/10 bg-white/[0.035] p-6">
-              <p className="text-[11px] font-bold uppercase tracking-[0.20em] text-[var(--color-stone)]">Active filters</p>
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <p className="text-xs text-[var(--color-mist)]">Age</p>
-                  <p className="mt-1 text-lg font-bold text-[var(--color-pearl)]">{ageMin}–{ageMax}</p>
+            <section className="luminous-card rounded-[32px] border border-white/5 bg-white/[0.02] p-8 shadow-[var(--shadow-raised)]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-ash)]">Active Boundaries</p>
+              
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ash)]">Age</p>
+                  <p className="mt-1 text-[15px] font-bold text-[var(--color-pearl)]">{ageMin}–{ageMax}</p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <p className="text-xs text-[var(--color-mist)]">Distance</p>
-                  <p className="mt-1 text-lg font-bold text-[var(--color-pearl)]">{distance} km</p>
-                </div>
-              </div>
-              <div className="mt-4 space-y-3">
-                <div>
-                  <p className="text-xs text-[var(--color-mist)]">Showing</p>
-                  <p className="mt-1 text-sm font-semibold text-[var(--color-pearl)]">
-                    {showGenders.length ? showGenders.map(humanize).join(", ") : "Everyone"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-[var(--color-mist)]">Intentions</p>
-                  <p className="mt-1 text-sm font-semibold text-[var(--color-pearl)]">
-                    {intents.length ? intents.map(humanize).join(", ") : "Open"}
-                  </p>
+                <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ash)]">Distance</p>
+                  <p className="mt-1 text-[15px] font-bold text-[var(--color-pearl)]">{distance} km</p>
                 </div>
               </div>
-              <Link href="/app/profile#discovery" className="mt-5 inline-flex text-sm font-bold text-[var(--color-gold-300)] transition hover:text-[var(--color-pearl)]">
-                Adjust preferences →
+              
+              <div className="mt-6 space-y-5">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ash)]">Preferred Intentions</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {intents.length ? intents.slice(0, 2).map((i) => (
+                      <span key={i} className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-[var(--color-sand)]">
+                        {humanize(i)}
+                      </span>
+                    )) : <span className="text-[13px] font-medium text-[var(--color-mist)]">Open to all depth</span>}
+                  </div>
+                </div>
+              </div>
+
+              <Link href="/app/profile#discovery" className="mt-8 flex items-center justify-center gap-2 text-[13px] font-black uppercase tracking-widest text-[var(--color-gold-300)] transition-all hover:text-[var(--color-pearl)] group">
+                Adjust Preferences
+                <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
             </section>
           </aside>

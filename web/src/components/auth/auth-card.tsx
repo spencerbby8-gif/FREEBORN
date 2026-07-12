@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 
 export function AuthCard({ children }: { children: ReactNode }) {
   return (
-    <div className="w-full max-w-[460px]">
-      <div className="surface ring-pearl rounded-[28px] p-6 shadow-[var(--shadow-glow)] sm:p-8">
+    <div className="w-full max-w-[480px]">
+      <div className="surface magic-border rounded-[40px] p-8 shadow-[var(--shadow-card-lg)] sm:p-12">
         {children}
       </div>
     </div>

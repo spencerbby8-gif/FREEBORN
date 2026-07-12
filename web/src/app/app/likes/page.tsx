@@ -58,124 +58,148 @@ export default async function LikesPage() {
 
   return (
     <AppShell displayName={profile?.display_name}>
-      <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-stone)]">Likes</p>
-        <h1 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(1.8rem,3.5vw,2.8rem)] text-[var(--color-pearl)]">
-          Signals worth considering
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-mist)]">
-          See who has raised a hand, then return to Discover when you are ready to read the full profile — values, lifestyle, wellness rhythm, and long-term intent included.
-        </p>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--color-pearl)]">Liked you</h2>
-              <p className="mt-1 text-xs text-[var(--color-mist)]">People who noticed enough shared context to act.</p>
+      <div className="mx-auto w-full max-w-[1200px]">
+        <header className="mb-10 flex flex-col gap-6 lg:mb-12 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--color-sand)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-ember-500)] shadow-[0_0_10px_rgba(239,94,94,0.6)]" />
+              Community Signals
             </div>
-            <span className="rounded-full bg-white/[0.04] px-3 py-1 text-xs font-semibold text-[var(--color-stone)]">
-              {incoming?.length ?? 0}
-            </span>
+            <h1 
+              className="text-[clamp(2.5rem,6vw,4rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
+              style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
+            >
+              Raised Hands.
+            </h1>
+            <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-[var(--color-mist)]">
+              See who has noticed your values and return to Discover when you are ready to read their full profile with care.
+            </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(incoming ?? []).map((signal) => {
-              const person = peopleMap.get(signal.liker_id);
-              const url = photoUrl(signal.liker_id);
-              return (
-                <div key={signal.liker_id} className="hover-lift rounded-xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-white/15 hover:bg-white/[0.06]">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-rose-400/20 to-amber-400/10">
-                      {url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={url} alt={person?.display_name ? `${person.display_name}'s profile photo` : "Profile photo"} className="h-full w-full object-cover" />
-                      ) : (
-                        <span className="text-xs font-bold text-[var(--color-stone)]">{initials(person?.display_name)}</span>
-                      )}
+        </header>
+
+        <div className="grid gap-10 lg:grid-cols-2">
+          <section className="luminous-card rounded-[40px] border border-white/5 bg-white/[0.02] p-8 shadow-[var(--shadow-card-lg)]">
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-[var(--color-pearl)]">Liked You</h2>
+                <p className="mt-2 text-[14px] font-medium text-[var(--color-ash)]">Members who noticed enough shared context to act.</p>
+              </div>
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 text-[14px] font-black text-[var(--color-sand)] ring-1 ring-white/10">
+                {incoming?.length ?? 0}
+              </span>
+            </div>
+            
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(incoming ?? []).map((signal) => {
+                const person = peopleMap.get(signal.liker_id);
+                const url = photoUrl(signal.liker_id);
+                return (
+                  <div key={signal.liker_id} className="group relative flex flex-col rounded-[32px] border border-white/5 bg-white/[0.02] p-5 transition-all hover:bg-white/[0.04] hover:border-white/10">
+                    <div className="flex items-center gap-4">
+                      <div className="relative h-14 w-14 shrink-0">
+                        <div className="h-full w-full overflow-hidden rounded-[20px] border border-white/10 bg-white/5 shadow-inner">
+                          {url ? (
+                            <img src={url} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-500/20 to-amber-500/20 text-[12px] font-black text-white/40">
+                              {initials(person?.display_name)}
+                            </div>
+                          )}
+                        </div>
+                        {signal.action === "superlike" && (
+                          <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--color-violet-500)] text-white shadow-lg ring-2 ring-[#10152a]">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z" /></svg>
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[15px] font-bold text-[var(--color-pearl)]">{person?.display_name ?? "Freeborn Member"}</p>
+                        <p className="truncate text-[12px] font-bold uppercase tracking-widest text-[var(--color-ash)]">
+                          {person?.city ?? "Nearby"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[var(--color-pearl)]">{person?.display_name ?? "Freeborn member"}</p>
-                      <p className="truncate text-xs text-[var(--color-mist)]">
-                        {person?.city ?? "Nearby"}
-                        {signal.action === "superlike" && <span className="ml-2 text-[var(--color-accent-blue)]">★ Spark</span>}
-                      </p>
-                    </div>
+                    <Link
+                      href="/app"
+                      className="mt-5 flex h-11 items-center justify-center rounded-2xl bg-white/5 text-[11px] font-black uppercase tracking-widest text-[var(--color-sand)] transition-all hover:bg-white/[0.08] hover:text-[var(--color-pearl)] active:scale-95"
+                    >
+                      View Profile
+                    </Link>
                   </div>
-                  <Link
-                    href="/app"
-                    className="mt-3 flex w-full items-center justify-center magic-button rounded-xl bg-[var(--color-pearl)] py-2.5 text-xs font-bold text-[var(--color-ink)] transition hover:bg-white"
-                  >
-                    Read profiles in Discover
+                );
+              })}
+              
+              {!(incoming ?? []).length && (
+                <div className="col-span-2 rounded-[32px] border-2 border-dashed border-white/5 bg-white/[0.01] p-12 text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-2xl text-[var(--color-ash)]/40">＋</div>
+                  <h3 className="mt-6 text-lg font-bold text-[var(--color-pearl)]">No likes yet.</h3>
+                  <p className="mx-auto mt-2 max-w-[240px] text-[14px] font-medium leading-relaxed text-[var(--color-ash)]">
+                    Profiles with clear photos and deep bio details invite better attention.
+                  </p>
+                  <Link href="/app/profile" className="mt-8 inline-flex h-11 items-center justify-center rounded-full border border-white/10 px-6 text-[12px] font-black uppercase tracking-widest text-[var(--color-sand)] transition-all hover:bg-white/5 hover:text-[var(--color-pearl)]">
+                    Refine Profile
                   </Link>
                 </div>
-              );
-            })}
-            {!(incoming ?? []).length && (
-              <div className="col-span-2 empty-glow rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-8 text-center">
-                <p className="text-sm font-semibold text-[var(--color-pearl)]">No likes yet.</p>
-                <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
-                  Add clear photos, a specific bio, and values-forward interests. Trustworthy profiles invite better attention.
-                </p>
-                <Link href="/app/profile" className="mt-4 inline-flex rounded-full border border-white/10 px-4 py-2 text-xs font-bold text-[var(--color-pearl)] hover:bg-white/[0.06]">
-                  Strengthen profile
-                </Link>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section className="luminous-card rounded-2xl border border-white/8 bg-white/[0.035] p-6">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--color-pearl)]">You noticed</h2>
-              <p className="mt-1 text-xs text-[var(--color-mist)]">A record of the profiles you chose with intention.</p>
+              )}
             </div>
-            <span className="rounded-full bg-white/[0.04] px-3 py-1 text-xs font-semibold text-[var(--color-stone)]">
-              {outgoing?.length ?? 0}
-            </span>
-          </div>
-          <div className="space-y-3">
-            {(outgoing ?? []).slice(0, 12).map((signal) => {
-              const person = peopleMap.get(signal.liked_id);
-              const url = photoUrl(signal.liked_id);
-              return (
-                <div key={signal.liked_id} className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-rose-400/15 to-sky-400/10">
-                      {url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <span className="text-[11px] font-bold text-[var(--color-stone)]">{initials(person?.display_name)}</span>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[var(--color-pearl)]">
-                        {signal.action === "superlike" ? "★ " : ""}{person?.display_name ?? "Freeborn member"}
-                      </p>
-                      <p className="truncate text-xs text-[var(--color-mist)]">{person?.city ?? "Nearby"}</p>
-                    </div>
-                  </div>
-                  <span className="flex-shrink-0 text-xs text-[var(--color-mist)]">
-                    {new Date(signal.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              );
-            })}
-            {!(outgoing ?? []).length && (
-              <div className="empty-glow rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-8 text-center">
-                <p className="text-sm font-semibold text-[var(--color-pearl)]">No outgoing likes yet.</p>
-                <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[var(--color-mist)]">
-                  Start in Discover and look for the values, rituals, and details you would actually ask about.
-                </p>
-                <Link href="/app" className="mt-4 inline-flex magic-button rounded-full bg-[var(--color-pearl)] px-4 py-2 text-xs font-bold text-[var(--color-ink)] hover:bg-white">
-                  Go to Discover
-                </Link>
+          </section>
+
+          <section className="luminous-card rounded-[40px] border border-white/5 bg-white/[0.02] p-8 shadow-[var(--shadow-card-lg)]">
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-[var(--color-pearl)]">Sent with Intent</h2>
+                <p className="mt-2 text-[14px] font-medium text-[var(--color-ash)]">A record of the choices you made with care.</p>
               </div>
-            )}
-          </div>
-        </section>
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 text-[14px] font-black text-[var(--color-sand)] ring-1 ring-white/10">
+                {outgoing?.length ?? 0}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {(outgoing ?? []).slice(0, 12).map((signal) => {
+                const person = peopleMap.get(signal.liked_id);
+                const url = photoUrl(signal.liked_id);
+                return (
+                  <div key={signal.liked_id} className="group flex items-center justify-between gap-4 rounded-[24px] border border-white/5 bg-white/[0.01] p-4 transition-all hover:bg-white/[0.03]">
+                    <div className="flex min-w-0 items-center gap-4">
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[16px] border border-white/10 bg-white/5 shadow-inner">
+                        {url ? (
+                          <img src={url} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-500/10 to-amber-500/10 text-[10px] font-black text-white/30">
+                            {initials(person?.display_name)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[15px] font-bold text-[var(--color-pearl)]">
+                          {signal.action === "superlike" ? "★ " : ""}{person?.display_name ?? "Freeborn Member"}
+                        </p>
+                        <p className="truncate text-[11px] font-bold uppercase tracking-widest text-[var(--color-ash)]">{person?.city ?? "Nearby"}</p>
+                      </div>
+                    </div>
+                    <span className="flex-shrink-0 text-[11px] font-bold uppercase tracking-widest text-[var(--color-ash)]/60 group-hover:text-[var(--color-ash)] transition-colors">
+                      {new Date(signal.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                );
+              })}
+              
+              {!(outgoing ?? []).length && (
+                <div className="rounded-[32px] border-2 border-dashed border-white/5 bg-white/[0.01] p-12 text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-2xl text-[var(--color-ash)]/40">♥</div>
+                  <h3 className="mt-6 text-lg font-bold text-[var(--color-pearl)]">Discovery is waiting.</h3>
+                  <p className="mx-auto mt-2 max-w-[240px] text-[14px] font-medium leading-relaxed text-[var(--color-ash)]">
+                    Look for values and daily rituals you would actually ask about.
+                  </p>
+                  <Link href="/app" className="mt-8 inline-flex h-11 items-center justify-center rounded-full bg-[var(--color-pearl)] px-6 text-[12px] font-black uppercase tracking-widest text-[var(--color-ink)] transition-all hover:bg-white active:scale-95">
+                    Start Discovering
+                  </Link>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
     </AppShell>
   );

@@ -30,7 +30,7 @@ export function PasswordStrength({ password }: { password: string }) {
             key={i}
             style={[
               styles.segment,
-              { backgroundColor: i < current.segments ? current.color : "rgba(255,255,255,0.10)" },
+              { backgroundColor: i < current.segments ? current.color : "rgba(255,255,255,0.06)" },
             ]}
           />
         ))}
@@ -39,7 +39,7 @@ export function PasswordStrength({ password }: { password: string }) {
         <Text style={[styles.label, { color: current.color }]}>{current.label}</Text>
         <View style={styles.dots}>
           {rules.map((rule, i) => (
-            <Text key={i} style={{ color: rule(password) ? colors.success : "rgba(255,255,255,0.20)", fontSize: 11 }}>
+            <Text key={i} style={{ color: rule(password) ? colors.success : "rgba(255,255,255,0.14)", fontSize: 10 }}>
               {rule(password) ? "●" : "○"}
             </Text>
           ))}
@@ -52,8 +52,8 @@ export function PasswordStrength({ password }: { password: string }) {
 const styles = StyleSheet.create({
   wrapper: { gap: 8, marginTop: 4 },
   track: { flexDirection: "row", gap: 6 },
-  segment: { flex: 1, height: 4, borderRadius: 999 },
+  segment: { flex: 1, height: 3, borderRadius: 999 },
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  label: { fontSize: 11, fontWeight: "700" },
+  label: { fontSize: 10, fontWeight: "900", letterSpacing: 0.6 },
   dots: { flexDirection: "row", gap: 4 },
 });

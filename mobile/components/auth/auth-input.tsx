@@ -8,7 +8,7 @@ function EyeIcon({ open }: { open: boolean }) {
     <Ionicons
       name={open ? "eye-off" : "eye"}
       size={20}
-      color={colors.stone}
+      color={colors.sand}
     />
   );
 }
@@ -20,10 +20,14 @@ export function AuthInput({ label, error, hint, secureTextEntry, style, ...props
   const [focused, setFocused] = useState(false);
 
   const borderColor = error
-    ? "rgba(255, 158, 160, 0.7)"
+    ? "rgba(255, 158, 160, 0.5)"
     : focused
-      ? colors.gold500
-      : colors.lineStrong;
+      ? "rgba(241,201,122,0.40)"
+      : "rgba(255,255,255,0.10)";
+
+  const bgColor = focused
+    ? "rgba(255,255,255,0.06)"
+    : "rgba(255,255,255,0.035)";
 
   return (
     <View style={styles.wrapper}>
@@ -31,14 +35,14 @@ export function AuthInput({ label, error, hint, secureTextEntry, style, ...props
       <View
         style={[
           styles.inputShell,
-          { borderColor, backgroundColor: focused ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.06)" },
+          { borderColor, backgroundColor: bgColor },
         ]}
       >
         <TextInput
-          placeholderTextColor="rgba(255,250,245,0.34)"
+          placeholderTextColor="rgba(154,161,184,0.38)"
           style={[styles.input, style]}
           secureTextEntry={Boolean(secureTextEntry) && !revealed}
-          selectionColor={colors.gold500}
+          selectionColor={colors.gold300}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           accessibilityLabel={label}
@@ -72,15 +76,21 @@ export function AuthInput({ label, error, hint, secureTextEntry, style, ...props
 
 const styles = StyleSheet.create({
   wrapper: { gap: 8 },
-  label: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
+  label: {
+    color: colors.sand,
+    fontSize: 10,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 1.6,
+  },
   inputShell: {
     minHeight: 54,
-    borderRadius: radii.md,
+    borderRadius: 18,
     borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
   },
-  input: { flex: 1, paddingHorizontal: 16, paddingVertical: 14, color: colors.pearl, fontSize: 16 },
+  input: { flex: 1, paddingHorizontal: 16, paddingVertical: 14, color: colors.pearl, fontSize: 16, fontWeight: "700" },
   reveal: {
     minWidth: 56,
     minHeight: 44,

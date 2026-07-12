@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
 import { colors, radii } from "@freeborn/shared";
-import { premiumShadow } from "@/components/magic-background";
 
 type NoticeCardProps = {
   title: string;
@@ -17,12 +16,12 @@ export function NoticeCard({ title, body, tone }: NoticeCardProps) {
       style={[
         styles.container,
         {
-          borderColor: success ? "rgba(109,211,176,0.35)" : "rgba(255,107,122,0.35)",
-          backgroundColor: success ? "rgba(109,211,176,0.10)" : "rgba(255,107,122,0.10)",
+          borderColor: success ? "rgba(109,211,176,0.28)" : "rgba(255,107,122,0.28)",
+          backgroundColor: success ? "rgba(109,211,176,0.08)" : "rgba(255,107,122,0.08)",
         },
       ]}
     >
-      <View style={[styles.icon, { backgroundColor: success ? "rgba(109,211,176,0.20)" : "rgba(255,107,122,0.20)" }]}>
+      <View style={[styles.icon, { backgroundColor: success ? "rgba(109,211,176,0.16)" : "rgba(255,107,122,0.16)" }]}>
         <Text style={[styles.iconGlyph, { color: accent }]}>{success ? "✓" : "!"}</Text>
       </View>
       <View style={styles.textBlock}>
@@ -38,10 +37,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 12,
-    borderRadius: radii.lg,
+    borderRadius: 20,
     borderWidth: 1,
     padding: 16,
-    ...premiumShadow,
   },
   icon: {
     width: 26,
@@ -51,18 +49,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 1,
   },
-  iconGlyph: { fontSize: 15, fontWeight: "800" },
+  iconGlyph: { fontSize: 14, fontWeight: "900" },
   textBlock: { flex: 1 },
   title: {
     color: colors.pearl,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "800",
   },
   body: {
     marginTop: 4,
     color: colors.pearl,
     fontSize: 13,
     lineHeight: 19,
-    opacity: 0.85,
+    opacity: 0.82,
   },
 });

@@ -27,7 +27,7 @@ export function OnboardingProgress({ currentIndex, total }: OnboardingProgressPr
 
       <View style={styles.progressTrack}>
         <LinearGradient
-          colors={["#ff8578", "#f1c97a", "#8ccfff"]}
+          colors={[colors.ember500, colors.gold300, colors.violet300]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.progressFill, { width: `${progress}%` }]}
@@ -76,10 +76,10 @@ export function OnboardingProgress({ currentIndex, total }: OnboardingProgressPr
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radii.xl,
+    borderRadius: 28,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    borderColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.04)",
     padding: 18,
     gap: 14,
   },
@@ -90,37 +90,37 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   eyebrow: {
-    color: colors.stone,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 2.2,
+    color: colors.sand,
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 2.4,
     textTransform: "uppercase",
   },
   title: {
     marginTop: 6,
     color: colors.pearl,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "900",
     letterSpacing: -0.5,
   },
   badge: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.05)",
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   badgeLabel: {
-    color: colors.stone,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.4,
+    color: colors.sand,
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 1.2,
   },
   progressTrack: {
-    height: 6,
+    height: 5,
     borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(255,255,255,0.06)",
     overflow: "hidden",
   },
   progressFill: {
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   stepRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 6,
+    gap: 4,
   },
   stepItem: {
     flex: 1,
@@ -142,18 +142,18 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.04)",
+    borderColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(255,255,255,0.03)",
     alignItems: "center",
     justifyContent: "center",
   },
   stepDotActive: {
-    borderColor: colors.accentGold,
-    backgroundColor: "rgba(241,201,122,0.18)",
+    borderColor: colors.gold300,
+    backgroundColor: "rgba(241,201,122,0.14)",
   },
   stepDotDone: {
-    borderColor: "rgba(127,216,184,0.4)",
-    backgroundColor: "rgba(127,216,184,0.18)",
+    borderColor: "rgba(109,211,176,0.32)",
+    backgroundColor: "rgba(109,211,176,0.14)",
   },
   stepDotLabel: {
     color: colors.mist,
@@ -162,15 +162,16 @@ const styles = StyleSheet.create({
   },
   stepDotLabelActive: {
     color: colors.pearl,
+    fontWeight: "900",
   },
   stepDotLabelDone: {
-    color: "#7fd8b8",
+    color: colors.success,
   },
   stepLabel: {
     color: colors.mist,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     textTransform: "uppercase",
     textAlign: "center",
   },

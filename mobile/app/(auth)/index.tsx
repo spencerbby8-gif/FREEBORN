@@ -28,7 +28,7 @@ export default function AuthScreen() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     fadeAnim.setValue(0.45);
-    Animated.timing(fadeAnim, { toValue: 1, duration: 260, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 280, useNativeDriver: true }).start();
   }, [mode, fadeAnim]);
 
   const copy = copyForMode(mode);
@@ -202,9 +202,7 @@ export default function AuthScreen() {
           </Pressable>
 
           {mode !== "sign-in" ? (
-            <Pressable
-              onPress={() => setMode("sign-in")}
-            >
+            <Pressable onPress={() => setMode("sign-in")}>
               <Text style={styles.footerLabel}>Already have an account? Sign in</Text>
             </Pressable>
           ) : (
@@ -229,8 +227,8 @@ const styles = StyleSheet.create({
     marginTop: 18,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.05)",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -253,12 +251,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  divider: { flex: 1, height: 1, backgroundColor: colors.lineStrong },
-  dividerLabel: { color: colors.mist, fontSize: 11, fontWeight: "700", letterSpacing: 1.8, textTransform: "uppercase" },
+  divider: { flex: 1, height: 1, backgroundColor: "rgba(255,255,255,0.08)" },
+  dividerLabel: { color: colors.ash, fontSize: 10, fontWeight: "900", letterSpacing: 1.8, textTransform: "uppercase" },
   formStack: { gap: 16 },
-  linkLabel: { color: colors.stone, fontSize: 13, fontWeight: "700", textAlign: "right" },
-  primaryButton: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54, ...emberShadow },
-  primaryButtonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800", textAlign: "center" },
+  linkLabel: { color: colors.sand, fontSize: 13, fontWeight: "700", textAlign: "right" },
+  primaryButton: {
+    borderRadius: 22,
+    backgroundColor: colors.pearl,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 54,
+    ...emberShadow,
+  },
+  primaryButtonLabel: { color: colors.ink, fontSize: 14, fontWeight: "900", textAlign: "center" },
   footerLabel: { color: colors.mist, fontSize: 13, textAlign: "center" },
-  disabled: { opacity: 0.65 },
+  disabled: { opacity: 0.6 },
 });

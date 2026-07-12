@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from "react-native";
+import { useState, type ReactNode } from "react";
+import { StyleSheet, Text, TextInput, View, type TextInputProps, type ViewStyle } from "react-native";
 import { colors, radii } from "@freeborn/shared";
 
 type OnboardingInputProps = TextInputProps & {
@@ -7,22 +7,22 @@ type OnboardingInputProps = TextInputProps & {
   error?: string;
   hint?: string;
   optional?: boolean;
+  children?: ReactNode;
+  style?: ViewStyle;
 };
 
-export function OnboardingInput({
-  label,
-  error,
-  hint,
-  optional,
-  style,
-  ...props
-}: OnboardingInputProps) {
+export function OnboardingInput({ label, error, hint, optional, style, ...props }: OnboardingInputProps) {
   const [focused, setFocused] = useState(false);
+
   const borderColor = error
-    ? "rgba(255, 158, 160, 0.6)"
+    ? "rgba(255, 158, 160, 0.5)"
     : focused
-      ? colors.gold500
-      : colors.lineStrong;
+      ? "rgba(241,201,122,0.40)"
+      : "rgba(255,255,255,0.10)";
+
+  const bgColor = focused
+    ? "rgba(255,255,255,0.06)"
+    : "rgba(255,255,255,0.035)";
 
   return (
     <View style={styles.wrapper}>
@@ -35,37 +35,70 @@ export function OnboardingInput({
         ) : null}
       </View>
       <TextInput
-        placeholderTextColor="rgba(255,250,245,0.34)"
-        style={[
-          styles.input,
-          { borderColor, backgroundColor: focused ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.06)" },
-          style as object,
-        ]}
-        selectionColor={colors.gold500}
+        placeholderTextColor="rgba(154,161,184,0.42)"
+        selectionColor={colors.gold300}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
+        style={[
+          styles.input,
+          { borderColor, backgroundColor: bgColor },
+          style,
+        ]}
         {...props}
       />
       {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
-      {error ? (
-        <View style={styles.errorRow}>
-          <Text style={styles.errorDot}>●</Text>
-          <Text style={styles.error}>{error}</Text>
-        </View>
-      ) : null}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: { gap: 8 },
-  labelRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  label: { color: colors.pearl, fontSize: 14, fontWeight: "700" },
-  optionalBadge: { borderRadius: 999, borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: "rgba(255,255,255,0.04)", paddingHorizontal: 8, paddingVertical: 3 },
-  optionalLabel: { color: colors.stone, fontSize: 10, fontWeight: "700", letterSpacing: 1.4, textTransform: "uppercase" },
-  input: { borderRadius: radii.md, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 15, color: colors.pearl, fontSize: 15 },
-  hint: { color: colors.mist, fontSize: 12, lineHeight: 18 },
-  errorRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  errorDot: { color: colors.danger, fontSize: 10 },
-  error: { color: colors.danger, fontSize: 12, fontWeight: "600", flex: 1 },
+  wrapper: { gap: 7 },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  label: {
+    color: colors.sand,
+    fontSize: 10,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 1.6,
+  },
+  optionalBadge: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  optionalLabel: {
+    color: colors.ash,
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+  },
+  input: {
+    minHeight: 54,
+    borderRadius: 18,
+    borderWidth: 1,
+    color: colors.pearl,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  hint: {
+    color: colors.mist,
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  error: {
+    color: colors.danger,
+    fontSize: 12,
+    fontWeight: "600",
+  },
 });

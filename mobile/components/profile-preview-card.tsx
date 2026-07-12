@@ -6,7 +6,12 @@ export function ProfilePreviewCard() {
   const profile = previewProfiles[0];
 
   return (
-    <LinearGradient colors={[profile.palette[0], "#6f405d", profile.palette[1]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.shell}>
+    <LinearGradient
+      colors={[profile.palette[0], "#6f405d", profile.palette[1]]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.shell}
+    >
       <View style={styles.card}>
         <View style={styles.innerGlow} />
         <View style={styles.rowBetween}>
@@ -17,7 +22,7 @@ export function ProfilePreviewCard() {
             <Text style={styles.location}>{profile.location}</Text>
           </View>
           <View style={styles.badge}>
-            <Text style={styles.badgeLabel}>Verified</Text>
+            <Text style={styles.badgeLabel}>✓ Verified</Text>
           </View>
         </View>
         <Text style={styles.headline}>{profile.headline}</Text>
@@ -35,8 +40,8 @@ export function ProfilePreviewCard() {
 
 const styles = StyleSheet.create({
   shell: {
-    borderRadius: radii.xl,
-    padding: 1,
+    borderRadius: 28,
+    padding: 1.5,
     shadowColor: "#02060d",
     shadowOpacity: 0.48,
     shadowRadius: 36,
@@ -44,20 +49,20 @@ const styles = StyleSheet.create({
     elevation: 24,
   },
   card: {
-    borderRadius: radii.xl - 1,
-    padding: 22,
-    minHeight: 270,
-    backgroundColor: "rgba(7,16,28,0.38)",
+    borderRadius: 27,
+    padding: 24,
+    minHeight: 260,
+    backgroundColor: "rgba(7,16,28,0.40)",
     overflow: "hidden",
   },
   innerGlow: {
     position: "absolute",
-    width: 210,
-    height: 210,
-    right: -80,
-    top: -70,
+    width: 200,
+    height: 200,
+    right: -70,
+    top: -60,
     borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.10)",
   },
   rowBetween: {
     flexDirection: "row",
@@ -66,59 +71,64 @@ const styles = StyleSheet.create({
   },
   name: {
     color: colors.pearl,
-    fontSize: 34,
-    fontWeight: "700",
+    fontSize: 32,
+    fontWeight: "900",
     letterSpacing: -1.4,
   },
   age: {
-    fontSize: 22,
-    opacity: 0.84,
+    fontSize: 20,
+    opacity: 0.80,
+    fontWeight: "700",
   },
   location: {
     marginTop: 8,
-    color: "rgba(255,250,245,0.82)",
+    color: "rgba(255,250,245,0.80)",
     fontSize: 13,
+    fontWeight: "700",
   },
   badge: {
     alignSelf: "flex-start",
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-    backgroundColor: "rgba(255,255,255,0.12)",
+    borderColor: "rgba(255,255,255,0.18)",
+    backgroundColor: "rgba(0,0,0,0.25)",
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
   badgeLabel: {
     color: colors.pearl,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 1.4,
     textTransform: "uppercase",
   },
   headline: {
     marginTop: 26,
-    color: "rgba(255,250,245,0.94)",
-    fontSize: 16,
-    lineHeight: 27,
+    color: "rgba(255,250,245,0.92)",
+    fontSize: 15,
+    lineHeight: 24,
     maxWidth: 260,
   },
   tagRow: {
-    marginTop: 24,
+    marginTop: 22,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 8,
   },
   tag: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.18)",
-    backgroundColor: "rgba(255,255,255,0.11)",
+    borderColor: "rgba(255,255,255,0.16)",
+    backgroundColor: "rgba(255,255,255,0.10)",
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
   },
   tagLabel: {
-    color: colors.pearl,
-    fontSize: 12,
-    fontWeight: "600",
+    color: "rgba(255,255,255,0.88)",
+    fontSize: 11,
+    fontWeight: "700",
   },
 });

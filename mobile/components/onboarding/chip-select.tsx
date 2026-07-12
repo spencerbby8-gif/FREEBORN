@@ -79,18 +79,18 @@ export function ChipSelect({
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    gap: 8,
-  },
+  wrapper: { gap: 8 },
   labelRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   label: {
-    color: colors.pearl,
-    fontSize: 14,
-    fontWeight: "700",
+    color: colors.sand,
+    fontSize: 10,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 1.6,
   },
   metaRow: {
     flexDirection: "row",
@@ -100,23 +100,23 @@ const styles = StyleSheet.create({
   optionalBadge: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.04)",
+    borderColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(255,255,255,0.03)",
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
   optionalLabel: {
-    color: colors.stone,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.4,
+    color: colors.ash,
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   counter: {
-    color: colors.stone,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.4,
+    color: colors.ash,
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 1.2,
     textTransform: "uppercase",
   },
   chipRow: {
@@ -127,17 +127,17 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    borderColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.04)",
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   chipActive: {
-    borderColor: colors.accentGold,
-    backgroundColor: "rgba(241,201,122,0.18)",
+    borderColor: "rgba(241,201,122,0.32)",
+    backgroundColor: "rgba(241,201,122,0.14)",
   },
   chipDisabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   chipLabel: {
     color: colors.mist,
@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
   },
   chipLabelActive: {
     color: colors.pearl,
+    fontWeight: "800",
   },
   hint: {
     color: colors.mist,

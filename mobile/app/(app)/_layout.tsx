@@ -3,18 +3,29 @@ import { View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "@freeborn/shared";
 
-function TabIcon({ icon, focused }: { icon: string; focused: boolean }) {
+function TabIcon({ icon, focused, label }: { icon: string; focused: boolean; label: string }) {
   if (focused) {
     return (
-      <LinearGradient colors={[colors.ember500, colors.gold300]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.activeIcon}>
-        <Text style={styles.activeGlyph}>{icon}</Text>
-      </LinearGradient>
+      <View style={styles.activeContainer}>
+        <LinearGradient
+          colors={[colors.ember500, colors.gold300]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.activeIconBg}
+        >
+          <Text style={styles.activeGlyph}>{icon}</Text>
+        </LinearGradient>
+        <Text style={[styles.tabLabel, styles.tabLabelActive]}>{label}</Text>
+      </View>
     );
   }
 
   return (
-    <View style={styles.inactiveIcon}>
-      <Text style={styles.inactiveGlyph}>{icon}</Text>
+    <View style={styles.inactiveContainer}>
+      <View style={styles.inactiveIconBg}>
+        <Text style={styles.inactiveGlyph}>{icon}</Text>
+      </View>
+      <Text style={styles.tabLabel}>{label}</Text>
     </View>
   );
 }
@@ -27,7 +38,7 @@ export default function AppTabsLayout() {
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: colors.pearl,
         tabBarInactiveTintColor: colors.mist,
-        tabBarLabelStyle: styles.tabLabel,
+        tabBarLabelStyle: { display: "none" },
         tabBarItemStyle: styles.tabItem,
       }}
     >
@@ -35,35 +46,38 @@ export default function AppTabsLayout() {
         name="index"
         options={{
           title: "Discover",
-          tabBarIcon: ({ focused }) => <TabIcon icon="✦" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="✦" focused={focused} label="Discover" />,
         }}
       />
       <Tabs.Screen
         name="likes"
         options={{
           title: "Likes",
-          tabBarIcon: ({ focused }) => <TabIcon icon="♥" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="♥" focused={focused} label="Likes" />,
         }}
       />
       <Tabs.Screen
         name="matches"
         options={{
           title: "Matches",
-          tabBarIcon: ({ focused }) => <TabIcon icon="◈" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="◈" focused={focused} label="Matches" />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ focused }) => <TabIcon icon="◯" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="◯" focused={focused} label="Profile" />,
         }}
       />
+      {/* Hidden screens — accessible via navigation but not shown in tab bar */}
       <Tabs.Screen
         name="onboarding"
-        options={{
-          href: null,
-        }}
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{ href: null }}
       />
     </Tabs>
   );
@@ -72,51 +86,71 @@ export default function AppTabsLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    left: 14,
-    right: 14,
-    bottom: 12,
-    height: 72,
+    left: 16,
+    right: 16,
+    bottom: 16,
+    height: 76,
     paddingBottom: 10,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.12)",
-    borderRadius: 28,
-    backgroundColor: "rgba(7,16,28,0.88)",
-    shadowColor: colors.ember500,
-    shadowOpacity: 0.18,
-    shadowRadius: 26,
-    shadowOffset: { width: 0, height: -8 },
-    elevation: 18,
+    paddingTop: 10,
+    borderTopWidth: 0,
+    borderRadius: 32,
+    backgroundColor: "rgba(7,16,28,0.82)",
+    shadowColor: "#000",
+    shadowOpacity: 0.45,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: -6 },
+    elevation: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
   },
   tabItem: {
-    borderRadius: 22,
+    borderRadius: 24,
   },
-  tabLabel: {
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 0.35,
-    marginTop: 2,
+  activeContainer: {
+    alignItems: "center",
+    gap: 3,
   },
-  activeIcon: {
-    width: 34,
+  inactiveContainer: {
+    alignItems: "center",
+    gap: 3,
+  },
+  activeIconBg: {
+    width: 38,
     height: 28,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: colors.gold300,
-    shadowOpacity: 0.38,
+    shadowOpacity: 0.40,
     shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  inactiveIcon: {
-    width: 34,
+  inactiveIconBg: {
+    width: 38,
     height: 28,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.035)",
+    backgroundColor: "rgba(255,255,255,0.04)",
   },
-  activeGlyph: { color: "white", fontSize: 17, fontWeight: "900" },
-  inactiveGlyph: { color: colors.mist, fontSize: 17, fontWeight: "800" },
+  activeGlyph: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "900",
+  },
+  inactiveGlyph: {
+    color: colors.mist,
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  tabLabel: {
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.6,
+    color: colors.mist,
+  },
+  tabLabelActive: {
+    color: colors.pearl,
+  },
 });

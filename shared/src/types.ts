@@ -93,6 +93,24 @@ export type PromptAnswer = {
   answer: string;
 };
 
+export type NotificationPreferencesRow = {
+  user_id: string;
+  match_alerts: boolean;
+  message_alerts: boolean;
+  like_alerts: boolean;
+  profile_activity: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BlockedUserRow = {
+  id: string;
+  blocker_id: string;
+  blocked_id: string;
+  reason: string | null;
+  created_at: string;
+};
+
 export type UserProfileRow = {
   id: string;
   email: string;
@@ -121,7 +139,6 @@ export type UserProfileRow = {
   created_at: string;
   updated_at: string;
   onboarding_completed_at: string | null;
-  // Phase 3 additions
   height_cm: number | null;
   prompt_answers: PromptAnswer[];
   show_gender: string[];
@@ -133,6 +150,9 @@ export type UserProfileRow = {
   photo_count: number;
   verified_photo: boolean;
   auth_providers: string[];
+  haptic_feedback: boolean;
+  card_animations: boolean;
+  notification_sounds: boolean;
 };
 
 export type DiscoveryCandidate = {

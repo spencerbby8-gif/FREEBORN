@@ -18,21 +18,22 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.07)",
+    borderColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.05)",
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   accentContainer: {
-    backgroundColor: "rgba(247,241,232,0.95)",
-    borderColor: "rgba(247,241,232,0.95)",
+    backgroundColor: colors.pearl,
+    borderColor: colors.pearl,
   },
   label: {
     color: colors.pearl,
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "800",
   },
   accentLabel: {
     color: colors.ink,
+    fontWeight: "900",
   },
 });

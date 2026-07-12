@@ -48,7 +48,10 @@ export function OptionCardRow({ options, value, onChange, max, single }: OptionC
               disabled && styles.cardDisabled,
             ]}
           >
-            <Text style={[styles.cardLabel, active && styles.cardLabelActive]}>{option.label}</Text>
+            <View style={styles.cardHeader}>
+              <Text style={[styles.cardLabel, active && styles.cardLabelActive]}>{option.label}</Text>
+              {active && <View style={styles.activeDot} />}
+            </View>
             {option.caption ? (
               <Text style={styles.cardCaption}>{option.caption}</Text>
             ) : null}
@@ -60,22 +63,25 @@ export function OptionCardRow({ options, value, onChange, max, single }: OptionC
 }
 
 const styles = StyleSheet.create({
-  grid: {
-    gap: 10,
-  },
+  grid: { gap: 10 },
   card: {
-    borderRadius: radii.md,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    padding: 14,
+    borderColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.04)",
+    padding: 16,
   },
   cardActive: {
-    borderColor: colors.accentGold,
-    backgroundColor: "rgba(241,201,122,0.15)",
+    borderColor: "rgba(241,201,122,0.32)",
+    backgroundColor: "rgba(241,201,122,0.10)",
   },
   cardDisabled: {
-    opacity: 0.5,
+    opacity: 0.4,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   cardLabel: {
     color: colors.mist,
@@ -84,11 +90,19 @@ const styles = StyleSheet.create({
   },
   cardLabelActive: {
     color: colors.pearl,
+    fontWeight: "900",
+  },
+  activeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: colors.gold300,
   },
   cardCaption: {
     marginTop: 4,
     color: colors.mist,
     fontSize: 12,
     lineHeight: 18,
+    opacity: 0.8,
   },
 });

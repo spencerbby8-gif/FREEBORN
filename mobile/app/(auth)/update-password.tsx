@@ -88,6 +88,6 @@ export default function UpdatePasswordScreen() {
 const styles = StyleSheet.create({
   stack: { gap: 16, marginTop: 6 },
   button: { borderRadius: 22, backgroundColor: colors.pearl, paddingHorizontal: 20, paddingVertical: 16, alignItems: "center", justifyContent: "center", minHeight: 54, ...emberShadow },
-  buttonLabel: { color: colors.ink, fontSize: 14, fontWeight: "800", textAlign: "center" },
-  disabled: { opacity: 0.65 },
+  buttonLabel: { color: colors.ink, fontSize: 14, fontWeight: "900", textAlign: "center" },
+  disabled: { opacity: 0.6 },
 });

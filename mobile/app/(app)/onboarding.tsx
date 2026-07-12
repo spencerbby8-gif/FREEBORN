@@ -54,6 +54,35 @@ type FieldErrors = Partial<Record<keyof DraftState, string>>;
 
 const stepKeys: OnboardingStep[] = [...onboardingStepOrder];
 
+function normalizeMobileOnboardingStep(step?: string | null): OnboardingStep {
+  switch (step) {
+    case "location":
+      return "about_you";
+    case "relationship_intent":
+    case "bio":
+      return "bio_goals";
+    case "lifestyle":
+    case "values":
+    case "interests":
+      return "interests_lifestyle";
+    case "photos":
+    case "discovery_preferences":
+    case "verification":
+      return "preferences_extras";
+    case "finish":
+      return "complete";
+    case "about_you":
+    case "bio_goals":
+    case "interests_lifestyle":
+    case "preferences_extras":
+    case "complete":
+    case "identity":
+      return step;
+    default:
+      return "identity";
+  }
+}
+
 export default function OnboardingScreen() {
   const { user } = useAuth();
   const [step, setStep] = useState<OnboardingStep>("identity");
@@ -93,6 +122,7 @@ export default function OnboardingScreen() {
       country_code: profile.country_code ?? "",
       bio: profile.bio ?? "",
       relationship_goals: profile.relationship_goals ?? [],
+      values: profile.values ?? [],
       interests: profile.interests ?? [],
       lifestyle_preferences: profile.lifestyle_preferences ?? [],
       deal_breakers: profile.deal_breakers ?? [],
@@ -100,7 +130,7 @@ export default function OnboardingScreen() {
       education: profile.education ?? "",
     });
     if (profile.onboarding_step && profile.onboarding_step !== "complete") {
-      setStep(profile.onboarding_step as OnboardingStep);
+      setStep(normalizeMobileOnboardingStep(profile.onboarding_step));
     }
   }, [user]);
 
@@ -121,6 +151,7 @@ export default function OnboardingScreen() {
           country_code: payload.country_code || null,
           bio: payload.bio || null,
           relationship_goals: payload.relationship_goals,
+          values: payload.values,
           interests: payload.interests,
           lifestyle_preferences: payload.lifestyle_preferences,
           deal_breakers: payload.deal_breakers,

@@ -60,12 +60,149 @@ const eighteenYearsAgo = () => {
 
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
+export type SafetyIssueType =
+  | "email"
+  | "phone"
+  | "url"
+  | "social_handle"
+  | "address"
+  | "qr_code"
+  | "coordinates"
+  | "contact_request";
+
+export type SafetyIssue = {
+  type: SafetyIssueType;
+  match: string;
+};
+
+const safetyPatterns: Array<{ type: SafetyIssueType; regex: RegExp }> = [
+  { type: "email", regex: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi },
+  { type: "url", regex: /\b(?:https?:\/\/|www\.|[a-z0-9-]+\.(?:com|net|org|io|co|me|app|social|dating|link|bio)\b)\S*/gi },
+  { type: "phone", regex: /(?:\+?\d[\s().-]*){7,}\d/g },
+  {
+    type: "social_handle",
+    regex:
+      /(?:^|[\s(])(?:@[a-z0-9_.]{3,}|(?:ig|instagram|telegram|signal|whatsapp|snap|snapchat|tiktok|twitter|x|facebook|fb|kik)\s*[:@]\s*[a-z0-9_.-]{2,})\b/gi,
+  },
+  {
+    type: "address",
+    regex:
+      /\b\d{1,6}\s+[\p{L}0-9.' -]{2,}\s+(?:street|st\.?|avenue|ave\.?|road|rd\.?|drive|dr\.?|lane|ln\.?|court|ct\.?|boulevard|blvd\.?|way|place|pl\.?|trail|trl\.?|circle|cir\.?)\b/giu,
+  },
+  { type: "qr_code", regex: /\b(?:qr\s*code|snapcode|scan\s+(?:my|the)\s+code|scan\s+me)\b/gi },
+  { type: "coordinates", regex: /\b-?\d{1,2}\.\d{4,}\s*,\s*-?\d{1,3}\.\d{4,}\b/g },
+  {
+    type: "contact_request",
+    regex:
+      /\b(?:text\s+me|call\s+me|email\s+me|dm\s+me|message\s+me\s+on|find\s+me\s+on|add\s+me\s+on)\b/gi,
+  },
+];
+
+const safetyGuidance: Record<SafetyIssueType, { label: string; why: string; rewrite: string }> = {
+  email: {
+    label: "Email address",
+    why: "Email addresses move a conversation outside Freeborn before basic trust is established.",
+    rewrite: "Say what kind of conversation you enjoy instead, like “I appreciate thoughtful questions and clear plans.”",
+  },
+  phone: {
+    label: "Phone number",
+    why: "Phone numbers are private contact details and can expose you to unwanted contact.",
+    rewrite: "Replace it with a preference, like “I like moving to a call after we’ve built some trust here.”",
+  },
+  url: {
+    label: "URL or link",
+    why: "Links can reveal contact details, tracking pages, or off-platform profiles.",
+    rewrite: "Describe the interest without the link, like “I write about herbalism and regenerative food.”",
+  },
+  social_handle: {
+    label: "Social handle",
+    why: "Social handles bypass Freeborn’s safety boundaries and can expose your private identity.",
+    rewrite: "Share the context instead, like “I enjoy photography and slow weekend hikes.”",
+  },
+  address: {
+    label: "Street address",
+    why: "Street addresses are exact location details and should never appear on a public dating profile.",
+    rewrite: "Use a broad place instead, like your city, neighborhood vibe, or favorite kind of local outing.",
+  },
+  qr_code: {
+    label: "QR-style contact sharing",
+    why: "QR and scan-me language usually sends people directly to private contact channels.",
+    rewrite: "Invite conversation inside Freeborn, like “Ask me about my garden or favorite farmers market.”",
+  },
+  coordinates: {
+    label: "Exact coordinates",
+    why: "Exact latitude and longitude can expose where you live, work, or spend time.",
+    rewrite: "Keep location broad: city and optional region are enough for public discovery.",
+  },
+  contact_request: {
+    label: "Off-platform contact request",
+    why: "Requests to text, call, DM, or find you elsewhere pressure people out of Freeborn too early.",
+    rewrite: "Set a boundary instead, like “I prefer a few thoughtful messages before exchanging contact info.”",
+  },
+};
+
+export const privateContactDetailMessage =
+  "For your privacy, Freeborn keeps direct contact details out of profile text. Remove the private detail and describe the story, value, or preference instead.";
+
+export function getUnsafeContactDetailGuidance(issue: SafetyIssue) {
+  return safetyGuidance[issue.type];
+}
+
+export function explainUnsafeContactDetails(issues: SafetyIssue[]) {
+  const labels = [...new Set(issues.map((issue) => safetyGuidance[issue.type].label.toLowerCase()))];
+  if (!labels.length) return privateContactDetailMessage;
+  return `We found ${labels.join(", ")}. ${privateContactDetailMessage}`;
+}
+
+export function detectUnsafeContactDetails(value: string | null | undefined): SafetyIssue[] {
+  if (!value) return [];
+  const issues: SafetyIssue[] = [];
+  for (const pattern of safetyPatterns) {
+    pattern.regex.lastIndex = 0;
+    const matches = value.match(pattern.regex) ?? [];
+    for (const match of matches) {
+      issues.push({ type: pattern.type, match: match.trim() });
+    }
+  }
+  return issues;
+}
+
+export function hasUnsafeContactDetails(value: string | null | undefined) {
+  return detectUnsafeContactDetails(value).length > 0;
+}
+
+export function redactUnsafeContactDetails(value: string): string {
+  let next = value;
+  for (const pattern of safetyPatterns) {
+    pattern.regex.lastIndex = 0;
+    next = next.replace(pattern.regex, "[private detail removed]");
+  }
+  return next.replace(/\s{2,}/g, " ").trim();
+}
+
+function safeTextRefinement(value: string, ctx: z.RefinementCtx) {
+  const issues = detectUnsafeContactDetails(value);
+  if (issues.length) {
+    ctx.addIssue({ code: "custom", message: explainUnsafeContactDetails(issues) });
+  }
+}
+
+const optionalSafeText = (max: number, message: string) =>
+  z
+    .string()
+    .trim()
+    .max(max, message)
+    .superRefine(safeTextRefinement)
+    .optional()
+    .default("");
+
 export const onboardingDisplayNameSchema = z
   .string()
   .trim()
   .min(2, "Use at least 2 characters.")
   .max(40, "Keep your display name under 40 characters.")
-  .regex(/^[\p{L}\p{N} _'.-]+$/u, "Use letters, numbers, and basic punctuation only.");
+  .regex(/^[\p{L}\p{N} _'.-]+$/u, "Use letters, numbers, and basic punctuation only.")
+  .superRefine(safeTextRefinement);
 
 export const onboardingBirthDateSchema = z
   .string()
@@ -99,14 +236,10 @@ export const onboardingCitySchema = z
   .string()
   .trim()
   .min(1, "Please share the city you live in.")
-  .max(80, "Keep your city name under 80 characters.");
+  .max(80, "Keep your city name under 80 characters.")
+  .superRefine(safeTextRefinement);
 
-export const onboardingRegionSchema = z
-  .string()
-  .trim()
-  .max(80, "Keep this under 80 characters.")
-  .optional()
-  .default("");
+export const onboardingRegionSchema = optionalSafeText(80, "Keep this under 80 characters.");
 
 export const onboardingCountryCodeSchema = z
   .string()
@@ -123,7 +256,8 @@ export const onboardingBioSchema = z
   .string()
   .trim()
   .min(20, "A good bio is at least 20 characters.")
-  .max(500, "Keep your bio under 500 characters.");
+  .max(500, "Keep your bio under 500 characters.")
+  .superRefine(safeTextRefinement);
 
 export const onboardingRelationshipGoalsSchema = z
   .array(
@@ -142,27 +276,28 @@ export const onboardingLifestyleSchema = z
   .min(1, "Share at least one lifestyle preference.")
   .max(12, "Pick up to 12 preferences.");
 
+export const onboardingValuesSchema = z
+  .array(z.string().trim().min(1))
+  .min(1, "Choose at least one value.")
+  .max(8, "Choose up to eight values.");
+
 export const onboardingDealBreakersSchema = z
   .array(z.string().trim().min(1))
   .max(12, "Pick up to 12 deal breakers.");
 
-export const onboardingOccupationSchema = z
-  .string()
-  .trim()
-  .max(120, "Keep this under 120 characters.")
-  .optional()
-  .default("");
+export const onboardingOccupationSchema = optionalSafeText(120, "Keep this under 120 characters.");
 
-export const onboardingEducationSchema = z
-  .string()
-  .trim()
-  .max(120, "Keep this under 120 characters.")
-  .optional()
-  .default("");
+export const onboardingEducationSchema = optionalSafeText(120, "Keep this under 120 characters.");
 
 export const onboardingIdentitySchema = z.object({
   display_name: onboardingDisplayNameSchema,
   birth_date: onboardingBirthDateSchema,
+});
+
+export const onboardingPremiumIdentitySchema = z.object({
+  display_name: onboardingDisplayNameSchema,
+  birth_date: onboardingBirthDateSchema,
+  gender: onboardingGenderSchema,
 });
 
 export const onboardingAboutYouSchema = z.object({
@@ -170,6 +305,20 @@ export const onboardingAboutYouSchema = z.object({
   city: onboardingCitySchema,
   region: onboardingRegionSchema,
   country_code: onboardingCountryCodeSchema,
+});
+
+export const onboardingLocationSchema = z.object({
+  city: onboardingCitySchema,
+  region: onboardingRegionSchema,
+  country_code: onboardingCountryCodeSchema,
+  location_source: z.enum(["manual", "gps"]).default("manual"),
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
+  accuracy_m: z.number().min(0).max(100000).nullable().optional(),
+}).superRefine((value, ctx) => {
+  if (value.location_source === "gps" && (value.latitude == null || value.longitude == null)) {
+    ctx.addIssue({ code: "custom", path: ["location_source"], message: "Allow location access or switch to manual city entry." });
+  }
 });
 
 export const onboardingBioGoalsSchema = z.object({
@@ -197,6 +346,7 @@ export const onboardingProfileSchema = z.object({
   country_code: onboardingCountryCodeSchema,
   bio: onboardingBioSchema,
   relationship_goals: onboardingRelationshipGoalsSchema,
+  values: z.array(z.string().trim().min(1)).max(8, "Choose up to eight values.").optional().default([]),
   interests: onboardingInterestsSchema,
   lifestyle_preferences: onboardingLifestyleSchema,
   deal_breakers: onboardingDealBreakersSchema,
@@ -222,8 +372,8 @@ export const profileHeightSchema = z
   .optional();
 
 export const promptAnswerSchema = z.object({
-  prompt: z.string().trim().min(3).max(120),
-  answer: z.string().trim().min(8, "Answer with at least 8 characters.").max(280, "Keep answers under 280 characters."),
+  prompt: z.string().trim().min(3).max(120).superRefine(safeTextRefinement),
+  answer: z.string().trim().min(8, "Answer with at least 8 characters.").max(280, "Keep answers under 280 characters.").superRefine(safeTextRefinement),
 });
 
 export const profilePromptsSchema = z.array(promptAnswerSchema).max(3);
@@ -252,12 +402,12 @@ export const profileEditSchema = onboardingProfileSchema.extend({
 export const swipeActionSchema = z.object({
   liked_id: z.string().uuid(),
   action: z.enum(["like", "pass", "superlike"]),
-  note: z.string().trim().max(180).optional(),
+  note: z.string().trim().max(180).superRefine(safeTextRefinement).optional(),
 });
 
 export const messageSendSchema = z.object({
   match_id: z.string().uuid(),
-  body: z.string().trim().min(1, "Say something kind to start.").max(2000, "Keep it under 2000 characters."),
+  body: z.string().trim().min(1, "Say something kind to start.").max(2000, "Keep it under 2000 characters.").superRefine(safeTextRefinement),
 });
 
 export type ProfileEditInput = z.input<typeof profileEditSchema>;

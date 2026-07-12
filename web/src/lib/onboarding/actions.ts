@@ -1,12 +1,20 @@
 "use server";
 
 import {
+  discoveryPreferencesSchema,
   onboardingAboutYouSchema,
   onboardingBioGoalsSchema,
+  onboardingBioSchema,
   onboardingIdentitySchema,
   onboardingInterestsLifestyleSchema,
+  onboardingInterestsSchema,
+  onboardingLifestyleSchema,
+  onboardingLocationSchema,
   onboardingPreferencesExtrasSchema,
+  onboardingPremiumIdentitySchema,
   onboardingProfileSchema,
+  onboardingRelationshipGoalsSchema,
+  onboardingValuesSchema,
 } from "@freeborn/shared";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -262,6 +270,276 @@ export async function saveOnboardingPreferencesExtras(
     return { ok: false, error: error.message };
   }
 
+  return { ok: true };
+}
+
+type PremiumStep =
+  | "welcome"
+  | "identity"
+  | "location"
+  | "relationship_intent"
+  | "lifestyle"
+  | "values"
+  | "interests"
+  | "bio"
+  | "photos"
+  | "discovery_preferences"
+  | "verification"
+  | "finish";
+
+function numberOrNull(value: FormDataEntryValue | null) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function boolFromForm(formData: FormData, key: string, defaultValue = false) {
+  const value = formData.get(key);
+  if (value == null) return defaultValue;
+  return value === "true" || value === "on" || value === "1";
+}
+
+async function requireUser() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+}
+
+export async function savePremiumOnboardingStep(
+  _: OnboardingActionResponse | null,
+  formData: FormData,
+): Promise<OnboardingActionResponse> {
+  const step = String(formData.get("step") ?? "") as PremiumStep;
+  const nextStep = String(formData.get("next_step") ?? step) as PremiumStep;
+  const advance = String(formData.get("advance") ?? "false") === "true";
+  const onboardingStep = advance ? nextStep : step;
+
+  const { supabase, user } = await requireUser();
+  if (!user) return { ok: false, error: "You need to be signed in to continue onboarding." };
+
+  if (step === "welcome" || step === "photos" || step === "verification" || step === "finish") {
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ onboarding_step: onboardingStep })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  if (step === "identity") {
+    const parsed = onboardingPremiumIdentitySchema.safeParse({
+      display_name: String(formData.get("display_name") ?? ""),
+      birth_date: String(formData.get("birth_date") ?? ""),
+      gender: String(formData.get("gender") ?? ""),
+    });
+    if (!parsed.success) {
+      return { ok: false, error: "Please review the highlighted fields.", fieldErrors: mapFieldErrors(parsed.error.issues) };
+    }
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ ...parsed.data, onboarding_step: onboardingStep })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  if (step === "location") {
+    const parsed = onboardingLocationSchema.safeParse({
+      city: String(formData.get("city") ?? ""),
+      region: normalizeOptional(String(formData.get("region") ?? "")) ?? "",
+      country_code: normalizeOptional(String(formData.get("country_code") ?? "")) ?? "",
+      location_source: String(formData.get("location_source") ?? "manual"),
+      latitude: numberOrNull(formData.get("latitude")),
+      longitude: numberOrNull(formData.get("longitude")),
+      accuracy_m: numberOrNull(formData.get("accuracy_m")),
+    });
+    if (!parsed.success) {
+      return { ok: false, error: "Please review the highlighted fields.", fieldErrors: mapFieldErrors(parsed.error.issues) };
+    }
+    const publicLocation = {
+      city: parsed.data.city,
+      region: normalizeOptional(parsed.data.region),
+      country_code: normalizeOptional(parsed.data.country_code),
+    };
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ ...publicLocation, onboarding_step: onboardingStep })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+
+    const { error: locationError } = await supabase.from("user_private_locations").upsert({
+      user_id: user.id,
+      latitude: parsed.data.location_source === "gps" ? parsed.data.latitude : null,
+      longitude: parsed.data.location_source === "gps" ? parsed.data.longitude : null,
+      accuracy_m: parsed.data.location_source === "gps" ? parsed.data.accuracy_m : null,
+      source: parsed.data.location_source,
+      ...publicLocation,
+    });
+    if (locationError) return { ok: false, error: locationError.message };
+    return { ok: true };
+  }
+
+  if (step === "relationship_intent") {
+    const parsed = onboardingRelationshipGoalsSchema.safeParse(formData.getAll("relationship_goals").map(String));
+    if (!parsed.success) return { ok: false, error: "Please review the highlighted fields.", fieldErrors: { relationship_goals: parsed.error.issues[0]?.message ?? "Choose at least one intent." } };
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ relationship_goals: parsed.data, relationship_goal: parsed.data[0] ?? null, onboarding_step: onboardingStep })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  if (step === "lifestyle") {
+    const parsed = onboardingLifestyleSchema.safeParse(normalizeStringArray(formData.getAll("lifestyle_preferences").map(String)));
+    if (!parsed.success) return { ok: false, error: "Please review the highlighted fields.", fieldErrors: { lifestyle_preferences: parsed.error.issues[0]?.message ?? "Choose at least one lifestyle cue." } };
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ lifestyle_preferences: parsed.data, onboarding_step: onboardingStep })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  if (step === "values") {
+    const parsed = onboardingValuesSchema.safeParse(normalizeStringArray(formData.getAll("values").map(String)));
+    if (!parsed.success) return { ok: false, error: "Please review the highlighted fields.", fieldErrors: { values: parsed.error.issues[0]?.message ?? "Choose at least one value." } };
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ values: parsed.data, onboarding_step: onboardingStep })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  if (step === "interests") {
+    const parsed = onboardingInterestsSchema.safeParse(normalizeStringArray(formData.getAll("interests").map(String)));
+    if (!parsed.success) return { ok: false, error: "Please review the highlighted fields.", fieldErrors: { interests: parsed.error.issues[0]?.message ?? "Choose at least one interest." } };
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ interests: parsed.data, onboarding_step: onboardingStep })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  if (step === "bio") {
+    const parsed = onboardingBioSchema.safeParse(String(formData.get("bio") ?? ""));
+    if (!parsed.success) return { ok: false, error: "Please review the highlighted fields.", fieldErrors: { bio: parsed.error.issues[0]?.message ?? "Write a short bio." } };
+    const occupation = String(formData.get("occupation") ?? "");
+    const education = String(formData.get("education") ?? "");
+    const extras = onboardingPreferencesExtrasSchema.pick({ occupation: true, education: true, deal_breakers: true }).safeParse({
+      occupation,
+      education,
+      deal_breakers: normalizeStringArray(formData.getAll("deal_breakers").map(String)),
+    });
+    if (!extras.success) return { ok: false, error: "Please review the highlighted fields.", fieldErrors: mapFieldErrors(extras.error.issues) };
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({
+        bio: parsed.data,
+        deal_breakers: extras.data.deal_breakers,
+        occupation: normalizeOptional(extras.data.occupation),
+        education: normalizeOptional(extras.data.education),
+        onboarding_step: onboardingStep,
+      })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  if (step === "discovery_preferences") {
+    const parsed = discoveryPreferencesSchema.safeParse({
+      age_min: Number(formData.get("age_min") ?? 22),
+      age_max: Number(formData.get("age_max") ?? 45),
+      distance_km: Number(formData.get("distance_km") ?? 80),
+      show_genders: formData.getAll("show_genders").map(String),
+      relationship_intents: formData.getAll("relationship_intents").map(String),
+      verified_only: boolFromForm(formData, "verified_only"),
+      photos_required: boolFromForm(formData, "photos_required", true),
+      deal_breaker_strict: boolFromForm(formData, "deal_breaker_strict", true),
+    });
+    if (!parsed.success) return { ok: false, error: "Check your discovery preferences.", fieldErrors: mapFieldErrors(parsed.error.issues) };
+
+    const { error: prefsError } = await supabase.from("discovery_preferences").upsert({ user_id: user.id, ...parsed.data });
+    if (prefsError) return { ok: false, error: prefsError.message };
+
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({
+        show_gender: parsed.data.show_genders,
+        age_min_preference: parsed.data.age_min,
+        age_max_preference: parsed.data.age_max,
+        max_distance_km: parsed.data.distance_km,
+        onboarding_step: onboardingStep,
+      })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+
+  return { ok: false, error: "Unknown onboarding step." };
+}
+
+export async function completePremiumOnboarding(): Promise<OnboardingActionResponse> {
+  const { supabase, user } = await requireUser();
+  if (!user) return { ok: false, error: "You need to be signed in to continue." };
+
+  const { data: profile, error: profileError } = await supabase
+    .from("user_profiles")
+    .select("display_name, birth_date, gender, city, region, country_code, bio, relationship_goals, values, interests, lifestyle_preferences, deal_breakers, occupation, education")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) return { ok: false, error: profileError.message };
+
+  const parsed = onboardingProfileSchema.safeParse({
+    display_name: profile?.display_name ?? "",
+    birth_date: profile?.birth_date ?? "",
+    gender: profile?.gender ?? "",
+    city: profile?.city ?? "",
+    region: profile?.region ?? "",
+    country_code: profile?.country_code ?? "",
+    bio: profile?.bio ?? "",
+    relationship_goals: profile?.relationship_goals ?? [],
+    values: profile?.values ?? [],
+    interests: profile?.interests ?? [],
+    lifestyle_preferences: profile?.lifestyle_preferences ?? [],
+    deal_breakers: profile?.deal_breakers ?? [],
+    occupation: profile?.occupation ?? "",
+    education: profile?.education ?? "",
+  });
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Your profile still needs a few details before going live.",
+      fieldErrors: mapFieldErrors(parsed.error.issues),
+    };
+  }
+
+  if (!parsed.data.values.length) {
+    return {
+      ok: false,
+      error: "Your profile still needs a few details before going live.",
+      fieldErrors: { values: "Choose at least one value." },
+    };
+  }
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .update({
+      onboarding_stage: "profile_setup",
+      profile_status: "active",
+      onboarding_step: "finish",
+      onboarding_completed_at: new Date().toISOString(),
+    })
+    .eq("id", user.id);
+
+  if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
 

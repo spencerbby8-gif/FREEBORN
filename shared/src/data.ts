@@ -390,12 +390,50 @@ export const onboardingStepMeta: Array<{
   },
 ];
 
+// Legacy order retained for mobile clients that have not yet moved to the premium
+// onboarding journey. Web uses premiumOnboardingStepOrder below.
 export const onboardingStepOrder: OnboardingStep[] = [
   "identity",
   "about_you",
   "bio_goals",
   "interests_lifestyle",
   "preferences_extras",
+];
+
+export const premiumOnboardingStepOrder = [
+  "welcome",
+  "identity",
+  "location",
+  "relationship_intent",
+  "lifestyle",
+  "values",
+  "interests",
+  "bio",
+  "photos",
+  "discovery_preferences",
+  "verification",
+  "finish",
+] as const;
+
+export type PremiumOnboardingStep = (typeof premiumOnboardingStepOrder)[number];
+
+export const premiumOnboardingStepMeta: Array<{
+  step: PremiumOnboardingStep;
+  label: string;
+  description: string;
+}> = [
+  { step: "welcome", label: "Welcome", description: "A calm overview before your profile starts taking shape." },
+  { step: "identity", label: "Identity", description: "Name, age gate, and gender in one focused moment." },
+  { step: "location", label: "Location", description: "Choose city entry or private GPS for distance-aware discovery." },
+  { step: "relationship_intent", label: "Intent", description: "Share the kind of long-term connection you are open to." },
+  { step: "lifestyle", label: "Lifestyle", description: "Daily rhythm, wellness cues, and how you like to live." },
+  { step: "values", label: "Values", description: "Balanced compatibility signals without turning your profile into a debate." },
+  { step: "interests", label: "Interests", description: "The real-world things people can start a conversation from." },
+  { step: "bio", label: "Bio", description: "A short human introduction with safety checks before saving." },
+  { step: "photos", label: "Photos", description: "Upload, crop, order, and choose the cover image for your profile." },
+  { step: "discovery_preferences", label: "Discovery", description: "Set practical age, distance, intent, and visibility boundaries." },
+  { step: "verification", label: "Verification", description: "Understand trust status and what Freeborn does not expose." },
+  { step: "finish", label: "Finish", description: "Review profile health and enter Freeborn." },
 ];
 
 export const profilePrompts = [
@@ -431,6 +469,7 @@ export const emptyOnboardingDraft = {
   country_code: "",
   bio: "",
   relationship_goals: [] as string[],
+  values: [] as string[],
   interests: [] as string[],
   lifestyle_preferences: [] as string[],
   deal_breakers: [] as string[],

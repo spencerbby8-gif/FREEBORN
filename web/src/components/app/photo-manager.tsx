@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import type { ProfilePhoto } from "@freeborn/shared";
-import { deleteProfilePhoto, setPrimaryPhoto, uploadProfilePhoto } from "@/lib/photos/actions";
+import { deleteProfilePhoto, reorderPhotos, setPrimaryPhoto, uploadProfilePhoto } from "@/lib/photos/actions";
 
 function publicPhotoUrl(path: string) {
   if (path.startsWith("http")) return path;
@@ -25,7 +25,17 @@ function SubmitButton({ label, pendingLabel, variant = "primary" }: { label: str
 
 type UploadState = { ok: boolean; error?: string } | null;
 
+function qualityLabel(photo: ProfilePhoto) {
+  if (photo.width && photo.height) {
+    const short = Math.min(photo.width, photo.height);
+    if (short < 640) return { label: "Low resolution", tone: "warn" as const };
+    return { label: "High quality", tone: "good" as const };
+  }
+  return { label: "Quality pending", tone: "neutral" as const };
+}
+
 export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
+  const [orderedPhotos, setOrderedPhotos] = useState<ProfilePhoto[]>(photos);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProfilePhoto | null>(null);
@@ -33,12 +43,25 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
     if (file) formData.set("file", file);
     const result = await uploadProfilePhoto(formData);
     if (result.ok) {
+      if (result.photo) setOrderedPhotos((current) => [...current, result.photo as ProfilePhoto]);
       setFile(null);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
     return result;
   }, null);
+
+  const movePhoto = async (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= orderedPhotos.length) return;
+    const next = [...orderedPhotos];
+    [next[index], next[target]] = [next[target], next[index]];
+    const normalized = next.map((photo, position) => ({ ...photo, position }));
+    setOrderedPhotos(normalized);
+    const fd = new FormData();
+    fd.set("order", JSON.stringify(normalized.map((photo) => photo.id)));
+    await reorderPhotos(fd);
+  };
 
   return (
     <div className="luminous-card rounded-[40px] border border-white/10 bg-white/[0.02] p-8 shadow-[var(--shadow-card-lg)] sm:p-12">
@@ -51,14 +74,14 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
           className="mt-6 text-[clamp(2rem,6vw,2.75rem)] leading-[0.95] tracking-tight text-[var(--color-pearl)]"
           style={{ fontFamily: "var(--font-display)", fontVariationSettings: "'opsz' 144, 'wght' 450" }}
         >
-          {photos.length} / 6 Photos
+          {orderedPhotos.length} / 6 Photos
         </h2>
         <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-[var(--color-mist)]">
           Use recent images that show the real you. Your primary photo is your introduction to the community.
         </p>
       </header>
 
-      {photos.length === 0 ? (
+      {orderedPhotos.length === 0 ? (
         <div className="empty-glow rounded-[32px] border-2 border-dashed border-white/10 bg-white/[0.01] p-12 text-center transition-all hover:bg-white/[0.02] hover:border-white/20">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-gold-500)]/10 text-3xl text-[var(--color-gold-300)] shadow-[0_0_20px_rgba(217,167,82,0.15)]">＋</div>
           <h3 className="mt-6 text-xl font-bold text-[var(--color-pearl)]">Upload your first image</h3>
@@ -68,8 +91,9 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {photos.map((photo, index) => {
+          {orderedPhotos.map((photo, index) => {
             const url = publicPhotoUrl(photo.storage_path);
+            const quality = qualityLabel(photo);
             return (
               <div key={photo.id} className="group relative overflow-hidden rounded-[28px] border border-white/5 bg-white/[0.02] shadow-inner transition-all hover:border-white/20">
                 <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-white/5 to-transparent">
@@ -86,6 +110,12 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
                     {photo.is_verified && (
                       <span className="rounded-full bg-[var(--color-teal-500)] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white shadow-[0_4px_10px_rgba(0,0,0,0.5)]">Verified</span>
                     )}
+                    <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest shadow-[0_4px_10px_rgba(0,0,0,0.5)] ${quality.tone === "good" ? "bg-[var(--color-teal-500)] text-white" : quality.tone === "warn" ? "bg-[var(--color-gold-500)] text-[var(--color-ink)]" : "bg-black/55 text-white"}`}>{quality.label}</span>
+                  </div>
+
+                  <div className="absolute right-3 top-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                    <button type="button" onClick={() => movePhoto(index, -1)} disabled={index === 0} className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/45 text-sm font-black text-white backdrop-blur disabled:opacity-30" aria-label="Move photo earlier">↑</button>
+                    <button type="button" onClick={() => movePhoto(index, 1)} disabled={index === orderedPhotos.length - 1} className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/45 text-sm font-black text-white backdrop-blur disabled:opacity-30" aria-label="Move photo later">↓</button>
                   </div>
 
                   <div className="absolute inset-x-0 bottom-0 flex h-1/3 items-end bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -109,7 +139,7 @@ export function PhotoManager({ photos }: { photos: ProfilePhoto[] }) {
               </div>
             );
           })}
-          {Array.from({ length: Math.max(0, 6 - photos.length) }).map((_, index) => (
+          {Array.from({ length: Math.max(0, 6 - orderedPhotos.length) }).map((_, index) => (
             <div key={index} className="flex aspect-[4/5] items-center justify-center rounded-[28px] border-2 border-dashed border-white/5 bg-white/[0.01] transition-all hover:bg-white/[0.03] hover:border-white/10">
               <div className="text-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-auto mb-3 text-[var(--color-ash)] opacity-40"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>

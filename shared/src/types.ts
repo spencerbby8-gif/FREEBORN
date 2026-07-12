@@ -24,7 +24,19 @@ export type GenderIdentity =
   | "prefer_not_to_say";
 
 export type OnboardingStep =
+  | "welcome"
   | "identity"
+  | "location"
+  | "relationship_intent"
+  | "lifestyle"
+  | "values"
+  | "interests"
+  | "bio"
+  | "photos"
+  | "discovery_preferences"
+  | "verification"
+  | "finish"
+  // Legacy step names kept so older mobile clients and existing rows continue to parse.
   | "about_you"
   | "bio_goals"
   | "interests_lifestyle"
@@ -166,8 +178,10 @@ export type DiscoveryCandidate = {
   birth_date: string | null;
   age: number | null;
   relationship_goals: string[];
+  values?: string[];
   interests: string[];
   lifestyle_preferences: string[];
+  prompt_answers?: PromptAnswer[];
   occupation: string | null;
   education: string | null;
   is_verified: boolean;
@@ -190,6 +204,7 @@ export type OnboardingDraft = {
   country_code: string;
   bio: string;
   relationship_goals: string[];
+  values: string[];
   interests: string[];
   lifestyle_preferences: string[];
   deal_breakers: string[];

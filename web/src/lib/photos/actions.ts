@@ -37,20 +37,21 @@ export async function uploadProfilePhoto(formData: FormData) {
   }
   const isPrimary = !existing || existing.length === 0;
 
-  const { error: dbErr } = await supabase.from("profile_photos").insert({
+  const { data: photo, error: dbErr } = await supabase.from("profile_photos").insert({
     user_id: user.id,
     storage_path: path,
     position: nextPos,
     is_primary: isPrimary,
-  });
+  }).select("*").single();
   if (dbErr) {
     await supabase.storage.from("profile-photos").remove([path]);
     return { ok: false, error: "We couldn't save that photo. Please try again." };
   }
 
   revalidatePath("/app/profile");
+  revalidatePath("/app/onboarding");
   revalidatePath("/app");
-  return { ok: true };
+  return { ok: true, photo };
 }
 
 export async function deleteProfilePhoto(formData: FormData) {
@@ -68,6 +69,7 @@ export async function deleteProfilePhoto(formData: FormData) {
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/app/profile");
+  revalidatePath("/app/onboarding");
   return { ok: true };
 }
 
@@ -82,6 +84,7 @@ export async function setPrimaryPhoto(formData: FormData) {
   const { error } = await supabase.from("profile_photos").update({ is_primary: true }).eq("id", id).eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/app/profile");
+  revalidatePath("/app/onboarding");
   return { ok: true };
 }
 
@@ -97,5 +100,6 @@ export async function reorderPhotos(formData: FormData) {
     await supabase.from("profile_photos").update({ position: i }).eq("id", order[i]).eq("user_id", user.id);
   }
   revalidatePath("/app/profile");
+  revalidatePath("/app/onboarding");
   return { ok: true };
 }

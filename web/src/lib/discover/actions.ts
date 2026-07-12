@@ -43,6 +43,27 @@ export async function swipeAction(formData: FormData) {
   return { ok: true, matched: Boolean(match), matchId: match?.id ?? null };
 }
 
+export async function undoPass(formData: FormData) {
+  const likedId = String(formData.get("liked_id") ?? "");
+  const parsed = swipeActionSchema.pick({ liked_id: true }).safeParse({ liked_id: likedId });
+  if (!parsed.success) return { ok: false, error: "Invalid profile." };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in required." };
+
+  const { error } = await supabase
+    .from("user_swipes")
+    .delete()
+    .eq("liker_id", user.id)
+    .eq("liked_id", parsed.data.liked_id)
+    .eq("action", "pass");
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/app");
+  return { ok: true };
+}
+
 export async function sendMessage(_prev: unknown, formData: FormData) {
   const parsed = messageSendSchema.safeParse({
     match_id: String(formData.get("match_id") ?? ""),
@@ -55,17 +76,70 @@ export async function sendMessage(_prev: unknown, formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Sign in required." };
 
-  const { error } = await supabase.from("match_messages").insert({
-    match_id: parsed.data.match_id,
-    sender_id: user.id,
-    body: parsed.data.body,
-  });
+  const { data: message, error } = await supabase
+    .from("match_messages")
+    .insert({
+      match_id: parsed.data.match_id,
+      sender_id: user.id,
+      body: parsed.data.body,
+    })
+    .select("*")
+    .single();
   if (error) return { ok: false, error: error.message };
 
   await supabase.from("user_matches").update({ last_message_at: new Date().toISOString() }).eq("id", parsed.data.match_id);
 
-  revalidatePath(`/app/matches/${parsed.data.match_id}`);
   revalidatePath("/app/matches");
+  return { ok: true, message };
+}
+
+export async function unmatchUser(formData: FormData) {
+  const matchId = String(formData.get("match_id") ?? "");
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in required." };
+  if (!matchId) return { ok: false, error: "Missing match." };
+
+  const { error } = await supabase
+    .from("user_matches")
+    .update({ status: "archived" })
+    .eq("id", matchId)
+    .or(`user_a.eq.${user.id},user_b.eq.${user.id}`);
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/app/matches");
+  return { ok: true };
+}
+
+export async function blockOrReportUser(formData: FormData) {
+  const matchId = String(formData.get("match_id") ?? "");
+  const blockedId = String(formData.get("blocked_id") ?? "");
+  const reason = String(formData.get("reason") ?? "").trim().slice(0, 500) || null;
+  const mode = String(formData.get("mode") ?? "block");
+
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in required." };
+  if (!blockedId || blockedId === user.id) return { ok: false, error: "Invalid member." };
+
+  const { error: blockError } = await supabase.from("blocked_users").upsert({
+    blocker_id: user.id,
+    blocked_id: blockedId,
+    reason: reason ? `${mode}: ${reason}` : mode,
+  }, { onConflict: "blocker_id,blocked_id" });
+  if (blockError) return { ok: false, error: blockError.message };
+
+  if (matchId) {
+    const { error: matchError } = await supabase
+      .from("user_matches")
+      .update({ status: "blocked" })
+      .eq("id", matchId)
+      .or(`user_a.eq.${user.id},user_b.eq.${user.id}`);
+    if (matchError) return { ok: false, error: matchError.message };
+  }
+
+  revalidatePath("/app/matches");
+  revalidatePath("/app");
   return { ok: true };
 }
 
@@ -143,6 +217,7 @@ export async function saveProfileEdit(_prev: unknown, formData: FormData) {
     country_code: String(formData.get("country_code") ?? ""),
     bio: String(formData.get("bio") ?? ""),
     relationship_goals: getArray("relationship_goals"),
+    values: getArray("values"),
     interests: getArray("interests"),
     lifestyle_preferences: getArray("lifestyle_preferences"),
     deal_breakers: getArray("deal_breakers"),
@@ -185,6 +260,7 @@ export async function saveProfileEdit(_prev: unknown, formData: FormData) {
     country_code: d.country_code || null,
     bio: d.bio,
     relationship_goals: d.relationship_goals,
+    values: d.values ?? [],
     interests: d.interests,
     lifestyle_preferences: d.lifestyle_preferences,
     deal_breakers: d.deal_breakers,

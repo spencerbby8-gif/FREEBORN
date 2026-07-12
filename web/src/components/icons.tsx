@@ -184,6 +184,16 @@ export function BadgeIcon(p: IconProps) {
   );
 }
 
+/* Camera / photos */
+export function CameraIcon(p: IconProps) {
+  return (
+    <Base {...p}>
+      <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h2l1.4-2h4.2l1.4 2h2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z" />
+      <circle cx="12" cy="12.5" r="3.2" />
+    </Base>
+  );
+}
+
 /* Eye — profile views */
 export function EyeIcon(p: IconProps) {
   return (

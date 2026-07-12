@@ -5,6 +5,7 @@ import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SaveActionBar } from "@/components/ui/save-action-bar";
+import { DetailSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 
@@ -58,59 +59,69 @@ export default function PromptsScreen() {
 
   const availablePrompts = profilePrompts.filter(p => !answers.find(a => a.prompt === p));
 
+  if (loading) {
+    return (
+      <DetailScreenShell title="Prompts" subtitle="Show your voice">
+        <DetailSkeleton />
+      </DetailScreenShell>
+    );
+  }
+
   return (
     <DetailScreenShell title="Prompts" subtitle="Show your voice">
-      {loading ? null : (
-        <>
-          <SurfaceCard>
-            <SectionHeader eyebrow="Prompts" title="Answer up to 3" body="Prompts let people start specific conversations. Choose questions that reveal something real." />
+      <SurfaceCard>
+        <SectionHeader eyebrow="Prompts" title="Answer up to 3" body="Prompts let people start specific conversations. Choose questions that reveal something real." />
 
-            {answers.map((item, i) => (
-              <View key={item.prompt} style={styles.promptCard}>
-                <View style={styles.promptHeader}>
-                  <Text style={styles.promptQuestion} numberOfLines={2}>{item.prompt}</Text>
-                  <Pressable onPress={() => removeAnswer(i)} hitSlop={8}>
-                    <Text style={styles.removeBtn}>✕</Text>
-                  </Pressable>
-                </View>
-                <TextInput
-                  value={item.answer}
-                  onChangeText={v => updateAnswer(i, v.slice(0, 300))}
-                  placeholder="Your answer…"
-                  placeholderTextColor="rgba(154,161,184,0.38)"
-                  multiline
-                  textAlignVertical="top"
-                  style={styles.answerInput}
-                />
-              </View>
-            ))}
-
-            {answers.length < 3 && (
-              <Pressable onPress={() => setPickerVisible(!pickerVisible)} style={styles.addPromptBtn}>
-                <Text style={styles.addPromptIcon}>＋</Text>
-                <Text style={styles.addPromptLabel}>Add a prompt</Text>
+        {answers.map((item, i) => (
+          <View key={item.prompt} style={styles.promptCard}>
+            <View style={styles.promptHeader}>
+              <Text style={styles.promptQuestion} numberOfLines={2}>{item.prompt}</Text>
+              <Pressable onPress={() => removeAnswer(i)} hitSlop={8}>
+                <Text style={styles.removeBtn}>✕</Text>
               </Pressable>
-            )}
+            </View>
+            <TextInput
+              value={item.answer}
+              onChangeText={v => updateAnswer(i, v.slice(0, 300))}
+              placeholder="Your answer…"
+              placeholderTextColor="rgba(154,161,184,0.38)"
+              multiline
+              textAlignVertical="top"
+              style={styles.answerInput}
+            />
+            <View style={styles.answerFooter}>
+              <Text style={styles.answerHint}>Be specific and genuine.</Text>
+              <Text style={styles.answerCounter}>{item.answer.length} / 300</Text>
+            </View>
+          </View>
+        ))}
 
-            {pickerVisible && (
-              <View style={styles.promptList}>
-                {availablePrompts.map(prompt => (
-                  <Pressable key={prompt} onPress={() => addPrompt(prompt)} style={styles.promptOption}>
-                    <Text style={styles.promptOptionText}>{prompt}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-          </SurfaceCard>
+        {answers.length < 3 && (
+          <Pressable onPress={() => setPickerVisible(!pickerVisible)} style={styles.addPromptBtn}>
+            <Text style={styles.addPromptIcon}>＋</Text>
+            <Text style={styles.addPromptLabel}>Add a prompt</Text>
+          </Pressable>
+        )}
 
-          <SaveActionBar onSave={save} saving={saving} notice={notice} />
-        </>
-      )}
+        {pickerVisible && (
+          <View style={styles.promptList}>
+            {availablePrompts.map(prompt => (
+              <Pressable key={prompt} onPress={() => addPrompt(prompt)} style={styles.promptOption}>
+                <Text style={styles.promptOptionText}>{prompt}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </SurfaceCard>
+
+      <SaveActionBar onSave={save} saving={saving} notice={notice} />
     </DetailScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingBox: { alignItems: "center", gap: 12, paddingVertical: 32 },
+  loadingText: { color: colors.mist, fontSize: 13, fontWeight: "700" },
   promptCard: {
     borderRadius: 20,
     borderWidth: 1,
@@ -135,6 +146,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     lineHeight: 20,
   },
+  answerFooter: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  answerHint: { color: colors.ash, fontSize: 10, fontWeight: "600" },
+  answerCounter: { color: colors.ash, fontSize: 10, fontWeight: "700", letterSpacing: 0.8 },
   addPromptBtn: {
     borderRadius: 20,
     borderWidth: 1,

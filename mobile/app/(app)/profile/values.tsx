@@ -1,36 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import { colors, type UserProfileRow } from "@freeborn/shared";
+import { StyleSheet, View } from "react-native";
+import { colors, valueOptions, type UserProfileRow } from "@freeborn/shared";
 import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SaveActionBar } from "@/components/ui/save-action-bar";
 import { ChipSelect } from "@/components/onboarding/chip-select";
+import { DetailSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
-
-const valueOptions = [
-  "Medical freedom",
-  "Health autonomy",
-  "Informed consent",
-  "Natural health",
-  "Holistic wellness",
-  "Herbal remedies",
-  "Traditional food",
-  "Low-tox living",
-  "Family values",
-  "Faith",
-  "Personal sovereignty",
-  "Self-reliance",
-  "Community",
-  "Environmental stewardship",
-  "Regenerative agriculture",
-  "Homeschooling",
-  "Home birth",
-  "Breastfeeding advocacy",
-  "Nutritional freedom",
-  "Body autonomy",
-] as const;
 
 export default function ValuesScreen() {
   const { user } = useAuth();
@@ -61,24 +39,33 @@ export default function ValuesScreen() {
     setSaving(false);
   };
 
+  if (loading) {
+    return (
+      <DetailScreenShell title="Values" subtitle="What you stand for">
+        <DetailSkeleton />
+      </DetailScreenShell>
+    );
+  }
+
   return (
     <DetailScreenShell title="Values" subtitle="What you stand for">
-      {loading ? null : (
-        <>
-          <SurfaceCard>
-            <SectionHeader eyebrow="Core values" title="What matters most to you" body="Choose the values that shape your life and relationships. These help people find alignment before the first message." />
-            <ChipSelect
-              label="Your values"
-              options={valueOptions as unknown as readonly string[]}
-              value={values}
-              onChange={setValues}
-              max={12}
-              hint="These appear on your public profile as compatibility signals."
-            />
-          </SurfaceCard>
-          <SaveActionBar onSave={save} saving={saving} notice={notice} />
-        </>
-      )}
+      <SurfaceCard>
+        <SectionHeader eyebrow="Core values" title="What matters most to you" body="Choose the values that shape your life and relationships. These help people find alignment before the first message." />
+        <ChipSelect
+          label="Your values"
+          options={valueOptions as unknown as readonly string[]}
+          value={values}
+          onChange={setValues}
+          max={12}
+          hint="These appear on your public profile as compatibility signals."
+        />
+      </SurfaceCard>
+      <SaveActionBar onSave={save} saving={saving} notice={notice} />
     </DetailScreenShell>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingBox: { alignItems: "center", gap: 12, paddingVertical: 32 },
+  loadingText: { color: colors.mist, fontSize: 13, fontWeight: "700" },
+});

@@ -1,8 +1,24 @@
-import { StyleSheet, Text, View } from "react-native";
-import { colors } from "@freeborn/shared";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { colors, faqs } from "@freeborn/shared";
 import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
 import { SectionHeader } from "@/components/ui/section-header";
+
+function FAQItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Pressable onPress={() => setOpen(!open)} style={styles.faqItem}>
+      <View style={styles.faqHeader}>
+        <Text style={styles.faqQ}>{q}</Text>
+        <Text style={[styles.faqChevron, open && styles.faqChevronOpen]}>
+          {open ? "−" : "+"}
+        </Text>
+      </View>
+      {open && <Text style={styles.faqA}>{a}</Text>}
+    </Pressable>
+  );
+}
 
 export default function SupportScreen() {
   return (
@@ -19,24 +35,20 @@ export default function SupportScreen() {
       </SurfaceCard>
 
       <SurfaceCard>
-        <SectionHeader eyebrow="FAQ" title="Common questions" />
-        <View style={styles.faqItem}>
-          <Text style={styles.faqQ}>Who is Freeborn for?</Text>
-          <Text style={styles.faqA}>Freeborn is for values-aligned singles who care about medical freedom, natural health, informed choice, and intentional long-term relationships.</Text>
-        </View>
-        <View style={styles.faqItem}>
-          <Text style={styles.faqQ}>Is my information private?</Text>
-          <Text style={styles.faqA}>Emails, full birth dates, last names, and account provider details stay out of discovery cards and public profile surfaces.</Text>
-        </View>
-        <View style={styles.faqItem}>
-          <Text style={styles.faqQ}>Is Freeborn free?</Text>
-          <Text style={styles.faqA}>The current product lets members create a profile, discover people, like, match, and message without a paid plan.</Text>
-        </View>
+        <SectionHeader eyebrow="FAQ" title="Common questions" body="Tap a question to see the answer." />
+        {faqs.map((faq, i) => (
+          <FAQItem key={i} q={faq.q} a={faq.a} />
+        ))}
       </SurfaceCard>
 
       <SurfaceCard>
         <SectionHeader eyebrow="Feedback" title="Share your thoughts" body="Freeborn is shaped by its members. Your feedback helps us build a better experience." />
         <Text style={styles.feedbackHint}>Send feedback to support@freeborn.app and we'll read every message.</Text>
+      </SurfaceCard>
+
+      <SurfaceCard>
+        <SectionHeader eyebrow="Safety" title="Report a concern" body="If you experience harassment, abuse, or a safety issue, contact our support team directly." />
+        <Text style={styles.feedbackHint}>Reports are reviewed promptly and treated with care.</Text>
       </SurfaceCard>
     </DetailScreenShell>
   );
@@ -47,8 +59,11 @@ const styles = StyleSheet.create({
   contactIcon: { fontSize: 20, color: colors.gold300 },
   contactTitle: { color: colors.pearl, fontSize: 14, fontWeight: "800" },
   contactBody: { color: colors.mist, fontSize: 13, marginTop: 2 },
-  faqItem: { gap: 4, paddingVertical: 10, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.05)" },
-  faqQ: { color: colors.pearl, fontSize: 14, fontWeight: "800" },
-  faqA: { color: colors.mist, fontSize: 13, lineHeight: 20 },
+  faqItem: { gap: 6, paddingVertical: 12, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.05)" },
+  faqHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 8 },
+  faqQ: { color: colors.pearl, fontSize: 14, fontWeight: "800", flex: 1 },
+  faqChevron: { color: colors.gold300, fontSize: 18, fontWeight: "900", width: 24, textAlign: "center" },
+  faqChevronOpen: { color: colors.pearl },
+  faqA: { color: colors.mist, fontSize: 13, lineHeight: 20, marginTop: 4 },
   feedbackHint: { color: colors.mist, fontSize: 13, lineHeight: 20 },
 });

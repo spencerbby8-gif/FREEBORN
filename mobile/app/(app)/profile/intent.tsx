@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
-import { relationshipGoalOptions, type UserProfileRow } from "@freeborn/shared";
+import { StyleSheet, View } from "react-native";
+import { colors, relationshipGoalOptions, type UserProfileRow } from "@freeborn/shared";
 import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SaveActionBar } from "@/components/ui/save-action-bar";
 import { OptionCardRow } from "@/components/onboarding/option-card-row";
+import { DetailSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 
@@ -38,29 +39,31 @@ export default function IntentScreen() {
     setSaving(false);
   };
 
+  if (loading) {
+    return (
+      <DetailScreenShell title="Intent" subtitle="Your relationship direction">
+        <DetailSkeleton />
+      </DetailScreenShell>
+    );
+  }
+
   return (
     <DetailScreenShell title="Intent" subtitle="Your relationship direction">
-      {loading ? null : (
-        <>
-          <SurfaceCard>
-            <SectionHeader eyebrow="Relationship goals" title="What are you looking for?" body="Choose up to 3. This helps people understand your direction before deciding." />
-            <OptionCardRow
-              options={relationshipGoalOptions.map(o => ({ value: o.value, label: o.label, caption: o.caption }))}
-              value={goals}
-              onChange={setGoals}
-              max={3}
-            />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
-              {goals.length === 0 && <></>}
-            </ScrollView>
-          </SurfaceCard>
-          <SaveActionBar onSave={save} saving={saving} notice={notice} />
-        </>
-      )}
+      <SurfaceCard>
+        <SectionHeader eyebrow="Relationship goals" title="What are you looking for?" body="Choose up to 3. This helps people understand your direction before deciding." />
+        <OptionCardRow
+          options={relationshipGoalOptions.map(o => ({ value: o.value, label: o.label, caption: o.caption }))}
+          value={goals}
+          onChange={setGoals}
+          max={3}
+        />
+      </SurfaceCard>
+      <SaveActionBar onSave={save} saving={saving} notice={notice} />
     </DetailScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  chipScroll: { maxHeight: 0 },
+  loadingBox: { alignItems: "center", gap: 12, paddingVertical: 32 },
+  loadingText: { color: colors.mist, fontSize: 13, fontWeight: "700" },
 });

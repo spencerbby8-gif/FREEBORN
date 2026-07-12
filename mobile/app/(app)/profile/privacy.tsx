@@ -5,6 +5,7 @@ import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SaveActionBar } from "@/components/ui/save-action-bar";
+import { SettingsSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 
@@ -37,56 +38,62 @@ export default function PrivacyScreen() {
     setSaving(false);
   };
 
+  if (loading) {
+    return (
+      <DetailScreenShell title="Privacy & Visibility" subtitle="Control how people find you">
+        <SettingsSkeleton />
+      </DetailScreenShell>
+    );
+  }
+
   return (
     <DetailScreenShell title="Privacy & Visibility" subtitle="Control how people find you">
-      {loading ? null : (
-        <>
-          <SurfaceCard>
-            <SectionHeader eyebrow="Visibility" title="Discovery status" body="When visibility is off, your profile stops appearing in discovery while your account stays intact." />
-            <View style={styles.switchCard}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.switchTitle}>Visible in discovery</Text>
-                <Text style={styles.switchBody}>
-                  {discoverable ? "People who match your filters can see your public profile." : "Your profile is hidden. You can still browse and message existing matches."}
-                </Text>
-              </View>
-              <Switch
-                value={discoverable}
-                onValueChange={setDiscoverable}
-                trackColor={{ false: "rgba(255,255,255,0.12)", true: colors.gold500 }}
-                thumbColor={colors.pearl}
-              />
-            </View>
-          </SurfaceCard>
+      <SurfaceCard>
+        <SectionHeader eyebrow="Visibility" title="Discovery status" body="When visibility is off, your profile stops appearing in discovery while your account stays intact." />
+        <View style={styles.switchCard}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.switchTitle}>Visible in discovery</Text>
+            <Text style={styles.switchBody}>
+              {discoverable ? "People who match your filters can see your public profile." : "Your profile is hidden. You can still browse and message existing matches."}
+            </Text>
+          </View>
+          <Switch
+            value={discoverable}
+            onValueChange={setDiscoverable}
+            trackColor={{ false: "rgba(255,255,255,0.12)", true: colors.gold500 }}
+            thumbColor={colors.pearl}
+          />
+        </View>
+      </SurfaceCard>
 
-          <SurfaceCard>
-            <SectionHeader eyebrow="Privacy" title="What stays hidden" body="Freeborn keeps your private essentials out of public view." />
-            <View style={styles.privacyRow}>
-              <Text style={styles.privacyIcon}>✓</Text>
-              <Text style={styles.privacyLabel}>Email — never shown publicly</Text>
-            </View>
-            <View style={styles.privacyRow}>
-              <Text style={styles.privacyIcon}>✓</Text>
-              <Text style={styles.privacyLabel}>Full birth date — only used for age gating</Text>
-            </View>
-            <View style={styles.privacyRow}>
-              <Text style={styles.privacyIcon}>✓</Text>
-              <Text style={styles.privacyLabel}>Account provider details — never exposed</Text>
-            </View>
-            <View style={styles.privacyRow}>
-              <Text style={styles.privacyIcon}>✓</Text>
-              <Text style={styles.privacyLabel}>Last name — never shown publicly</Text>
-            </View>
-          </SurfaceCard>
+      <SurfaceCard>
+        <SectionHeader eyebrow="Privacy" title="What stays hidden" body="Freeborn keeps your private essentials out of public view." />
+        <View style={styles.privacyRow}>
+          <Text style={styles.privacyIcon}>✓</Text>
+          <Text style={styles.privacyLabel}>Email — never shown publicly</Text>
+        </View>
+        <View style={styles.privacyRow}>
+          <Text style={styles.privacyIcon}>✓</Text>
+          <Text style={styles.privacyLabel}>Full birth date — only used for age gating</Text>
+        </View>
+        <View style={styles.privacyRow}>
+          <Text style={styles.privacyIcon}>✓</Text>
+          <Text style={styles.privacyLabel}>Account provider details — never exposed</Text>
+        </View>
+        <View style={styles.privacyRow}>
+          <Text style={styles.privacyIcon}>✓</Text>
+          <Text style={styles.privacyLabel}>Last name — never shown publicly</Text>
+        </View>
+      </SurfaceCard>
 
-          <SaveActionBar onSave={save} saving={saving} notice={notice} label={discoverable ? "Stay visible" : "Go hidden"} />
-        </>
-      )}
+      <SaveActionBar onSave={save} saving={saving} notice={notice} label={discoverable ? "Stay visible" : "Go hidden"} />
     </DetailScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingBox: { alignItems: "center", gap: 12, paddingVertical: 32 },
+  loadingText: { color: colors.mist, fontSize: 13, fontWeight: "700" },
   switchCard: {
     flexDirection: "row",
     alignItems: "center",

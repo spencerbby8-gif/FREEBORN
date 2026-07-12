@@ -1,4 +1,3 @@
-import { type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radii } from "@freeborn/shared";
 
@@ -11,7 +10,14 @@ type EmptyStateProps = {
   safetyCue?: string;
 };
 
-export function EmptyState({ icon, title, body, action, secondaryAction, safetyCue }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  body,
+  action,
+  secondaryAction,
+  safetyCue,
+}: EmptyStateProps) {
   return (
     <View style={styles.container}>
       <View style={styles.iconCircle}>
@@ -20,12 +26,28 @@ export function EmptyState({ icon, title, body, action, secondaryAction, safetyC
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.body}>{body}</Text>
       {action && (
-        <Pressable onPress={action.onPress} style={styles.primaryBtn}>
+        <Pressable
+          onPress={action.onPress}
+          style={({ pressed }) => [
+            styles.primaryBtn,
+            pressed && styles.primaryBtnPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={action.label}
+        >
           <Text style={styles.primaryBtnLabel}>{action.label}</Text>
         </Pressable>
       )}
       {secondaryAction && (
-        <Pressable onPress={secondaryAction.onPress} style={styles.secondaryBtn}>
+        <Pressable
+          onPress={secondaryAction.onPress}
+          style={({ pressed }) => [
+            styles.secondaryBtn,
+            pressed && styles.secondaryBtnPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={secondaryAction.label}
+        >
           <Text style={styles.secondaryBtnLabel}>{secondaryAction.label}</Text>
         </Pressable>
       )}
@@ -78,11 +100,18 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 14,
     paddingHorizontal: 32,
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
     shadowColor: colors.ember500,
     shadowOpacity: 0.22,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
     elevation: 8,
+  },
+  primaryBtnPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.98 }],
   },
   primaryBtnLabel: {
     color: colors.ink,
@@ -97,6 +126,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.05)",
     paddingVertical: 13,
     paddingHorizontal: 28,
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secondaryBtnPressed: {
+    opacity: 0.88,
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
   secondaryBtnLabel: {
     color: colors.pearl,

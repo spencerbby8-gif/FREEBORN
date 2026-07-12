@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { lifestyleOptions, type UserProfileRow } from "@freeborn/shared";
+import { StyleSheet, View } from "react-native";
+import { colors, lifestyleOptions, type UserProfileRow } from "@freeborn/shared";
 import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SaveActionBar } from "@/components/ui/save-action-bar";
 import { ChipSelect } from "@/components/onboarding/chip-select";
+import { DetailSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 
@@ -37,23 +39,32 @@ export default function LifestyleScreen() {
     setSaving(false);
   };
 
+  if (loading) {
+    return (
+      <DetailScreenShell title="Lifestyle" subtitle="Daily rhythms and choices">
+        <DetailSkeleton />
+      </DetailScreenShell>
+    );
+  }
+
   return (
     <DetailScreenShell title="Lifestyle" subtitle="Daily rhythms and choices">
-      {loading ? null : (
-        <>
-          <SurfaceCard>
-            <SectionHeader eyebrow="Lifestyle" title="How you live" body="These details spark conversation, including wellness and daily rhythm. Choose up to 12." />
-            <ChipSelect
-              label="Lifestyle preferences"
-              options={lifestyleOptions as unknown as readonly string[]}
-              value={prefs}
-              onChange={setPrefs}
-              max={12}
-            />
-          </SurfaceCard>
-          <SaveActionBar onSave={save} saving={saving} notice={notice} />
-        </>
-      )}
+      <SurfaceCard>
+        <SectionHeader eyebrow="Lifestyle" title="How you live" body="These details spark conversation, including wellness and daily rhythm. Choose up to 12." />
+        <ChipSelect
+          label="Lifestyle preferences"
+          options={lifestyleOptions as unknown as readonly string[]}
+          value={prefs}
+          onChange={setPrefs}
+          max={12}
+        />
+      </SurfaceCard>
+      <SaveActionBar onSave={save} saving={saving} notice={notice} />
     </DetailScreenShell>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingBox: { alignItems: "center", gap: 12, paddingVertical: 32 },
+  loadingText: { color: colors.mist, fontSize: 13, fontWeight: "700" },
+});

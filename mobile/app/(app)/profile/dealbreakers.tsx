@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { dealBreakerOptions, type UserProfileRow } from "@freeborn/shared";
+import { StyleSheet, View } from "react-native";
+import { colors, dealBreakerOptions, type UserProfileRow } from "@freeborn/shared";
 import { DetailScreenShell } from "@/components/ui/detail-screen-shell";
 import { SurfaceCard } from "@/components/ui/surface-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SaveActionBar } from "@/components/ui/save-action-bar";
 import { ChipSelect } from "@/components/onboarding/chip-select";
+import { DetailSkeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 
@@ -37,24 +39,33 @@ export default function DealbreakersScreen() {
     setSaving(false);
   };
 
+  if (loading) {
+    return (
+      <DetailScreenShell title="Dealbreakers" subtitle="Your non-negotiables">
+        <DetailSkeleton />
+      </DetailScreenShell>
+    );
+  }
+
   return (
     <DetailScreenShell title="Dealbreakers" subtitle="Your non-negotiables">
-      {loading ? null : (
-        <>
-          <SurfaceCard>
-            <SectionHeader eyebrow="Dealbreakers" title="What you won't compromise on" body="Deal breakers keep discovery honest, including pressure around values or health choices. Choose up to 12." />
-            <ChipSelect
-              label="Dealbreakers"
-              options={dealBreakerOptions as unknown as readonly string[]}
-              value={dealBreakers}
-              onChange={setDealBreakers}
-              max={12}
-              optional
-            />
-          </SurfaceCard>
-          <SaveActionBar onSave={save} saving={saving} notice={notice} />
-        </>
-      )}
+      <SurfaceCard>
+        <SectionHeader eyebrow="Dealbreakers" title="What you won't compromise on" body="Deal breakers keep discovery honest, including pressure around values or health choices. Choose up to 12." />
+        <ChipSelect
+          label="Dealbreakers"
+          options={dealBreakerOptions as unknown as readonly string[]}
+          value={dealBreakers}
+          onChange={setDealBreakers}
+          max={12}
+          optional
+        />
+      </SurfaceCard>
+      <SaveActionBar onSave={save} saving={saving} notice={notice} />
     </DetailScreenShell>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingBox: { alignItems: "center", gap: 12, paddingVertical: 32 },
+  loadingText: { color: colors.mist, fontSize: 13, fontWeight: "700" },
+});

@@ -306,6 +306,29 @@ export const lifestyleOptions = [
   "Side projects",
 ] as const;
 
+export const valueOptions = [
+  "Medical freedom",
+  "Health autonomy",
+  "Informed consent",
+  "Natural health",
+  "Holistic wellness",
+  "Herbal remedies",
+  "Traditional food",
+  "Low-tox living",
+  "Family values",
+  "Faith",
+  "Personal sovereignty",
+  "Self-reliance",
+  "Community",
+  "Environmental stewardship",
+  "Regenerative agriculture",
+  "Homeschooling",
+  "Home birth",
+  "Breastfeeding advocacy",
+  "Nutritional freedom",
+  "Body autonomy",
+] as const;
+
 export const dealBreakerOptions = [
   "Health coercion",
   "Disrespect for medical freedom",

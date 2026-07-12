@@ -51,8 +51,6 @@ export default function ProfileHub() {
     return (
       <ScreenShell>
         <ProfileSkeleton />
-        <ProfileSkeleton />
-        <ProfileSkeleton />
       </ScreenShell>
     );
   }
@@ -62,11 +60,17 @@ export default function ProfileHub() {
       <ScreenShell>
         <SurfaceCard>
           <Text style={styles.emptyTitle}>Profile unavailable</Text>
-          <Text style={styles.emptyBody}>We could not load your profile. Go to Discover and try again.</Text>
+          <Text style={styles.emptyBody}>We could not load your profile.</Text>
+          <Pressable onPress={load} style={styles.retryBtn}>
+            <Text style={styles.retryBtnText}>Try again</Text>
+          </Pressable>
         </SurfaceCard>
       </ScreenShell>
     );
   }
+
+  const needsImprovement = strength < 70;
+  const editLabel = needsImprovement ? "Improve profile" : "Edit profile";
 
   return (
     <ScreenShell>
@@ -95,7 +99,7 @@ export default function ProfileHub() {
         <View style={styles.completionRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.completionLabel}>Profile strength</Text>
-            <Text style={styles.completionHint}>Fuller profiles give people a better reason to start specific.</Text>
+            <Text style={styles.completionHint}>{needsImprovement ? "Fuller profiles give people a better reason to start specific." : "Your profile looks strong."}</Text>
           </View>
           <Text style={styles.completionValue}>{strength}%</Text>
         </View>
@@ -111,15 +115,15 @@ export default function ProfileHub() {
 
       {/* Primary actions */}
       <View style={styles.primaryActions}>
-        <Pressable style={styles.primaryBtn} onPress={() => router.push("/(app)/profile/edit")}>
+        <Pressable style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]} onPress={() => router.push("/(app)/profile/edit")} accessibilityRole="button" accessibilityLabel={editLabel}>
           <Text style={styles.primaryBtnIcon}>✎</Text>
-          <Text style={styles.primaryBtnLabel}>Edit Profile</Text>
+          <Text style={styles.primaryBtnLabel}>{editLabel}</Text>
         </Pressable>
-        <Pressable style={styles.primaryBtn} onPress={() => router.push("/(app)/profile/preview")}>
+        <Pressable style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]} onPress={() => router.push("/(app)/profile/preview")} accessibilityRole="button" accessibilityLabel="Preview profile">
           <Text style={styles.primaryBtnIcon}>◉</Text>
           <Text style={styles.primaryBtnLabel}>Preview</Text>
         </Pressable>
-        <Pressable style={styles.primaryBtn} onPress={() => router.push("/(app)/profile/photos")}>
+        <Pressable style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]} onPress={() => router.push("/(app)/profile/photos")} accessibilityRole="button" accessibilityLabel="Manage photos">
           <Text style={styles.primaryBtnIcon}>▣</Text>
           <Text style={styles.primaryBtnLabel}>Photos</Text>
         </Pressable>
@@ -154,21 +158,9 @@ export default function ProfileHub() {
 
 const styles = StyleSheet.create({
   hero: { gap: 12 },
-  heroPhotoContainer: {
-    height: 200,
-    borderRadius: 28,
-    overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.04)",
-    position: "relative",
-  },
+  heroPhotoContainer: { height: 200, borderRadius: 28, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.04)", position: "relative" },
   heroPhoto: { width: "100%", height: "100%" },
-  heroInitialsBox: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.04)",
-  },
+  heroInitialsBox: { width: "100%", height: "100%", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.04)" },
   heroInitials: { color: colors.pearl, fontSize: 48, fontWeight: "900", letterSpacing: -2 },
   heroFade: { position: "absolute", left: 0, right: 0, bottom: 0, height: 130 },
   heroOverlay: { position: "absolute", left: 18, right: 18, bottom: 16, gap: 6 },
@@ -176,7 +168,6 @@ const styles = StyleSheet.create({
   heroAge: { color: "rgba(255,255,255,0.78)", fontSize: 20, fontWeight: "700" },
   heroLocation: { color: "rgba(255,255,255,0.70)", fontSize: 13, fontWeight: "700" },
   heroStatusRow: { flexDirection: "row", gap: 6, marginTop: 4 },
-
   statusPill: { flexDirection: "row", alignItems: "center", gap: 6, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(0,0,0,0.25)", paddingHorizontal: 9, paddingVertical: 5 },
   statusSuccess: { borderColor: "rgba(109,211,176,0.28)", backgroundColor: "rgba(109,211,176,0.10)" },
   statusGold: { borderColor: "rgba(246,215,154,0.24)", backgroundColor: "rgba(217,167,82,0.10)" },
@@ -186,32 +177,22 @@ const styles = StyleSheet.create({
   statusText: { color: colors.mist, fontSize: 9, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1 },
   statusTextSuccess: { color: colors.success },
   statusTextGold: { color: colors.gold300 },
-
   completionRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", gap: 16 },
   completionLabel: { color: colors.pearl, fontWeight: "800", fontSize: 14 },
   completionHint: { color: colors.mist, marginTop: 3, fontSize: 12, lineHeight: 18, maxWidth: 230 },
   completionValue: { color: colors.pearl, fontSize: 32, fontWeight: "900", letterSpacing: -1.6 },
   progressTrack: { height: 6, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden" },
   progressFill: { height: "100%", borderRadius: 999 },
-
   primaryActions: { flexDirection: "row", gap: 10 },
-  primaryBtn: {
-    flex: 1,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.10)",
-    backgroundColor: "rgba(255,255,255,0.04)",
-    paddingVertical: 14,
-    alignItems: "center",
-    gap: 6,
-  },
+  primaryBtn: { flex: 1, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.04)", paddingVertical: 14, alignItems: "center", gap: 6, minHeight: 54 },
+  primaryBtnPressed: { opacity: 0.85, backgroundColor: "rgba(255,255,255,0.08)" },
   primaryBtnIcon: { color: colors.gold300, fontSize: 18, fontWeight: "700" },
   primaryBtnLabel: { color: colors.pearl, fontSize: 12, fontWeight: "900", letterSpacing: 0.2 },
-
   navCards: { padding: 0 },
   navPadding: { paddingHorizontal: 18, paddingTop: 16, paddingBottom: 4 },
   navSectionEyebrow: { color: colors.sand, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 2.4 },
-
   emptyTitle: { color: colors.pearl, fontSize: 20, fontWeight: "900", textAlign: "center" },
   emptyBody: { color: colors.mist, fontSize: 14, lineHeight: 22, marginTop: 8, textAlign: "center" },
+  retryBtn: { marginTop: 16, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.05)", paddingVertical: 14, paddingHorizontal: 32, alignItems: "center" },
+  retryBtnText: { color: colors.pearl, fontSize: 14, fontWeight: "900" },
 });

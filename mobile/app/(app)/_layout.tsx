@@ -1,6 +1,5 @@
 import { Tabs } from "expo-router";
-import { View, Text, StyleSheet, Platform } from "react-native";
-import { BlurView } from "expo-blur";
+import { View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "@freeborn/shared";
 
@@ -71,11 +70,14 @@ export default function AppTabsLayout() {
           tabBarIcon: ({ focused }) => <TabIcon icon="◯" focused={focused} label="Profile" />,
         }}
       />
+      {/* Hidden screens — accessible via navigation but not shown in tab bar */}
       <Tabs.Screen
         name="onboarding"
-        options={{
-          href: null,
-        }}
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{ href: null }}
       />
     </Tabs>
   );

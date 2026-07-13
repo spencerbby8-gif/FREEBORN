@@ -11,6 +11,7 @@ alter table public.user_profiles
         'welcome',
         'identity',
         'location',
+        'intent',
         'relationship_intent',
         'lifestyle',
         'values',

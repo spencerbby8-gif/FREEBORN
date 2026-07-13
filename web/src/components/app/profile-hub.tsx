@@ -39,7 +39,7 @@ export function ProfileHub({ profile, photos, userEmail }: { profile: UserProfil
     { label: strength >= 80 ? "Edit Profile" : "Improve Profile", body: "Update your public story and essentials.", href: "/app/profile/about-me", icon: "edit", primary: true },
     { label: "Preview Profile", body: "See the Discover presentation others see.", href: "/app/profile/preview", icon: "preview" },
     { label: "Photos", body: "Manage cover, order, quality, and gallery.", href: "/app/profile/photos", icon: "photos" },
-    { label: "Verification", body: profile.is_verified ? "Your verification badge is active." : "Complete your trust signal.", href: "/app/profile/verification", icon: "verification" },
+    { label: "Verification", body: profile.identity_consistency_status === "mismatch_reverify_required" ? "We need to confirm your updated photos." : profile.identity_consistency_status === "periodic_reverification_due" ? "Please complete a quick selfie check." : profile.identity_consistency_status === "pending_photos" && !profile.is_verified ? "Please add a public photo before completing verification." : profile.is_verified ? "Your verification badge is active." : "Complete your trust signal.", href: "/app/profile/verification", icon: "verification" },
     { label: "Discovery Settings", body: "Tune age, distance, intent, and filters.", href: "/app/profile/privacy-visibility", icon: "discovery" },
     { label: "Privacy", body: "Control visibility and private account status.", href: "/app/profile/privacy-visibility", icon: "privacy" },
   ];
@@ -80,7 +80,7 @@ export function ProfileHub({ profile, photos, userEmail }: { profile: UserProfil
 
           <div className="min-w-0 text-center lg:text-left">
             <div className="flex flex-wrap items-center justify-center gap-2.5 lg:justify-start">
-              <StatusPill active={profile.is_verified} label={profile.is_verified ? "Verified" : "Not verified yet"} />
+              <StatusPill active={profile.is_verified} label={profile.identity_consistency_status === "mismatch_reverify_required" || profile.identity_consistency_status === "periodic_reverification_due" ? "Photo check needed" : profile.identity_consistency_status === "pending_photos" && !profile.is_verified ? "Public photo needed" : profile.is_verified ? "Verified" : "Not verified yet"} />
               <StatusPill active={profile.discoverable} label={profile.discoverable ? "Visible in discovery" : "Hidden from discovery"} />
               <StatusPill active={profile.profile_status === "active"} label={humanize(profile.profile_status || "draft")} />
             </div>
@@ -166,15 +166,28 @@ export function ProfileHub({ profile, photos, userEmail }: { profile: UserProfil
           </div>
 
           <div className="mt-8 border-t border-white/8 pt-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--color-ash)]">All profile sections</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--color-ash)]">Profile sections dashboard</p>
+              <span className="text-[11px] font-bold text-[var(--color-mist)]">{items.filter(i => i.done).length} of {items.length} sections completed</span>
+            </div>
+            <div className="mt-4 grid gap-3.5 sm:grid-cols-2">
               {items.map((item) => (
-                <Link key={item.id} href={item.href} className="rounded-2xl border border-white/8 bg-white/[0.02] p-4 transition hover:bg-white/[0.05]">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-black text-[var(--color-pearl)]">{item.label}</span>
-                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${item.done ? "bg-[var(--color-teal-500)]/10 text-[var(--color-teal-300)]" : "bg-[var(--color-gold-500)]/10 text-[var(--color-gold-300)]"}`}>{item.done ? "Done" : item.impact}</span>
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="group flex flex-col justify-between rounded-[26px] border border-white/10 bg-white/[0.025] p-5 transition-all hover:-translate-y-0.5 hover:border-[var(--color-gold-500)]/35 hover:bg-white/[0.06]"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-base font-black text-[var(--color-pearl)] group-hover:text-[var(--color-gold-300)] transition-colors">{item.label}</span>
+                      <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${item.done ? "border border-[var(--color-teal-500)]/30 bg-[var(--color-teal-500)]/15 text-[var(--color-teal-300)]" : "border border-[var(--color-gold-500)]/30 bg-[var(--color-gold-500)]/15 text-[var(--color-gold-300)]"}`}>{item.done ? "✓ Done" : item.impact}</span>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-[var(--color-mist)]">{item.detail}</p>
                   </div>
-                  <p className="mt-2 text-xs leading-5 text-[var(--color-mist)]">{item.detail}</p>
+                  <div className="mt-4 flex items-center justify-between border-t border-white/8 pt-3 text-[11px] font-black uppercase tracking-widest text-[var(--color-ash)] group-hover:text-[var(--color-pearl)]">
+                    <span>{item.done ? "Review or edit" : "Complete section"}</span>
+                    <span className="transition-transform group-hover:translate-x-1">→</span>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -185,7 +198,7 @@ export function ProfileHub({ profile, photos, userEmail }: { profile: UserProfil
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--color-sand)]">Trust ledger</p>
           <div className="mt-5 space-y-3">
             {[
-              [profile.is_verified ? "Verified badge active" : "Verification not complete", profile.is_verified ? "Shown only because verification is true." : "No public badge will be shown yet."],
+              [profile.identity_consistency_status === "mismatch_reverify_required" ? "Photo confirmation needed" : profile.identity_consistency_status === "periodic_reverification_due" ? "Periodic check due" : profile.identity_consistency_status === "pending_photos" && !profile.is_verified ? "Public photo needed" : profile.is_verified ? "Verified badge active" : "Verification not complete", profile.identity_consistency_status === "mismatch_reverify_required" ? "Your profile photos changed recently, so we need a quick fresh verification check." : profile.identity_consistency_status === "periodic_reverification_due" ? "Your periodic verification renewal check is due. Please complete a quick selfie check." : profile.identity_consistency_status === "pending_photos" && !profile.is_verified ? "Please add at least one public profile photo first before the public verified badge can appear." : profile.is_verified ? "Shown only because verification is true." : "No public badge will be shown yet."],
               [profile.discoverable ? "Visible in discovery" : "Hidden from discovery", profile.discoverable ? "Members can see your profile if filters match." : "You will not appear in discovery while hidden."],
               ["Private account details", "Email, full birth date, auth provider, and exact coordinates stay private."],
             ].map(([title, body]) => (

@@ -25,6 +25,7 @@ import {
   valueOptions,
   type PremiumOnboardingStep,
   type ProfilePhoto,
+  type UserProfileRow,
 } from "@freeborn/shared";
 import { uploadProfilePhoto, deleteProfilePhoto, reorderPhotos, setPrimaryPhoto } from "@/lib/photos/actions";
 import {
@@ -32,6 +33,7 @@ import {
   savePremiumOnboardingStep,
   type OnboardingActionResponse,
 } from "@/lib/onboarding/actions";
+import { VerificationFlow } from "@/components/app/verification-flow";
 import { ArrowIcon, BadgeIcon, CheckIcon, LockIcon, PinIcon, ShieldIcon, SparkIcon, XIcon } from "@/components/icons";
 import { ChipSelect } from "./chip-select";
 import { DateOfBirthField } from "./date-of-birth-field";
@@ -778,12 +780,14 @@ export function OnboardingFlow({
   initialPhotos,
   initialStepIndex,
   isVerified,
+  profile,
 }: {
   initialDraft: Draft;
   initialPhotos: ProfilePhoto[];
   initialStepIndex: number;
   maxStepIndex: number;
   isVerified: boolean;
+  profile?: UserProfileRow | null;
 }) {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(Math.min(Math.max(initialStepIndex, 0), TOTAL_STEPS - 1));
@@ -1120,16 +1124,46 @@ export function OnboardingFlow({
               ) : null}
 
               {step === "verification" ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className={`rounded-[30px] border p-6 ${isVerified ? "border-[var(--color-teal-500)]/30 bg-[var(--color-teal-500)]/10" : "border-[var(--color-gold-500)]/25 bg-[var(--color-gold-500)]/8"}`}>
-                    <BadgeIcon size={28} className={isVerified ? "text-[var(--color-teal-300)]" : "text-[var(--color-gold-300)]"} />
-                    <p className="mt-5 text-xl font-black text-[var(--color-pearl)]">{isVerified ? "Verified" : "Not verified yet"}</p>
-                    <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">{isVerified ? "Your profile may show a verified badge in discovery." : "No badge appears until verification is actually complete."}</p>
-                  </div>
-                  <div className="rounded-[30px] border border-white/10 bg-white/[0.025] p-6">
-                    <LockIcon size={28} className="text-[var(--color-gold-300)]" />
-                    <p className="mt-5 text-xl font-black text-[var(--color-pearl)]">Private by default</p>
-                    <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">Email, full birth date, auth provider details, and exact coordinates stay out of discovery and profile previews.</p>
+                <div className="space-y-6">
+                  <VerificationFlow
+                    profile={(profile ?? {
+                      id: "onboarding-user",
+                      email: "",
+                      display_name: draft.display_name || "New Member",
+                      birth_date: draft.birth_date,
+                      gender: draft.gender || "woman",
+                      city: draft.city,
+                      region: draft.region,
+                      country_code: draft.country_code,
+                      bio: draft.bio,
+                      relationship_goals: draft.relationship_goals,
+                      values: draft.values,
+                      interests: draft.interests,
+                      lifestyle_preferences: draft.lifestyle_preferences,
+                      deal_breakers: draft.deal_breakers,
+                      occupation: draft.occupation,
+                      education: draft.education,
+                      is_verified: isVerified,
+                      onboarding_stage: "profile_setup",
+                      profile_status: "draft",
+                      created_at: new Date().toISOString(),
+                      updated_at: new Date().toISOString(),
+                    }) as UserProfileRow}
+                    photos={photos}
+                    initialState={isVerified ? "approved" : "ready"}
+                    isOnboarding={true}
+                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-[30px] border border-white/10 bg-white/[0.025] p-6">
+                      <LockIcon size={28} className="text-[var(--color-gold-300)]" />
+                      <p className="mt-5 text-xl font-black text-[var(--color-pearl)]">Private by default</p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">Email, full birth date, auth provider details, and exact coordinates stay out of discovery and profile previews.</p>
+                    </div>
+                    <div className="rounded-[30px] border border-white/10 bg-white/[0.025] p-6">
+                      <ShieldIcon size={28} className="text-[var(--color-teal-300)]" />
+                      <p className="mt-5 text-xl font-black text-[var(--color-pearl)]">Verify Anytime</p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">You can complete or update your verification selfie right now or anytime from your Profile Hub.</p>
+                    </div>
                   </div>
                 </div>
               ) : null}

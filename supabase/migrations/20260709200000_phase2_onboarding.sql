@@ -36,7 +36,19 @@ alter table public.user_profiles
   add constraint user_profiles_onboarding_step_check
     check (
       onboarding_step in (
+        'welcome',
         'identity',
+        'location',
+        'intent',
+        'relationship_intent',
+        'lifestyle',
+        'values',
+        'interests',
+        'bio',
+        'photos',
+        'discovery_preferences',
+        'verification',
+        'finish',
         'about_you',
         'bio_goals',
         'interests_lifestyle',

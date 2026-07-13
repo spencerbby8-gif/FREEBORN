@@ -9,6 +9,7 @@ export type VerificationPose = {
   headDirection: "straight" | "left" | "right";
   requiresHandGesture: boolean;
   assetPath: string;
+  photoPath: string | null;
 };
 
 const poseDefinitions = [
@@ -45,6 +46,7 @@ function makePose(gender: VerificationPoseGender, index: number, definition: (ty
     headDirection,
     requiresHandGesture,
     assetPath: `/verification-poses/${gender}/${gender}-${String(index + 1).padStart(2, "0")}-${slug}.svg`,
+    photoPath: gender === "female" && index < 9 ? `/verification-poses/${gender}/${gender}-${String(index + 1).padStart(2, "0")}-${slug}.jpg` : null,
   };
 }
 
@@ -62,4 +64,50 @@ export function posesForGender(gender: VerificationPoseGender) {
 
 export function getVerificationPose(id: string) {
   return verificationPoses.find((pose) => pose.id === id) ?? null;
+}
+
+export const EXPRESSION_CUES = [
+  "Natural warm smile",
+  "Looking straight with a confident neutral expression",
+  "Soft gentle smile",
+  "Alert forward eyes and relaxed brow",
+  "Calm natural expression",
+] as const;
+
+export type VerificationChallenge = {
+  id: string;
+  challengeToken: string;
+  poseId: string;
+  pose: VerificationPose;
+  gesture: string;
+  headDirection: "straight" | "left" | "right";
+  expressionCue: string;
+  summary: string;
+  assignedAt: string;
+  expiresAt: string;
+};
+
+export function generateVerificationChallenge(pose: VerificationPose, challengeToken?: string): VerificationChallenge {
+  const token = challengeToken || `chal_${pose.id}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const expressionIndex = Math.abs(pose.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), Date.now())) % EXPRESSION_CUES.length;
+  const expressionCue = EXPRESSION_CUES[expressionIndex] ?? EXPRESSION_CUES[0];
+  const gesture = pose.requiresHandGesture ? pose.gesture : "none";
+  const headDirection = pose.headDirection;
+  const summary = `Pose: ${pose.title}. Hand gesture: ${gesture !== "none" ? gesture : "No hand gesture required"}. Head turn: ${headDirection}. Facial expression: ${expressionCue}.`;
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 15 * 60 * 1000);
+
+  return {
+    id: `vc_${pose.id}_${now.getTime()}`,
+    challengeToken: token,
+    poseId: pose.id,
+    pose,
+    gesture,
+    headDirection,
+    expressionCue,
+    summary,
+    assignedAt: now.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+  };
 }

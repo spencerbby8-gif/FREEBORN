@@ -277,6 +277,7 @@ type PremiumStep =
   | "welcome"
   | "identity"
   | "location"
+  | "intent"
   | "relationship_intent"
   | "lifestyle"
   | "values"
@@ -382,7 +383,7 @@ export async function savePremiumOnboardingStep(
     return { ok: true };
   }
 
-  if (step === "relationship_intent") {
+  if (step === "relationship_intent" || step === "intent") {
     const parsed = onboardingRelationshipGoalsSchema.safeParse(formData.getAll("relationship_goals").map(String));
     if (!parsed.success) return { ok: false, error: "Please review the highlighted fields.", fieldErrors: { relationship_goals: parsed.error.issues[0]?.message ?? "Choose at least one intent." } };
     const { error } = await supabase

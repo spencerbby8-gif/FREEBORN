@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 const stepOrder = [...premiumOnboardingStepOrder];
 
 function parseStep(value: string | null | undefined): PremiumOnboardingStep | null {
+  if (value === "intent") return "relationship_intent";
   if (value && (stepOrder as string[]).includes(value)) return value as PremiumOnboardingStep;
   return null;
 }
@@ -16,6 +17,8 @@ function mapSavedStep(value: string | null | undefined): PremiumOnboardingStep {
   const parsed = parseStep(value);
   if (parsed) return parsed;
   switch (value) {
+    case "intent":
+      return "relationship_intent";
     case "about_you":
       return "location";
     case "bio_goals":
@@ -120,6 +123,7 @@ export default async function OnboardingPage({
         initialStepIndex={initialStepIndex}
         maxStepIndex={maxStepIndex}
         isVerified={profile.is_verified}
+        profile={profile}
       />
     </OnboardingShell>
   );

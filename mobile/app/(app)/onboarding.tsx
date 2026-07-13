@@ -58,6 +58,7 @@ function normalizeMobileOnboardingStep(step?: string | null): OnboardingStep {
   switch (step) {
     case "location":
       return "about_you";
+    case "intent":
     case "relationship_intent":
     case "bio":
       return "bio_goals";

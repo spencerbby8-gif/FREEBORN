@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import type { ProfilePhoto, UserProfileRow } from "@freeborn/shared";
-import { requestVerification, submitVerificationSelfie, type SelfieVerificationState, type VerificationRequestState } from "@/lib/profile/actions";
-import { posesForGender, verificationGenderFromProfileGender, type VerificationPose } from "@/lib/verification/poses";
-import { ArrowIcon, BadgeIcon, CheckIcon, LockIcon, ShieldIcon, SparkIcon } from "@/components/icons";
+import { assignVerificationChallengeAction, requestVerification, submitVerificationSelfie, type SelfieVerificationState } from "@/lib/profile/actions";
+import { generateVerificationChallenge, posesForGender, verificationGenderFromProfileGender, type VerificationChallenge, type VerificationPose } from "@/lib/verification/poses";
+import { ArrowIcon, BadgeIcon, CameraIcon, CheckIcon, CloseIcon, LockIcon, ShieldIcon, SparkIcon } from "@/components/icons";
 import { initials, primaryPhoto, publicPhotoUrl } from "./profile-utils";
 
 type VerificationSurfaceState = "approved" | "pending" | "failed" | "ready";
@@ -77,118 +77,545 @@ function randomPose(poses: VerificationPose[], previousId?: string) {
   return pool[Math.floor(Math.random() * pool.length)] ?? poses[0];
 }
 
-function SelfieSubmitButton({ disabled }: { disabled: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      disabled={disabled || pending}
-      className="magic-button inline-flex h-[56px] w-full items-center justify-center rounded-2xl bg-[var(--gradient-ember-warm)] px-6 text-sm font-black text-white shadow-[var(--shadow-ember)] transition hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-    >
-      {pending ? "Reviewing selfie…" : "Verify selfie"}
-    </button>
-  );
-}
-
 function CheckRow({ label, value }: { label: string; value?: boolean }) {
   if (value === undefined) return null;
   return (
-    <div className={`rounded-2xl border p-3 ${value ? "border-[var(--color-teal-500)]/20 bg-[var(--color-teal-500)]/8" : "border-red-400/20 bg-red-500/[0.06]"}`}>
-      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]">
-        <span className={`flex h-5 w-5 items-center justify-center rounded-full ${value ? "bg-[var(--color-teal-500)]/15 text-[var(--color-teal-300)]" : "bg-red-400/10 text-red-100"}`}>{value ? "✓" : "!"}</span>
-        <span className={value ? "text-[var(--color-teal-300)]" : "text-red-100"}>{label}</span>
+    <div className={`rounded-2xl border p-3.5 transition-all ${value ? "border-[var(--color-teal-500)]/25 bg-[var(--color-teal-500)]/10" : "border-red-400/25 bg-red-500/[0.08]"}`}>
+      <div className="flex items-center gap-2.5 text-xs font-black uppercase tracking-[0.16em]">
+        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] ${value ? "bg-[var(--color-teal-500)]/20 text-[var(--color-teal-300)]" : "bg-red-400/20 text-red-200"}`}>{value ? "✓" : "!"}</span>
+        <span className={value ? "text-[var(--color-teal-300)]" : "text-red-200"}>{label}</span>
       </div>
     </div>
   );
 }
 
-function SelfieGuidance({ profile, approved }: { profile: UserProfileRow; approved: boolean }) {
+function SelfieGuidance({
+  profile,
+  approved,
+  isOnboarding,
+}: {
+  profile: UserProfileRow;
+  approved: boolean;
+  isOnboarding?: boolean;
+}) {
   const gender = verificationGenderFromProfileGender(profile.gender);
   const poses = useMemo(() => posesForGender(gender), [gender]);
   const [pose, setPose] = useState(() => randomPose(poses));
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [challenge, setChallenge] = useState<VerificationChallenge | null>(null);
+  const [challengeError, setChallengeError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"guide" | "camera" | "preview">("guide");
+  const [capturedFile, setCapturedFile] = useState<File | null>(null);
+  const [capturedPreviewUrl, setCapturedPreviewUrl] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
   const [state, action] = useActionState<SelfieVerificationState, FormData>(submitVerificationSelfie, null);
 
-  if (!pose) return null;
   const selfieApproved = state?.status === "approved" || approved;
   const checks = state?.checks ?? {};
+  const displayImage = pose?.photoPath ?? pose?.assetPath ?? "/freeborn-mark.svg";
+
+  useEffect(() => {
+    let active = true;
+    assignVerificationChallengeAction(pose?.id).then((res) => {
+      if (!active) return;
+      if (res.ok && res.challenge) {
+        setChallenge(res.challenge);
+        setChallengeError(null);
+        if (res.challenge.pose && res.challenge.pose.id !== pose?.id) {
+          setPose(res.challenge.pose);
+        }
+      } else if (pose) {
+        if (res.cooldownUntil) {
+          setChallengeError(res.error ?? "Temporary verification cooldown active.");
+        } else {
+          setChallenge(generateVerificationChallenge(pose));
+        }
+      }
+    }).catch(() => {
+      if (!active || !pose) return;
+      setChallenge(generateVerificationChallenge(pose));
+    });
+    return () => { active = false; };
+  }, [pose, pose?.id]);
+
+  useEffect(() => {
+    if (mode === "camera" && streamRef.current && videoRef.current && !videoRef.current.srcObject) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (capturedPreviewUrl) {
+        URL.revokeObjectURL(capturedPreviewUrl);
+      }
+    };
+  }, [capturedPreviewUrl]);
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    setCameraReady(false);
+  };
+
+  const startCamera = async () => {
+    setCameraError(null);
+    setCameraReady(false);
+    setMode("camera");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().catch(() => {});
+      }
+      setCameraReady(true);
+    } catch {
+      setCameraError("We couldn't open live video right inside your browser. Tap below to launch your device camera or select from your gallery.");
+    }
+  };
+
+  const captureLiveFrame = () => {
+    const video = videoRef.current;
+    if (!video || !streamRef.current) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 1280;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `live-selfie-${Date.now()}.jpg`, { type: "image/jpeg" });
+      stopCamera();
+      setCapturedFile(file);
+      setCapturedPreviewUrl(URL.createObjectURL(blob));
+      setMode("preview");
+    }, "image/jpeg", 0.92);
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    stopCamera();
+    setCapturedFile(file);
+    if (capturedPreviewUrl) URL.revokeObjectURL(capturedPreviewUrl);
+    setCapturedPreviewUrl(URL.createObjectURL(file));
+    setMode("preview");
+  };
+
+  const handleRetry = () => {
+    stopCamera();
+    const next = randomPose(poses, pose?.id) ?? pose;
+    if (next) {
+      setPose(next);
+      setChallenge(generateVerificationChallenge(next));
+    }
+    setCapturedFile(null);
+    if (capturedPreviewUrl) URL.revokeObjectURL(capturedPreviewUrl);
+    setCapturedPreviewUrl(null);
+    setCameraError(null);
+    setChallengeError(null);
+    setMode("guide");
+  };
+
+  const handleSubmit = (formData: FormData) => {
+    if (!pose) return;
+    if (capturedFile) {
+      formData.set("selfie", capturedFile);
+    }
+    formData.set("pose_id", pose.id);
+    if (challenge?.challengeToken) {
+      formData.set("challenge_token", challenge.challengeToken);
+    }
+    startTransition(() => {
+      action(formData);
+    });
+  };
+
+  if (!pose) return null;
 
   return (
-    <section className="luminous-card rounded-[40px] border border-white/10 bg-white/[0.02] p-5 shadow-[var(--shadow-card-lg)] sm:p-8">
-      <div className="grid gap-7 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-center">
-        <div className="rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_30%_0%,rgba(217,167,82,0.12),transparent_42%),rgba(255,255,255,0.025)] p-5">
-          <div className="relative mx-auto aspect-square max-w-[280px] overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.03]">
-            <img src={pose.assetPath} alt={`${pose.title} verification pose illustration`} className="h-full w-full object-contain p-3" />
+    <section className={`luminous-card rounded-[40px] border border-white/10 bg-[rgba(9,16,28,0.95)] p-5 shadow-[var(--shadow-card-lg)] sm:p-8 lg:p-10 ${isOnboarding ? "mx-auto max-w-[1040px]" : ""}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6 mb-8">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-500)]/25 bg-[var(--color-gold-500)]/10 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--color-gold-300)]">
+            <CameraIcon size={14} /> Live Camera Guided Verification
+          </span>
+          <h2 className="mt-3 font-[family-name:var(--font-display)] text-[clamp(1.75rem,4vw,2.8rem)] leading-[0.94] tracking-[-0.05em] text-[var(--color-pearl)]">
+            Verify with a guided live camera selfie.
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">
+            Follow the posing assistant below, open your camera, and take a fresh live selfie matching the pose.
+          </p>
+        </div>
+        {selfieApproved ? (
+          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-teal-500)]/30 bg-[var(--color-teal-500)]/15 px-4 py-2 text-xs font-black uppercase tracking-widest text-[var(--color-teal-300)]">
+            <BadgeIcon size={16} /> Trust Badge Active
+          </span>
+        ) : null}
+      </div>
+
+      {profile.identity_consistency_status === "mismatch_reverify_required" ? (
+        <div className="mb-8 rounded-[34px] border border-[var(--color-gold-500)]/35 bg-[var(--color-gold-500)]/10 p-6 sm:p-8 shadow-[0_20px_40px_-15px_rgba(217,167,82,0.25)]" role="status">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-500)]/30 bg-[var(--color-gold-500)]/20 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-[var(--color-gold-300)]">
+                ! Photo Confirmation Needed
+              </span>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-black text-[var(--color-pearl)]">
+                We need to confirm your updated photos.
+              </h3>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-mist)]">
+                Your profile photos changed enough that we need a quick fresh selfie check to confirm your identity and keep your public trust badge active.
+              </p>
+            </div>
           </div>
-          <div className="mt-5 text-center">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--color-sand)]">Your AI-assisted pose</p>
-            <h3 className="mt-2 text-2xl font-black text-[var(--color-pearl)]">{pose.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">{pose.instruction}</p>
+        </div>
+      ) : null}
+
+      {profile.identity_consistency_status === "pending_photos" && !profile.is_verified ? (
+        <div className="mb-8 rounded-[34px] border border-[var(--color-gold-500)]/35 bg-[var(--color-gold-500)]/10 p-6 sm:p-8 shadow-[0_20px_40px_-15px_rgba(217,167,82,0.25)]" role="status">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-500)]/30 bg-[var(--color-gold-500)]/20 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-[var(--color-gold-300)]">
+                ! Public Photo Needed
+              </span>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-black text-[var(--color-pearl)]">
+                Please add a public photo before completing verification.
+              </h3>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-mist)]">
+                Your verification selfie check is recorded safely. Please add at least one public profile photo so Freeborn can confirm consistency and activate your public trust badge.
+              </p>
+            </div>
+            <Link href="/app/profile/photos" className="magic-button inline-flex h-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--gradient-ember-warm)] px-6 text-xs font-black uppercase tracking-widest text-white shadow-[var(--shadow-ember)] transition hover:-translate-y-0.5">
+              Add Public Photo
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
+      {profile.identity_consistency_status === "periodic_reverification_due" && !profile.is_verified ? (
+        <div className="mb-8 rounded-[34px] border border-[var(--color-gold-500)]/35 bg-[var(--color-gold-500)]/10 p-6 sm:p-8 shadow-[0_20px_40px_-15px_rgba(217,167,82,0.25)]" role="status">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-500)]/30 bg-[var(--color-gold-500)]/20 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-[var(--color-gold-300)]">
+                ! Periodic Check Due
+              </span>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-black text-[var(--color-pearl)]">
+                Please complete a quick selfie check.
+              </h3>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-mist)]">
+                To keep Freeborn accounts secure and protect verified trust badges over time, your periodic verification check is now due. Please complete a quick selfie check below.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {state?.status === "cooldown" || challengeError ? (
+        <div className="mb-8 rounded-[34px] border border-[var(--color-gold-500)]/35 bg-[var(--color-gold-500)]/10 p-6 sm:p-8 shadow-[0_20px_40px_-15px_rgba(217,167,82,0.25)]" role="alert">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-500)]/30 bg-[var(--color-gold-500)]/20 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-[var(--color-gold-300)]">
+                ! Temporary Cooldown Active
+              </span>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-black text-[var(--color-pearl)]">
+                Verification attempts paused.
+              </h3>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-mist)]">
+                {state?.error ?? challengeError ?? "To keep accounts secure and protect against automated attempts, verification cooldown is active. Please wait 30 minutes before requesting a new challenge."}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {mode === "guide" && (
+        <div className="grid gap-8 lg:grid-cols-[400px_minmax(0,1fr)] lg:items-center">
+          <div className="rounded-[36px] border border-white/12 bg-[radial-gradient(circle_at_30%_0%,rgba(217,167,82,0.14),transparent_50%),rgba(255,255,255,0.03)] p-6 text-center shadow-inner">
+            <div className="relative mx-auto aspect-square max-w-[310px] overflow-hidden rounded-[30px] border border-white/12 bg-[var(--color-ink)] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.65)]">
+              <img src={displayImage} alt={`${pose.title} human style reference`} className="h-full w-full object-cover p-2" />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4">
+                <span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white backdrop-blur-md">
+                  Assistant Reference Guide
+                </span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--color-sand)]">Unique Assigned Challenge</p>
+              <h3 className="mt-2 text-2xl font-black text-[var(--color-pearl)]">{challenge?.pose.title ?? pose.title}</h3>
+              <div className="mt-4 space-y-2 rounded-2xl border border-white/10 bg-black/30 p-4 text-left text-xs leading-5 text-[var(--color-mist)]">
+                <p><strong className="text-[var(--color-pearl)]">1. Pose Guide:</strong> {challenge?.pose.instruction ?? pose.instruction}</p>
+                <p><strong className="text-[var(--color-pearl)]">2. Hand Gesture:</strong> {challenge?.gesture && challenge.gesture !== "none" ? challenge.gesture : "No hand gesture required"}</p>
+                <p><strong className="text-[var(--color-pearl)]">3. Head Turn:</strong> {challenge?.headDirection === "left" ? "Slightly Left" : challenge?.headDirection === "right" ? "Slightly Right" : "Straight Ahead"}</p>
+                <p><strong className="text-[var(--color-pearl)]">4. Facial Expression:</strong> {challenge?.expressionCue ?? "Confident neutral expression"}</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const nextPose = randomPose(poses, pose?.id) ?? pose;
+                  setPose(nextPose);
+                  setChallenge(generateVerificationChallenge(nextPose));
+                }}
+                className="mt-5 inline-flex h-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] px-5 text-xs font-black uppercase tracking-widest text-[var(--color-pearl)] transition hover:bg-white/[0.1] hover:border-white/20"
+              >
+                Show different pose guide
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="rounded-[32px] border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--color-sand)]">Primary Action</p>
+              <h3 className="mt-2 text-2xl font-black text-[var(--color-pearl)]">Open camera directly</h3>
+              <p className="mt-3 text-sm leading-7 text-[var(--color-mist)]">
+                The camera capture flow is Freeborn&apos;s primary trust signal because it confirms a fresh live selfie matching the assigned human reference pose right in the moment.
+              </p>
+
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={startCamera}
+                  disabled={selfieApproved || state?.status === "cooldown"}
+                  className="magic-button inline-flex h-[56px] w-full items-center justify-center gap-3 rounded-2xl bg-[var(--gradient-ember-warm)] px-7 text-base font-black text-white shadow-[var(--shadow-ember)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                  <CameraIcon size={20} /> Open Camera
+                </button>
+
+                <label className={`inline-flex h-[56px] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] px-6 text-sm font-bold text-[var(--color-pearl)] transition hover:bg-white/[0.08] sm:w-auto ${selfieApproved || state?.status === "cooldown" ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+                  <span>Or choose from gallery</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleFileSelect}
+                    className="sr-only"
+                    disabled={selfieApproved || state?.status === "cooldown"}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-[26px] border border-white/8 bg-white/[0.02] p-5">
+                <p className="text-xs font-black uppercase tracking-widest text-[var(--color-sand)]">What Gemini Checks</p>
+                <ul className="mt-3 space-y-2 text-xs leading-5 text-[var(--color-mist)]">
+                  <li className="flex items-center gap-2"><span className="text-[var(--color-teal-300)]">✓</span> Exactly one face visible</li>
+                  <li className="flex items-center gap-2"><span className="text-[var(--color-teal-300)]">✓</span> Clear eye &amp; face visibility</li>
+                  <li className="flex items-center gap-2"><span className="text-[var(--color-teal-300)]">✓</span> Good front lighting &amp; quality</li>
+                  <li className="flex items-center gap-2"><span className="text-[var(--color-teal-300)]">✓</span> Matches {pose.title} pose</li>
+                </ul>
+              </div>
+              <div className="rounded-[26px] border border-white/8 bg-white/[0.02] p-5">
+                <p className="text-xs font-black uppercase tracking-widest text-[var(--color-sand)]">Backend Decision Rule</p>
+                <p className="mt-3 text-xs leading-5 text-[var(--color-mist)]">
+                  Gemini evaluates the captured selfie only. Freeborn&apos;s backend policy engine is the final judge and alone updates your public <span className="font-bold text-[var(--color-pearl)]">is_verified</span> trust badge.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mode === "camera" && (
+        <div className="space-y-6">
+          <div className="relative mx-auto aspect-[4/3] w-full max-w-[820px] overflow-hidden rounded-[36px] border border-white/15 bg-black shadow-2xl">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="h-full w-full object-cover -scale-x-100"
+            />
+
+            <div className="absolute left-4 top-4 z-10 flex items-center gap-3 rounded-2xl border border-white/15 bg-black/75 p-3 backdrop-blur-md sm:left-6 sm:top-6">
+              <img src={displayImage} alt={pose.title} className="h-14 w-14 rounded-xl border border-white/12 object-cover" />
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--color-sand)]">Mirror this pose:</p>
+                <p className="text-sm font-black text-white">{pose.title}</p>
+                <p className="text-xs text-white/70 max-w-[200px] sm:max-w-[300px] truncate">{pose.instruction}</p>
+              </div>
+            </div>
+
+            {cameraReady && (
+              <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={captureLiveFrame}
+                  className="group relative flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white/20 backdrop-blur-md transition hover:scale-105 active:scale-95"
+                  aria-label="Snap live selfie"
+                >
+                  <span className="h-14 w-14 rounded-full bg-[var(--gradient-ember-warm)] shadow-[var(--shadow-ember)] transition group-hover:scale-105" />
+                </button>
+              </div>
+            )}
+
             <button
               type="button"
-              onClick={() => setPose((current) => randomPose(poses, current?.id) ?? current)}
-              className="mt-5 inline-flex h-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-5 text-xs font-black uppercase tracking-widest text-[var(--color-pearl)] transition hover:bg-white/[0.08]"
+              onClick={handleRetry}
+              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white transition hover:bg-black/80 sm:right-6 sm:top-6"
+              aria-label="Close camera"
             >
-              Show another pose
+              <CloseIcon size={18} />
             </button>
           </div>
-        </div>
 
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--color-sand)]">Selfie check</p>
-          <h2 className="mt-3 font-[family-name:var(--font-display)] text-[clamp(2rem,5vw,3.4rem)] leading-[0.94] tracking-[-0.05em] text-[var(--color-pearl)]">Match the illustration with a fresh selfie.</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-mist)]">Gemini privately checks that one clear face is visible, lighting is good, the requested pose matches, and the image appears to be a genuine selfie. Your verification selfie is stored in a private Supabase bucket and is never public.</p>
-
-          <form action={action} className="mt-7 space-y-5">
-            <input type="hidden" name="pose_id" value={pose.id} />
-            <label className="block cursor-pointer rounded-[30px] border-2 border-dashed border-white/12 bg-white/[0.025] p-6 text-center transition hover:border-[var(--color-gold-500)]/35 hover:bg-white/[0.04]">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-gold-500)]/10 text-[var(--color-gold-300)]"><BadgeIcon size={22} /></span>
-              <span className="mt-4 block text-base font-black text-[var(--color-pearl)]">{fileName ?? "Upload verification selfie"}</span>
-              <span className="mt-2 block text-sm leading-6 text-[var(--color-mist)]">JPG, PNG, or WebP. Use natural light, one face, and the pose shown.</span>
-              <input
-                type="file"
-                name="selfie"
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                onChange={(event) => setFileName(event.target.files?.[0]?.name ?? null)}
-                required
-              />
-            </label>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <SelfieSubmitButton disabled={selfieApproved || !fileName} />
-              <p className="text-xs leading-5 text-[var(--color-mist)]">The public badge updates only when the existing verified flag becomes true.</p>
+          {cameraError && (
+            <div className="rounded-[28px] border border-white/12 bg-white/[0.04] p-6 text-center">
+              <p className="text-base font-black text-amber-200">{cameraError}</p>
+              <div className="mt-5 flex flex-wrap justify-center gap-4">
+                <label className="magic-button inline-flex h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[var(--gradient-ember-warm)] px-6 text-sm font-black text-white shadow-[var(--shadow-ember)]">
+                  <CameraIcon size={18} /> Launch Device Camera
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    capture="user"
+                    onChange={handleFileSelect}
+                    className="sr-only"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  className="inline-flex h-[52px] items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] px-6 text-sm font-bold text-[var(--color-pearl)] transition hover:bg-white/[0.08]"
+                >
+                  Return to guide
+                </button>
+              </div>
             </div>
-          </form>
+          )}
+        </div>
+      )}
 
-          {state ? (
-            <div className={`mt-6 rounded-[30px] border p-5 ${state.status === "approved" ? "border-[var(--color-teal-500)]/25 bg-[var(--color-teal-500)]/8" : "border-red-400/25 bg-red-500/[0.06]"}`} role={state.status === "approved" ? "status" : "alert"}>
-              <p className="text-base font-black text-[var(--color-pearl)]">{state.status === "approved" ? "Selfie approved." : "Let’s try that again."}</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--color-mist)]">{state.summary ?? state.error ?? "Review the notes below, then retry with a clearer selfie."}</p>
-              {state.feedback?.length ? (
-                <ul className="mt-4 space-y-2 text-sm leading-6 text-[var(--color-mist)]">
-                  {state.feedback.map((item) => <li key={item} className="flex gap-2"><span className="text-[var(--color-gold-300)]">•</span>{item}</li>)}
-                </ul>
-              ) : null}
-              {state.checks ? (
-                <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  <CheckRow label="One face" value={checks.one_face} />
-                  <CheckRow label="Face visible" value={checks.face_clearly_visible} />
-                  <CheckRow label="Eyes visible" value={checks.eyes_visible} />
-                  <CheckRow label="Good lighting" value={checks.good_lighting} />
-                  <CheckRow label="Image quality" value={checks.good_image_quality} />
-                  <CheckRow label="Pose match" value={checks.pose_matches_illustration} />
-                  <CheckRow label="Hand gesture" value={checks.required_hand_gesture_exists} />
-                  <CheckRow label="Genuine selfie" value={checks.genuine_selfie} />
+      {mode === "preview" && (
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-[30px] border border-white/12 bg-black/40 p-4 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--color-sand)] mb-3">Target Pose Guide</p>
+                <div className="aspect-square w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+                  <img src={displayImage} alt={pose.title} className="h-full w-full object-cover p-2" />
                 </div>
-              ) : null}
+                <p className="mt-3 text-xs font-black text-[var(--color-pearl)]">{pose.title}</p>
+              </div>
+
+              <div className="rounded-[30px] border border-[var(--color-teal-500)]/30 bg-[var(--color-teal-500)]/5 p-4 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--color-teal-300)] mb-3">Your Live Selfie</p>
+                <div className="aspect-square w-full overflow-hidden rounded-2xl border border-white/15 bg-black">
+                  {capturedPreviewUrl ? (
+                    <img src={capturedPreviewUrl} alt="Captured verification selfie" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-xs text-white/40">No photo</div>
+                  )}
+                </div>
+                <p className="mt-3 text-xs font-black text-[var(--color-pearl)]">Ready for Gemini Check</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[32px] border border-white/10 bg-white/[0.025] p-6 sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--color-sand)]">Selfie Analysis</p>
+            <h3 className="mt-2 text-2xl font-black text-[var(--color-pearl)]">Compare and verify</h3>
+            <p className="mt-3 text-sm leading-7 text-[var(--color-mist)]">
+              Gemini will verify that your selfie shows one clear face with good lighting and matches the <span className="font-bold text-[var(--color-pearl)]">{pose.title}</span> pose.
+            </p>
+
+            <form action={handleSubmit} className="mt-7 space-y-5">
+              <input type="hidden" name="pose_id" value={pose.id} />
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="magic-button inline-flex h-[56px] w-full items-center justify-center gap-2 rounded-2xl bg-[var(--gradient-ember-warm)] px-6 text-sm font-black text-white shadow-[var(--shadow-ember)] transition hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                  {isPending ? "Analyzing live selfie…" : "Submit Selfie for Verification"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  disabled={isPending}
+                  className="inline-flex h-[56px] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] px-6 text-sm font-bold text-[var(--color-pearl)] transition hover:bg-white/[0.08] sm:w-auto"
+                >
+                  Retake Selfie
+                </button>
+              </div>
+              <p className="text-xs leading-5 text-[var(--color-mist)]">Only Freeborn&apos;s backend policy engine sets your public verified flag.</p>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {state ? (
+        <div className={`mt-8 rounded-[34px] border p-6 sm:p-8 transition-all ${state.status === "approved" ? "border-[var(--color-teal-500)]/30 bg-[var(--color-teal-500)]/10 shadow-[0_20px_40px_-15px_rgba(20,184,166,0.2)]" : "border-red-400/30 bg-red-500/[0.08] shadow-[0_20px_40px_-15px_rgba(239,68,68,0.2)]"}`} role={state.status === "approved" ? "status" : "alert"}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest ${state.status === "approved" ? "bg-[var(--color-teal-500)]/20 text-[var(--color-teal-300)]" : "bg-red-400/20 text-red-200"}`}>
+                {state.status === "approved" ? "✓ Verification Successful" : "! Verification Needs Refresh"}
+              </span>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-black text-[var(--color-pearl)]">
+                {state.status === "approved" ? "Trust badge activated." : "Let’s try that again with a fresh pose."}
+              </h3>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-[var(--color-mist)]">
+                {state.summary ?? state.error ?? "Please check the notes below, then try again with clear front lighting."}
+              </p>
+            </div>
+
+            {state.status !== "approved" && (
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="magic-button inline-flex h-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--gradient-ember-warm)] px-6 text-xs font-black uppercase tracking-widest text-white shadow-[var(--shadow-ember)] transition hover:-translate-y-0.5"
+              >
+                Retry with Fresh Pose
+              </button>
+            )}
+          </div>
+
+          {state.feedback?.length ? (
+            <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-5">
+              <p className="text-[11px] font-black uppercase tracking-widest text-[var(--color-sand)] mb-3">AI &amp; Backend Observations</p>
+              <ul className="space-y-2.5 text-sm leading-6 text-[var(--color-mist)]">
+                {state.feedback.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5">
+                    <span className="mt-1 text-[var(--color-gold-300)] font-bold">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <CheckRow label="Single face visible" value={checks.face_count_ok ?? checks.face_visible} />
+            <CheckRow label="Eyes clearly visible" value={checks.eyes_visible} />
+            <CheckRow label="Lighting &amp; Quality" value={checks.lighting_ok ?? checks.quality_ok} />
+            <CheckRow label="Pose &amp; Gesture Match" value={checks.pose_match_ok ?? checks.gesture_ok} />
+          </div>
         </div>
-      </div>
+      ) : null}
     </section>
   );
 }
 
-function StatusPanel({ state, localState }: { state: VerificationSurfaceState; localState: VerificationRequestState }) {
+function StatusPanel({ state, localState }: { state: VerificationSurfaceState; localState: { ok: boolean; status?: string; error?: string } | null }) {
   if (localState?.ok && localState.status === "sent") {
     return (
       <div className="rounded-[28px] border border-[var(--color-teal-500)]/25 bg-[var(--color-teal-500)]/8 p-5 text-sm leading-6 text-[var(--color-teal-300)]" role="status">
@@ -220,10 +647,12 @@ export function VerificationFlow({
   profile,
   photos,
   initialState,
+  isOnboarding,
 }: {
   profile: UserProfileRow;
   photos: ProfilePhoto[];
   initialState: VerificationSurfaceState;
+  isOnboarding?: boolean;
 }) {
   const [state, action] = useActionState(requestVerification, null);
   const effectiveState: VerificationSurfaceState = profile.is_verified ? "approved" : state?.ok && state.status === "sent" ? "pending" : initialState;
@@ -231,6 +660,14 @@ export function VerificationFlow({
   const cover = primaryPhoto(photos);
   const photoUrl = publicPhotoUrl(cover?.storage_path);
   const approved = effectiveState === "approved";
+
+  if (isOnboarding) {
+    return (
+      <div className="w-full space-y-8">
+        <SelfieGuidance profile={profile} approved={approved} isOnboarding={true} />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6">

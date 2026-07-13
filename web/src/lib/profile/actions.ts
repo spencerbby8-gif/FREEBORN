@@ -4,8 +4,11 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { getBaseUrl } from "@/lib/auth/url";
-import { getVerificationPose } from "@/lib/verification/poses";
-import { normalizeGeminiSelfieAnalysis, VerificationDecisionEngine } from "@/lib/verification/decision-engine";
+import { getVerificationPose, type VerificationChallenge } from "@/lib/verification/poses";
+import { normalizeGeminiSelfieAnalysis, VerificationDecisionEngine, type VerificationRiskSignals } from "@/lib/verification/decision-engine";
+import { OpenCVQualityService } from "@/lib/verification/opencv-quality-service";
+import { VerificationChallengeService } from "@/lib/verification/verification-challenge-service";
+import { TrustHistoryService } from "@/lib/verification/trust-history-service";
 import {
   onboardingBioSchema,
   onboardingBirthDateSchema,
@@ -40,12 +43,15 @@ export type VerificationRequestState = {
 
 export type SelfieVerificationState = {
   ok: boolean;
-  status?: "approved" | "failed" | "error";
+  status?: "approved" | "failed" | "error" | "cooldown";
   score?: number;
+  riskScore?: number;
   summary?: string;
   feedback?: string[];
   checks?: Record<string, boolean>;
   error?: string;
+  cooldownUntil?: string;
+  challenge?: VerificationChallenge;
 } | null;
 
 function mapFieldErrors(issues: Array<{ path: PropertyKey[]; message: string }>) {
@@ -106,13 +112,35 @@ export async function requestVerification(_prev: VerificationRequestState, _form
   return { ok: true, status: "sent" };
 }
 
+async function checkVerificationRateLimit(userId: string) {
+  return TrustHistoryService.checkRateLimit(userId);
+}
+
+export async function assignVerificationChallengeAction(poseId?: string): Promise<{
+  ok: boolean;
+  challenge?: VerificationChallenge;
+  error?: string;
+  cooldownUntil?: string;
+}> {
+  const { user } = await requireUser();
+  if (!user) return { ok: false, error: "Sign in required." };
+
+  const rateCheck = await TrustHistoryService.checkRateLimit(user.id);
+  if (!rateCheck.allowed) {
+    return { ok: false, error: rateCheck.error, cooldownUntil: rateCheck.cooldownUntil ?? undefined };
+  }
+
+  const res = await VerificationChallengeService.assignChallenge(user.id, poseId);
+  return res;
+}
+
 export async function submitVerificationSelfie(_prev: SelfieVerificationState, formData: FormData): Promise<SelfieVerificationState> {
   void _prev;
-  const poseId = String(formData.get("pose_id") ?? "");
+  const poseIdInput = String(formData.get("pose_id") ?? "");
+  const challengeToken = String(formData.get("challenge_token") ?? "").trim();
   const file = formData.get("selfie") as File | null;
-  const pose = getVerificationPose(poseId);
+  let pose = getVerificationPose(poseIdInput);
 
-  if (!pose) return { ok: false, status: "error", error: "Choose a verification pose and try again." };
   if (!file || file.size === 0) return { ok: false, status: "error", error: "Upload a clear selfie to continue." };
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
     return { ok: false, status: "error", error: "Use a JPG, PNG, or WebP selfie." };
@@ -123,6 +151,38 @@ export async function submitVerificationSelfie(_prev: SelfieVerificationState, f
 
   const { supabase, user } = await requireUser();
   if (!user) return { ok: false, status: "error", error: "Sign in required." };
+
+  const rateCheck = await checkVerificationRateLimit(user.id);
+  if (!rateCheck.allowed) {
+    return {
+      ok: false,
+      status: "cooldown",
+      error: rateCheck.error,
+      cooldownUntil: rateCheck.cooldownUntil ?? undefined,
+      feedback: [rateCheck.error ?? "Temporary cooldown active."],
+    };
+  }
+
+  let challenge: VerificationChallenge | undefined;
+  const isFreshTimestamp = true;
+  if (challengeToken) {
+    const tokenCheck = await VerificationChallengeService.verifyToken(user.id, challengeToken);
+    if (!tokenCheck.ok) {
+      return { ok: false, status: "error", error: tokenCheck.error };
+    }
+    challenge = tokenCheck.challenge;
+    if (challenge && pose && pose.id !== challenge.poseId) {
+      const overridePose = getVerificationPose(challenge.poseId);
+      if (overridePose) pose = overridePose;
+    }
+  } else if (!pose) {
+    return { ok: false, status: "error", error: "Choose a verification pose challenge and try again." };
+  }
+
+  if (!pose && challenge) {
+    pose = getVerificationPose(challenge.poseId) ?? null;
+  }
+  if (!pose) return { ok: false, status: "error", error: "Verification pose challenge could not be verified." };
 
   const ext = extensionForMime(file.type);
   const storagePath = `${user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
@@ -140,6 +200,7 @@ export async function submitVerificationSelfie(_prev: SelfieVerificationState, f
       storage_path: storagePath,
       pose_id: pose.id,
       pose_asset_path: pose.assetPath,
+      challenge_token: challenge?.challengeToken ?? null,
       status: "pending",
     })
     .select("id")
@@ -156,10 +217,62 @@ export async function submitVerificationSelfie(_prev: SelfieVerificationState, f
 
   try {
     const selfieBytes = Buffer.from(await file.arrayBuffer());
-    const assetPath = path.join(process.cwd(), "public", pose.assetPath.replace(/^\//, ""));
-    const illustrationSvg = await readFile(assetPath, "utf8");
+    const openCVResult = await OpenCVQualityService.evaluate(selfieBytes, file.type);
 
-    const prompt = `You are Freeborn's private selfie verification analyzer. You are NOT the final approval authority. Do not approve or reject the member. Return structured JSON only with analysis fields for the backend policy engine. Compare the uploaded selfie against the selected onboarding illustration. Selected pose: ${pose.title}. Instruction: ${pose.instruction}. Required hand gesture: ${pose.requiresHandGesture ? pose.gesture : "none"}. Required head direction: ${pose.headDirection}. Illustration SVG reference: ${illustrationSvg.slice(0, 12000)}. Return JSON only with these exact keys: face_count number, face_visible boolean, eyes_visible boolean, lighting_score number 0-1, image_quality_score number 0-1, pose_match_score number 0-1, gesture_detected boolean, head_direction_match boolean, confidence number 0-1, genuine_selfie boolean, recommendations string array. Do not include approved, rejected, pass, fail, status, or final_decision. Do not include markdown.`;
+    if (!openCVResult.ok && openCVResult.rejectEarly) {
+      await TrustHistoryService.recordAttempt(user.id, false, rateCheck.recentCount, rateCheck.totalFailed);
+      await supabase.from("verification_audit_logs").insert({
+        user_id: user.id,
+        attempt_id: checkRow?.id ?? null,
+        challenge_id: challenge?.id ?? pose.id,
+        challenge_assigned: challenge ?? { poseId: pose.id, title: pose.title },
+        gemini_analysis: {},
+        backend_decision: openCVResult.decision,
+        internal_risk_score: 45,
+        failure_reasons: openCVResult.feedback,
+        retry_count: rateCheck.totalFailed + 1,
+        in_cooldown: rateCheck.recentCount + 1 >= 5,
+        cooldown_until: rateCheck.recentCount + 1 >= 5 ? new Date(Date.now() + 30 * 60 * 1000).toISOString() : null,
+        metadata: { timestamp: new Date().toISOString(), storage_path: storagePath, opencv_metrics: openCVResult.metrics },
+      });
+
+      await supabase.from("verification_selfie_checks").update({
+        status: "failed",
+        score: 30,
+        risk_score: 45,
+        gemini_result: { opencv_metrics: openCVResult.metrics, decision: openCVResult.decision, rejectEarly: true },
+        feedback: openCVResult.feedback,
+      }).eq("id", checkRow?.id ?? "").eq("user_id", user.id);
+
+      revalidatePath("/app/profile/verification");
+      return {
+        ok: false,
+        status: "failed",
+        score: 30,
+        riskScore: 45,
+        summary: "We need a clearer selfie to continue.",
+        feedback: openCVResult.feedback,
+        checks: {
+          good_lighting: openCVResult.metrics.brightness_score >= 0.13 && openCVResult.metrics.brightness_score <= 0.92,
+          good_image_quality: openCVResult.metrics.blur_score >= 0.12 && openCVResult.metrics.resolution_ok,
+        },
+        challenge,
+      };
+    }
+
+    const assetPath = path.join(process.cwd(), "public", pose.assetPath.replace(/^\//, ""));
+    let illustrationSvg = "";
+    try {
+      illustrationSvg = await readFile(assetPath, "utf8");
+    } catch {
+      illustrationSvg = `Pose: ${pose.title}`;
+    }
+
+    const requiredGesture = challenge?.gesture ?? (pose.requiresHandGesture ? pose.gesture : "none");
+    const requiredHeadDirection = challenge?.headDirection ?? pose.headDirection;
+    const requiredExpression = challenge?.expressionCue ?? "natural expression";
+
+    const prompt = `You are Freeborn's private selfie verification analyzer. You are NOT the final approval authority. Do not approve or reject the member. Return structured JSON only with analysis fields for the backend policy engine. Compare the uploaded selfie against the assigned unique challenge. Assigned pose: ${pose.title}. Instruction: ${pose.instruction}. Required hand gesture: ${requiredGesture}. Required head direction: ${requiredHeadDirection}. Required facial expression cue: ${requiredExpression}. Illustration SVG reference: ${illustrationSvg.slice(0, 12000)}. Return JSON only with these exact keys: face_count number, face_visible boolean, eyes_visible boolean, lighting_score number 0-1, image_quality_score number 0-1, pose_match_score number 0-1, gesture_detected boolean, head_direction_match boolean, expression_match boolean, confidence number 0-1, genuine_selfie boolean, screenshot_indicators boolean, screen_photo_indicators boolean, edited_image_indicators boolean, recommendations string array. Do not include approved, rejected, pass, fail, status, or final_decision. Do not include markdown.`;
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: "POST",
@@ -184,37 +297,120 @@ export async function submitVerificationSelfie(_prev: SelfieVerificationState, f
     if (!text) throw new Error("Gemini returned no structured result.");
     const parsed = parseGeminiJson(text);
     const analysis = normalizeGeminiSelfieAnalysis(parsed);
-    const decision = VerificationDecisionEngine.evaluate(analysis, { pose });
+    const riskSignals: VerificationRiskSignals = {
+      retryHistoryCount: rateCheck.totalFailed,
+      recentAttemptCount: rateCheck.recentCount,
+      isFreshTimestamp,
+      hasScreenshotIndicators: analysis.screenshot_indicators,
+      hasMultipleFaces: analysis.face_count > 1,
+      hasScreenPhotoIndicators: analysis.screen_photo_indicators,
+      hasEditedImageFlags: analysis.edited_image_indicators,
+    };
+
+    const decision = VerificationDecisionEngine.evaluate("SELFIE", analysis, {
+      method: "SELFIE",
+      pose,
+      challenge,
+      riskSignals,
+      openCVResult,
+    });
+
     const approved = decision.decision === "APPROVED";
     const status = approved ? "approved" : "failed";
+
+    if (!approved) {
+      const newWindow = rateCheck.recentCount + 1;
+      const newTotal = rateCheck.totalFailed + 1;
+      const cooldownUntil = newWindow >= 5 ? new Date(Date.now() + 30 * 60 * 1000).toISOString() : null;
+      await supabase.from("verification_rate_limits").upsert({
+        user_id: user.id,
+        failed_attempts_window: newWindow,
+        total_failed_attempts: newTotal,
+        cooldown_until: cooldownUntil,
+        last_attempt_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    } else {
+      await supabase.from("verification_rate_limits").upsert({
+        user_id: user.id,
+        failed_attempts_window: 0,
+        total_failed_attempts: rateCheck.totalFailed,
+        cooldown_until: null,
+        last_attempt_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    await supabase.from("verification_audit_logs").insert({
+      user_id: user.id,
+      attempt_id: checkRow?.id ?? null,
+      challenge_id: challenge?.id ?? pose.id,
+      challenge_assigned: challenge ?? { poseId: pose.id, title: pose.title },
+      gemini_analysis: analysis,
+      backend_decision: decision.decision,
+      internal_risk_score: decision.riskScore,
+      failure_reasons: decision.failureReasons,
+      retry_count: rateCheck.totalFailed + (approved ? 0 : 1),
+      in_cooldown: !approved && rateCheck.recentCount + 1 >= 5,
+      cooldown_until: !approved && rateCheck.recentCount + 1 >= 5 ? new Date(Date.now() + 30 * 60 * 1000).toISOString() : null,
+      metadata: { timestamp: new Date().toISOString(), storage_path: storagePath },
+    });
 
     await supabase.from("verification_selfie_checks").update({
       status,
       score: decision.score,
-      gemini_result: { analysis, decision: decision.decision, thresholdsOwner: "VerificationDecisionEngine" },
+      risk_score: decision.riskScore,
+      gemini_result: { analysis, decision: decision.decision, thresholdsOwner: "VerificationDecisionEngine", riskScore: decision.riskScore },
       feedback: decision.userFeedback,
     }).eq("id", checkRow?.id ?? "").eq("user_id", user.id);
 
-    // Public verification status is updated only after the backend policy engine approves.
-    // Gemini remains an analyzer and never directly controls this public badge flag.
+    let finalApproved = approved;
+    let finalStatus: "approved" | "failed" | "error" | "cooldown" | undefined = approved ? "approved" : "failed";
+    let finalSummary = decision.summary;
+    let finalFeedback = decision.userFeedback;
+    let finalChecks = decision.checks;
+
     if (approved) {
-      await supabase.from("user_profiles").update({
-        is_verified: true,
-        verified_photo: true,
-        updated_at: new Date().toISOString(),
-      }).eq("id", user.id);
+      const { IdentityConsistencyService } = await import("@/lib/verification/identity-consistency");
+      const consistency = await IdentityConsistencyService.runConsistencyCheck(user.id, {
+        selfieCheckId: checkRow?.id ?? undefined,
+        selfieStoragePath: storagePath,
+      });
+
+      if (consistency.ok && consistency.result && consistency.result.decision === "REVERIFY_REQUIRED") {
+        finalApproved = false;
+        finalStatus = "failed";
+        finalSummary = "Your verification selfie must match your public profile photos.";
+        finalFeedback = consistency.result.userFeedback.length ? consistency.result.userFeedback : ["We need to confirm your updated photos. Please make sure your verification selfie matches the person shown in your public profile photos."];
+        finalChecks = { ...decision.checks, identity_consistency: false };
+
+        await supabase.from("verification_selfie_checks").update({
+          status: "failed",
+          feedback: finalFeedback,
+        }).eq("id", checkRow?.id ?? "");
+      } else if (consistency.ok && (!consistency.result || consistency.result.decision === "APPROVED")) {
+        await supabase.from("user_profiles").update({
+          is_verified: true,
+          verified_photo: true,
+          identity_consistency_status: consistency.result ? "approved" : "pending_photos",
+          last_consistency_checked_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }).eq("id", user.id);
+      }
     }
 
     revalidatePath("/app/profile/verification");
     revalidatePath("/app/profile");
     revalidatePath("/app");
     return {
-      ok: approved,
-      status,
+      ok: finalApproved,
+      status: finalStatus,
       score: decision.score,
-      summary: decision.summary,
-      feedback: decision.userFeedback,
-      checks: decision.checks,
+      riskScore: decision.riskScore,
+      summary: finalSummary,
+      feedback: finalFeedback,
+      checks: finalChecks,
+      challenge,
     };
   } catch {
     await supabase.from("verification_selfie_checks").update({

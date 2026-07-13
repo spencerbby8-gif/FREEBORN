@@ -27,6 +27,7 @@ export type OnboardingStep =
   | "welcome"
   | "identity"
   | "location"
+  | "intent"
   | "relationship_intent"
   | "lifestyle"
   | "values"
@@ -148,6 +149,8 @@ export type UserProfileRow = {
   education: string | null;
   onboarding_step: OnboardingStep;
   is_verified: boolean;
+  identity_consistency_status?: string;
+  last_consistency_checked_at?: string | null;
   created_at: string;
   updated_at: string;
   onboarding_completed_at: string | null;

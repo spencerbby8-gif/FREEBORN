@@ -309,12 +309,47 @@ async function requireUser() {
   return { supabase, user };
 }
 
+const VALID_ONBOARDING_STEPS = new Set([
+  "welcome",
+  "identity",
+  "location",
+  "intent",
+  "relationship_intent",
+  "lifestyle",
+  "values",
+  "interests",
+  "bio",
+  "photos",
+  "discovery_preferences",
+  "verification",
+  "finish",
+  "about_you",
+  "bio_goals",
+  "interests_lifestyle",
+  "preferences_extras",
+  "complete",
+]);
+
+function validateOnboardingStep(raw: string): PremiumStep {
+  const trimmed = raw.trim();
+  if (!trimmed || !VALID_ONBOARDING_STEPS.has(trimmed)) {
+    throw new Error(`Invalid onboarding step: "${raw}". Allowed: ${[...VALID_ONBOARDING_STEPS].join(", ")}`);
+  }
+  return trimmed as PremiumStep;
+}
+
 export async function savePremiumOnboardingStep(
   _: OnboardingActionResponse | null,
   formData: FormData,
 ): Promise<OnboardingActionResponse> {
-  const step = String(formData.get("step") ?? "") as PremiumStep;
-  const nextStep = String(formData.get("next_step") ?? step) as PremiumStep;
+  let step: PremiumStep;
+  let nextStep: PremiumStep;
+  try {
+    step = validateOnboardingStep(String(formData.get("step") ?? ""));
+    nextStep = validateOnboardingStep(String(formData.get("next_step") ?? String(formData.get("step") ?? "")));
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Invalid onboarding step." };
+  }
   const advance = String(formData.get("advance") ?? "false") === "true";
   const onboardingStep = advance ? nextStep : step;
 

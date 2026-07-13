@@ -1,7 +1,10 @@
-import { Tabs } from "expo-router";
-import { View, Text, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import { Tabs, router } from "expo-router";
+import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "@freeborn/shared";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 
 function TabIcon({ icon, focused, label }: { icon: string; focused: boolean; label: string }) {
   if (focused) {
@@ -30,60 +33,93 @@ function TabIcon({ icon, focused, label }: { icon: string; focused: boolean; lab
   );
 }
 
+function OnboardingGate({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function check() {
+      if (!user) return;
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("onboarding_stage")
+        .eq("id", user.id)
+        .maybeSingle<{ onboarding_stage: string }>();
+
+      if (cancelled) return;
+
+      if (profile?.onboarding_stage === "account_created") {
+        router.replace("/(app)/onboarding");
+      } else {
+        setChecking(false);
+      }
+    }
+    check();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  if (checking) {
+    return (
+      <View style={styles.gateLoader}>
+        <ActivityIndicator size="small" color={colors.gold300} />
+      </View>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 export default function AppTabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: colors.pearl,
-        tabBarInactiveTintColor: colors.mist,
-        tabBarLabelStyle: { display: "none" },
-        tabBarItemStyle: styles.tabItem,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Discover",
-          tabBarIcon: ({ focused }) => <TabIcon icon="✦" focused={focused} label="Discover" />,
+    <OnboardingGate>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: styles.tabBar,
+          tabBarActiveTintColor: colors.pearl,
+          tabBarInactiveTintColor: colors.mist,
+          tabBarLabelStyle: { display: "none" },
+          tabBarItemStyle: styles.tabItem,
         }}
-      />
-      <Tabs.Screen
-        name="likes"
-        options={{
-          title: "Likes",
-          tabBarIcon: ({ focused }) => <TabIcon icon="♥" focused={focused} label="Likes" />,
-        }}
-      />
-      <Tabs.Screen
-        name="matches"
-        options={{
-          title: "Matches",
-          tabBarIcon: ({ focused }) => <TabIcon icon="◈" focused={focused} label="Matches" />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ focused }) => <TabIcon icon="◯" focused={focused} label="Profile" />,
-        }}
-      />
-      {/* Hidden screens — accessible via navigation but not shown in tab bar */}
-      <Tabs.Screen
-        name="onboarding"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{ href: null }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Discover",
+            tabBarIcon: ({ focused }) => <TabIcon icon="✦" focused={focused} label="Discover" />,
+          }}
+        />
+        <Tabs.Screen
+          name="likes"
+          options={{
+            title: "Likes",
+            tabBarIcon: ({ focused }) => <TabIcon icon="♥" focused={focused} label="Likes" />,
+          }}
+        />
+        <Tabs.Screen
+          name="matches"
+          options={{
+            title: "Matches",
+            tabBarIcon: ({ focused }) => <TabIcon icon="◈" focused={focused} label="Matches" />,
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            tabBarIcon: ({ focused }) => <TabIcon icon="◯" focused={focused} label="Profile" />,
+          }}
+        />
+        <Tabs.Screen name="onboarding" options={{ href: null }} />
+        <Tabs.Screen name="settings" options={{ href: null }} />
+      </Tabs>
+    </OnboardingGate>
   );
 }
 
 const styles = StyleSheet.create({
+  gateLoader: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.night },
   tabBar: {
     position: "absolute",
     left: 16,
@@ -103,17 +139,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)",
   },
-  tabItem: {
-    borderRadius: 24,
-  },
-  activeContainer: {
-    alignItems: "center",
-    gap: 3,
-  },
-  inactiveContainer: {
-    alignItems: "center",
-    gap: 3,
-  },
+  tabItem: { borderRadius: 24 },
+  activeContainer: { alignItems: "center", gap: 3 },
+  inactiveContainer: { alignItems: "center", gap: 3 },
   activeIconBg: {
     width: 38,
     height: 28,
@@ -134,23 +162,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.04)",
   },
-  activeGlyph: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "900",
-  },
-  inactiveGlyph: {
-    color: colors.mist,
-    fontSize: 16,
-    fontWeight: "800",
-  },
-  tabLabel: {
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 0.6,
-    color: colors.mist,
-  },
-  tabLabelActive: {
-    color: colors.pearl,
-  },
+  activeGlyph: { color: "white", fontSize: 16, fontWeight: "900" },
+  inactiveGlyph: { color: colors.mist, fontSize: 16, fontWeight: "800" },
+  tabLabel: { fontSize: 9, fontWeight: "800", letterSpacing: 0.6, color: colors.mist },
+  tabLabelActive: { color: colors.pearl },
 });

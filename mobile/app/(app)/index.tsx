@@ -38,7 +38,6 @@ export default function DiscoverScreen() {
     setLoading(true);
     const { data: p } = await supabase.from("user_profiles").select("*").eq("id", user.id).maybeSingle<UserProfileRow>();
     setProfile(p ?? null);
-    if (p?.onboarding_stage === "account_created") { router.replace("/(app)/onboarding"); return; }
     const { data } = await supabase.rpc("discover_candidates", { p_user: user.id, p_limit: 24, p_offset: 0 });
     const cands = (data as DiscoveryCandidate[]) ?? [];
     setCandidates(cands);

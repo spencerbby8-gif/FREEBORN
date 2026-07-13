@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { genderOptions, onboardingFieldHints } from "@freeborn/shared";
 import { colors } from "@freeborn/shared";
@@ -11,14 +12,24 @@ type Props = StepProps & {
 };
 
 export function IdentityStep({ draft, errors, onUpdate, dobLabel, onShowDobPicker }: Props) {
+  const [localName, setLocalName] = useState(draft.display_name);
+
+  useEffect(() => {
+    setLocalName(draft.display_name);
+  }, [draft.display_name]);
+
   return (
     <>
       <OnboardingInput
         label="Display name"
-        value={draft.display_name}
+        value={localName}
         error={errors.display_name}
         placeholder="How should Freeborn introduce you?"
-        onChangeText={(v) => onUpdate("display_name", v)}
+        onChangeText={(v) => {
+          setLocalName(v);
+          onUpdate("display_name", v);
+        }}
+        onBlur={() => onUpdate("display_name", localName)}
         hint={onboardingFieldHints.display_name}
       />
       <View style={styles.field}>

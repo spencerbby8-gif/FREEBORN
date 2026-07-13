@@ -136,12 +136,12 @@ as $$
         then public.haversine_km(me.my_latitude, me.my_longitude, cpl.latitude, cpl.longitude)
         else null
       end as distance_km_from_me,
-      me.age_min,
-      me.age_max,
-      me.show_genders,
-      me.verified_only,
-      me.photos_required,
-      me.distance_km as max_distance_km
+      me.age_min as searcher_age_min,
+      me.age_max as searcher_age_max,
+      me.show_genders as searcher_show_genders,
+      me.verified_only as searcher_verified_only,
+      me.photos_required as searcher_photos_required,
+      me.distance_km as searcher_max_distance_km
     from public.user_profiles c
     cross join me
     left join public.user_private_locations cpl on cpl.user_id = c.id
@@ -169,11 +169,11 @@ as $$
     and c.profile_status = 'active'
     and c.discoverable = true
     and c.onboarding_stage in ('profile_setup','ready')
-    and (c.show_genders = '{}' or c.gender = any(c.show_genders))
-    and public.user_age(c.birth_date) between c.age_min and c.age_max
-    and (not c.verified_only or c.is_verified = true)
-    and (not c.photos_required or c.photo_count > 0)
-    and (c.distance_km_from_me is null or c.distance_km_from_me <= c.max_distance_km)
+    and (c.searcher_show_genders = '{}' or c.gender = any(c.searcher_show_genders))
+    and public.user_age(c.birth_date) between c.searcher_age_min and c.searcher_age_max
+    and (not c.searcher_verified_only or c.is_verified = true)
+    and (not c.searcher_photos_required or c.photo_count > 0)
+    and (c.distance_km_from_me is null or c.distance_km_from_me <= c.searcher_max_distance_km)
     and not exists (
       select 1 from public.user_swipes s
       where s.liker_id = p_user and s.liked_id = c.id and s.action in ('like','pass','superlike')

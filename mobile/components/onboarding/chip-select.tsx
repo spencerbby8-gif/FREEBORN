@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radii } from "@freeborn/shared";
 
 type ChipSelectProps = {
@@ -54,7 +54,7 @@ export function ChipSelect({
           ) : null}
         </View>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+      <View style={styles.chipGrid}>
         {options.map((option) => {
           const active = value.includes(option);
           return (
@@ -71,7 +71,7 @@ export function ChipSelect({
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
       {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
@@ -119,8 +119,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     textTransform: "uppercase",
   },
-  chipRow: {
+  chipGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     paddingVertical: 4,
   },

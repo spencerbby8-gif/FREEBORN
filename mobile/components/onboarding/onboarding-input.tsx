@@ -37,8 +37,14 @@ export function OnboardingInput({ label, error, hint, optional, style, ...props 
       <TextInput
         placeholderTextColor="rgba(154,161,184,0.42)"
         selectionColor={colors.gold300}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
+        onFocus={(e) => {
+          setFocused(true);
+          props.onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          props.onBlur?.(e);
+        }}
         style={[
           styles.input,
           { borderColor, backgroundColor: bgColor },

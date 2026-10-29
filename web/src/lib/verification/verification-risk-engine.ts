@@ -43,6 +43,20 @@ export class VerificationRiskEngine {
       riskScore += 75;
     }
 
+    /* Browser-consistency contradictions: context for a reviewer, capped, and deliberately added
+       to `riskWarnings` rather than `hardRiskFailures`. A VPN, a hotel network, an old iOS or a
+       language extension can each fire one of these; none of that is evidence about whether a real
+       person is who they claim to be, so none of it can block. The message text is a WARNING
+       string and the guard in scripts/browser-integrity.test.mjs asserts exactly that, by
+       scanning every hard-failure argument in this file. */
+    const integrityFactors = signals.browserIntegrityFactorCount ?? 0;
+    if (integrityFactors > 0) {
+      riskScore += Math.min(6, integrityFactors * 1);
+      riskWarnings.push(
+        `Browser self-report disagrees with the request headers: ${signals.browserIntegrityFactorKeys?.slice(0, 4).join(", ") || integrityFactors + " factors"}`
+      );
+    }
+
     const retries = signals.retryHistoryCount ?? 0;
     const recent = signals.recentAttemptCount ?? 0;
     riskScore += Math.min(30, retries * 5);

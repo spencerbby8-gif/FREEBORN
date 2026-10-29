@@ -130,15 +130,24 @@ function SelfieGuidance({
           setPose(res.challenge.pose);
         }
       } else if (pose) {
-        if (res.cooldownUntil) {
-          setChallengeError(res.error ?? "Temporary verification cooldown active.");
-        } else {
-          setChallenge(generateVerificationChallenge(pose));
-        }
+        /* DEFECT FIX. Both of these branches used to mint a challenge locally
+           (`generateVerificationChallenge(pose)`) whenever the server could not assign one, which
+           left the member holding a token no row existed for — and, in the older server code, a
+           submission with no token at all was graded against whatever pose the form carried. A
+           locally-generated challenge is not a control: it proves the client asked for one.
+           We now show the real state and let the member retry, and the server refuses an
+           unbound submission outright. */
+        setChallenge(null);
+        setChallengeError(
+          res.cooldownUntil
+            ? (res.error ?? "Temporary verification cooldown active.")
+            : "We could not start a verification challenge. Your selfie was not submitted — please try again."
+        );
       }
     }).catch(() => {
-      if (!active || !pose) return;
-      setChallenge(generateVerificationChallenge(pose));
+      if (!active) return;
+      setChallenge(null);
+      setChallengeError("We could not reach the verification service. Please try again in a moment.");
     });
     return () => { active = false; };
   }, [pose, pose?.id]);

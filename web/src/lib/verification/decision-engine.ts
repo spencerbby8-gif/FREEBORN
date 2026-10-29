@@ -29,6 +29,11 @@ export type VerificationDecision = "APPROVED" | "RETRY_REQUIRED" | "MANUAL_REVIE
 export type VerificationRiskSignals = {
   retryHistoryCount?: number;
   recentAttemptCount?: number;
+  /** Advisory only. Names/count of fired browser-consistency checks, from
+   *  web/src/lib/security/browser-integrity.ts. Counted into `riskWarnings` by the risk engine,
+   *  never into `hardRiskFailures`: no member is ever rejected because of these. */
+  browserIntegrityFactorCount?: number;
+  browserIntegrityFactorKeys?: string[];
   isFreshTimestamp?: boolean;
   hasScreenshotIndicators?: boolean;
   hasMultipleFaces?: boolean;

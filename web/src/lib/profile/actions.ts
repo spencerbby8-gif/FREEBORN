@@ -3,11 +3,18 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { getBaseUrl } from "@/lib/auth/url";
 import { getVerificationPose, type VerificationChallenge } from "@/lib/verification/poses";
 import { normalizeGeminiSelfieAnalysis, VerificationDecisionEngine, type VerificationRiskSignals } from "@/lib/verification/decision-engine";
 import { OpenCVQualityService } from "@/lib/verification/opencv-quality-service";
 import { VerificationChallengeService } from "@/lib/verification/verification-challenge-service";
+import {
+  evaluateIntegrity,
+  persistableDetail,
+  riskSignals as integrityRiskSignals,
+  type BrowserObservations,
+} from "@/lib/security/browser-integrity";
 import { TrustHistoryService } from "@/lib/verification/trust-history-service";
 import {
   onboardingBioSchema,
@@ -134,6 +141,11 @@ export async function assignVerificationChallengeAction(poseId?: string): Promis
   return res;
 }
 
+/** A capture older than this was not made for this challenge. Deliberately generous: the
+ *  window bounds the *challenge*, which the server already expires, so this only catches a
+ *  stale replay rather than a slow member on a bad connection. */
+const FRESH_CAPTURE_WINDOW_MS = 15 * 60 * 1000;
+
 export async function submitVerificationSelfie(_prev: SelfieVerificationState, formData: FormData): Promise<SelfieVerificationState> {
   void _prev;
   const poseIdInput = String(formData.get("pose_id") ?? "");
@@ -163,20 +175,78 @@ export async function submitVerificationSelfie(_prev: SelfieVerificationState, f
     };
   }
 
+  /* BROWSER INTEGRITY — advisory context, never a gate, and no new data retained. The client
+     reports four coarse values; the server compares them against the headers its own edge
+     received, which the caller cannot forge in isolation. Checks fire on contradictions only
+     (rarity is not suspiciousness) and a missing header yields no opinion rather than a
+     suspicion. Recorded for EVERY attempt, clean ones included, so "we looked and found
+     nothing" is distinguishable from "nobody ever looked". Only rule names are stored.
+     Wrapped in a catch because a signal that must never cause anything must also never block. */
+  let integrity: ReturnType<typeof evaluateIntegrity> = { fired: [], count: 0, advisory: true };
+  try {
+    const rawObservations = String(formData.get("browser") ?? "");
+    const observations = (rawObservations ? JSON.parse(rawObservations) : {}) as BrowserObservations;
+    const requestHeaders = await headers();
+    integrity = evaluateIntegrity(observations, {
+      acceptLanguage: requestHeaders.get("accept-language"),
+      userAgent: requestHeaders.get("user-agent"),
+      secChUaPlatform: requestHeaders.get("sec-ch-ua-platform"),
+      secChUa: requestHeaders.get("sec-ch-ua"),
+    });
+    await supabase
+      .from("freeborn_security_events")
+      .insert({
+        user_id: user.id,
+        kind: "browser-integrity-contradiction",
+        detail: persistableDetail(integrity),
+      });
+  } catch {
+    /* An unavailable ledger, an unparseable self-report or a missing header must not cost a
+       member their verification. The attempt simply carries no integrity context. */
+    integrity = { fired: [], count: 0, advisory: true };
+  }
+
   let challenge: VerificationChallenge | undefined;
-  const isFreshTimestamp = true;
+  /* `undefined` means "no opinion", which the risk engine treats as not-failed. The previous
+     value here was the literal `true`, permanently. */
+  let isFreshTimestamp: boolean | undefined;
   if (challengeToken) {
     const tokenCheck = await VerificationChallengeService.verifyToken(user.id, challengeToken);
     if (!tokenCheck.ok) {
       return { ok: false, status: "error", error: tokenCheck.error };
     }
     challenge = tokenCheck.challenge;
-    if (challenge && pose && pose.id !== challenge.poseId) {
-      const overridePose = getVerificationPose(challenge.poseId);
-      if (overridePose) pose = overridePose;
+    /* DEFECT FIX (this signal was wired to a constant). `isFreshTimestamp` was hard-coded true, so
+       the risk engine's expired-window branch and its +35 could never fire — a control that read as
+       enforced while being structurally dead. It now uses the server-stored row times; when the row
+       carries no timestamps we record no opinion (undefined) rather than defaulting to "fresh",
+       because a guess in the permissive direction is worse than silence. */
+    if (tokenCheck.assignedAt || tokenCheck.expiresAt) {
+      const issuedMs = tokenCheck.assignedAt ? Date.parse(tokenCheck.assignedAt) : Number.NaN;
+      isFreshTimestamp = Number.isFinite(issuedMs) ? Date.now() - issuedMs <= FRESH_CAPTURE_WINDOW_MS : undefined;
     }
-  } else if (!pose) {
-    return { ok: false, status: "error", error: "Choose a verification pose challenge and try again." };
+    /* DEFECT FIX (a pose the client invented could be accepted). The graded pose was the client's
+       `pose_id`, only *nudged* by the server's assignment when the two disagreed AND the server
+       recognised that id. If the assigned id was ever absent from the library, the client's own
+       pose silently won. The server's assignment is now authoritative: unresolvable means refused,
+       never "fall back to whatever the form carried". */
+    if (challenge) {
+      const serverPose = getVerificationPose(challenge.poseId);
+      if (!serverPose) {
+        return {
+          ok: false,
+          status: "error",
+          error: "That verification challenge is no longer available. Please request a new one.",
+        };
+      }
+      pose = serverPose;
+    }
+  } else {
+    return {
+      ok: false,
+      status: "error",
+      error: "Request a verification challenge first, then take the selfie it asks for.",
+    };
   }
 
   if (!pose && challenge) {
@@ -305,6 +375,9 @@ export async function submitVerificationSelfie(_prev: SelfieVerificationState, f
       hasMultipleFaces: analysis.face_count > 1,
       hasScreenPhotoIndicators: analysis.screen_photo_indicators,
       hasEditedImageFlags: analysis.edited_image_indicators,
+      /* Advisory only, and the risk engine routes it to `riskWarnings`, never to a hard failure:
+         these factors can raise a reviewer's attention, not refuse a member. */
+      ...integrityRiskSignals(integrity),
     };
 
     const decision = VerificationDecisionEngine.evaluate("SELFIE", analysis, {

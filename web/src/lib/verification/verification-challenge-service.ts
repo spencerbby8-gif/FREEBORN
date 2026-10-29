@@ -31,7 +31,20 @@ export class VerificationChallengeService {
     return { ok: true, challenge };
   }
 
-  static async verifyToken(userId: string, challengeToken: string): Promise<{ ok: boolean; challenge?: VerificationChallenge; error?: string }> {
+  static async verifyToken(
+    userId: string,
+    challengeToken: string
+  ): Promise<{
+    ok: boolean;
+    challenge?: VerificationChallenge;
+    error?: string;
+    /** Server-stored row times, exposed so the caller can judge capture freshness itself.
+     *  `assignedAt` is the row's `created_at` (set by the database, not the client) and
+     *  `expiresAt` the row's expiry. Both are optional because a client-minted challenge, which
+     *  never reaches this table, has neither — and "unknown" must not silently become "fresh". */
+    assignedAt?: string;
+    expiresAt?: string;
+  }> {
     const supabase = await createSupabaseServerClient();
     const { data: chalRow } = await supabase
       .from("verification_challenges")

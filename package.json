@@ -15,7 +15,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "check:mobile": "npm run check --workspace @freeborn/mobile",
-    "verify": "npm run lint && npm run typecheck && npm run build && npm run build:mobile:web && npm run check:mobile",
+    "test:integrity": "node --experimental-strip-types scripts/browser-integrity.test.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run test:integrity && npm run build && npm run build:mobile:web && npm run check:mobile",
     "build:mobile:web": "npm run build:web --workspace @freeborn/mobile"
   }
 }
